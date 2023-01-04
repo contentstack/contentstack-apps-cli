@@ -1,10 +1,19 @@
 # Logs
 logs
 *.log
+*-debug.log
+*-error.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+
+# CLI files
+/.nyc_output
+/dist
+/lib
+/tmp
+oclif.manifest.json
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
