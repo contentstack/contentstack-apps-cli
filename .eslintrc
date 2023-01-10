@@ -1,8 +1,17 @@
 {
   "rules": {
+    "arrow-parens": "off",
+    "object-curly-spacing": "off",
+    "comma-dangle": "off",
     "unicorn/no-abusive-eslint-disable": "off",
     "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/ban-ts-ignore": "off"
   },
   "parser": "babel-eslint"
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "plugins": ["@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+  "root": true
 }
