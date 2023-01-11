@@ -1,5 +1,4 @@
 {
-  "extends": ["oclif", "oclif-typescript"],
   "rules": {
     "arrow-parens": "off",
     "object-curly-spacing": "off",

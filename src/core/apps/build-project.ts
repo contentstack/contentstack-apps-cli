@@ -1,12 +1,12 @@
 import axios from 'axios'
+import * as tmp from 'tmp'
 import { createWriteStream } from 'node:fs'
 import ContentstackError from '../contentstack/error'
 
-export async function downloadProject(
-  projectUrl: string,
-  filePath: string
-): Promise<ContentstackError | undefined> {
+export async function downloadProject(projectUrl: string): Promise<any> {
   try {
+    const fileDetails = tmp.fileSync()
+    const filePath = fileDetails.name
     const writer = createWriteStream(filePath)
     const response = await axios.get(projectUrl, {
       method: 'GET',
@@ -15,7 +15,9 @@ export async function downloadProject(
     response.data.pipe(writer)
 
     return new Promise((resolve, reject) => {
-      writer.on('finish', resolve)
+      writer.on('finish', function () {
+        resolve(filePath)
+      })
       writer.on('error', reject)
     })
   } catch (error: any) {

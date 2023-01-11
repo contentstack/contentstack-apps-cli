@@ -7,7 +7,11 @@ import { downloadProject } from '../../core/apps/build-project'
 import { createFile, readFile, unzipFile } from '../../core/apps/fs-utils'
 import Command from '../../core/command'
 import { APP_TEMPLATE_GITHUB_URL } from '../../core/constants'
-import { APP_TYPE } from '../../typings/app'
+import { AppManifest, AppManifestWithUiLocation, AppType } from '../../typings'
+import {
+  deriveAppManifestFromSDKResponse,
+  getOrgAppUiLocation,
+} from '../../core/apps/app-utils'
 
 interface CreateCommandArgs {
   appName: string
@@ -50,32 +54,36 @@ export default class Create extends Command {
       const { flags, args } = this.parse(Create)
       const { appName } = args as CreateCommandArgs
       const orgUid = flags.org
-      const appType = flags['app-type'] as APP_TYPE
-      this.setup()
+      const appType = flags['app-type'] as AppType
+      this.setup(orgUid)
       CliUx.ux.action.start('Fetching the app template')
-      const filePath = require('os').homedir() + '/Downloads/app.zip' // Todo: Change to tmp url
-      const targetPath = require('os').homedir() + '/Downloads/' // Todo: Change to current working dir
+      const targetPath = process.cwd()
 
-      await downloadProject(APP_TEMPLATE_GITHUB_URL, filePath)
+      const filePath = await downloadProject(APP_TEMPLATE_GITHUB_URL)
       unzipFile(filePath, targetPath)
       const manifestData = await readFile(
         path.join(__dirname, '../../core/apps/manifest.json')
       )
-      const manifestObject = JSON.parse(manifestData)
+      const manifestObject: AppManifestWithUiLocation = JSON.parse(manifestData)
       manifestObject.name = appName
       manifestObject.target_type = appType
-
-      this.log(manifestObject)
-
+      if (appType === AppType.ORGANIZATION) {
+        manifestObject.ui_location.locations = getOrgAppUiLocation()
+      }
+      CliUx.ux.action.stop()
+      CliUx.ux.action.start('Registering the app')
+      const clientResponse: any = await this.client.createApp(
+        manifestObject as AppManifest
+      )
+      const appManifest = deriveAppManifestFromSDKResponse(clientResponse)
       await createFile(
         path.join(
           targetPath,
           'marketplace-app-boilerplate-main',
           'app-manifest.json'
         ),
-        JSON.stringify(manifestObject)
+        JSON.stringify(appManifest)
       )
-
       CliUx.ux.action.stop()
     } catch (error: any) {
       this.error(error)
