@@ -23,5 +23,3 @@ export async function downloadProject(
     throw new ContentstackError(error.message, 401)
   }
 }
-
-export function runCommand(path: string, command: string): void {}
