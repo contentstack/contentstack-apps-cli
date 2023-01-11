@@ -25,6 +25,7 @@
     "@oclif/plugin-plugins": "^2.1.9",
     "adm-zip": "^0.5.10",
     "axios": "^1.2.2",
+    "shelljs": "^0.8.5",
     "tmp": "^0.2.1"
   },
   "devDependencies": {
@@ -33,6 +34,7 @@
     "@types/chai": "^4",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.18.11",
+    "@types/shelljs": "^0.8.11",
     "@types/tmp": "^0.2.3",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",

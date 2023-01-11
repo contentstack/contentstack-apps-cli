@@ -1,6 +1,8 @@
 import axios from 'axios'
+import * as shell from 'shelljs'
 import * as tmp from 'tmp'
 import { createWriteStream } from 'node:fs'
+
 import ContentstackError from '../contentstack/error'
 
 export async function downloadProject(projectUrl: string): Promise<any> {
@@ -23,5 +25,18 @@ export async function downloadProject(projectUrl: string): Promise<any> {
   } catch (error: any) {
     // Add an error code to identify failure
     throw new ContentstackError(error.message, 401)
+  }
+}
+
+export async function installDependencies(filePath: string) {
+  shell.cd(filePath)
+  if (shell.which('npm')) {
+    // ? Install Deps using npm
+    shell.exec('npm i', { silent: true })
+  } else if (shell.which('yarn')) {
+    // ? Install Deps using yarn
+    shell.exec('yarn install', { silent: true })
+  } else {
+    throw new ContentstackError('No package managers found, exiting', 400)
   }
 }

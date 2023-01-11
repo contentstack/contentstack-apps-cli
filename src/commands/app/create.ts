@@ -3,7 +3,10 @@ import * as path from 'path'
 
 import { flags } from '@contentstack/cli-command'
 
-import { downloadProject } from '../../core/apps/build-project'
+import {
+  downloadProject,
+  installDependencies,
+} from '../../core/apps/build-project'
 import { createFile, readFile, unzipFile } from '../../core/apps/fs-utils'
 import Command from '../../core/command'
 import { APP_TEMPLATE_GITHUB_URL } from '../../core/constants'
@@ -56,6 +59,7 @@ export default class Create extends Command {
       const orgUid = flags.org
       const appType = flags['app-type'] as AppType
       this.setup(orgUid)
+      CliUx.ux.action.type = 'spinner'
       CliUx.ux.action.start('Fetching the app template')
       const targetPath = process.cwd()
 
@@ -83,6 +87,11 @@ export default class Create extends Command {
           'app-manifest.json'
         ),
         JSON.stringify(appManifest)
+      )
+      CliUx.ux.action.stop()
+      CliUx.ux.action.start('Installing dependencies')
+      installDependencies(
+        path.join(targetPath, 'marketplace-app-boilerplate-main')
       )
       CliUx.ux.action.stop()
     } catch (error: any) {
