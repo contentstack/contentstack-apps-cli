@@ -16,8 +16,14 @@ import {
   getOrgAppUiLocation,
 } from '../../core/apps/app-utils'
 
-interface CreateCommandArgs {
-  appName: string
+type CreateCommandArgs = {
+  appName?: string
+}
+
+type CreateCommandFlags = {
+  'app-type': string
+  org?: string
+  interactive?: boolean
 }
 
 export default class Create extends Command {
@@ -33,7 +39,7 @@ export default class Create extends Command {
     {
       name: 'appName',
       description: 'Name of the app to be created',
-      required: true,
+      required: false,
     },
   ]
 
@@ -41,7 +47,7 @@ export default class Create extends Command {
     org: flags.string({
       char: 'o',
       description: 'Organization UID',
-      required: true,
+      required: false,
     }),
     'app-type': flags.string({
       char: 't',
@@ -50,15 +56,50 @@ export default class Create extends Command {
       default: 'stack',
       required: false,
     }),
+    interactive: flags.boolean({
+      char: 'i',
+      description: 'Run command in interactive mode',
+      default: false,
+      required: false,
+    }),
   }
 
   async run(): Promise<any> {
     try {
-      const { flags, args } = this.parse(Create)
-      const { appName } = args as CreateCommandArgs
-      const orgUid = flags.org
-      const appType = flags['app-type'] as AppType
-      this.setup(orgUid)
+      const {
+        flags,
+        args,
+      }: { flags: CreateCommandFlags; args: CreateCommandArgs } =
+        this.parse(Create)
+      this.checkIsUserLoggedIn()
+      let appName = args.appName || ''
+      let orgUid = flags.org || ''
+      let appType = flags['app-type'] as AppType
+      const isInteractiveMode = flags.interactive
+      const isOrgAppSelected = flags['app-type'] === AppType.ORGANIZATION
+      // ? prompt user if args or flags are missing
+      if (!args.appName || isInteractiveMode) {
+        // ? ask for app name
+        appName = await CliUx.ux.prompt('Enter a name for your app', {
+          required: true,
+        })
+      }
+      if (!flags.org || isInteractiveMode) {
+        // ? ask for app name
+        orgUid = await CliUx.ux.prompt(
+          'Enter the organization uid on which you wish to register the app',
+          { required: true }
+        )
+        // ? Ask for app type if was not mentioned as Org app above
+        if (!isOrgAppSelected || isInteractiveMode)
+          appType = (await CliUx.ux.prompt(
+            `Enter the type of the app (stack/organization). Press enter to continue with ${
+              isOrgAppSelected ? 'your selection' : 'the default'
+            } selection`,
+            { default: isOrgAppSelected ? AppType.ORGANIZATION : AppType.STACK }
+          )) as AppType
+      }
+      if (flags) this.setup(orgUid)
       CliUx.ux.action.type = 'spinner'
       CliUx.ux.action.start('Fetching the app template')
       const targetPath = process.cwd()
@@ -75,7 +116,9 @@ export default class Create extends Command {
         manifestObject.ui_location.locations = getOrgAppUiLocation()
       }
       CliUx.ux.action.stop()
-      CliUx.ux.action.start('Registering the app')
+      CliUx.ux.action.start(
+        `Registering the app with name ${appName} on Developer Hub`
+      )
       const clientResponse: any = await this.client.createApp(
         manifestObject as AppManifest
       )
@@ -95,7 +138,7 @@ export default class Create extends Command {
       )
       CliUx.ux.action.stop()
     } catch (error: any) {
-      this.error(error)
+      this.error(error.message)
     }
   }
 }

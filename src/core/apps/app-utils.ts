@@ -1,4 +1,5 @@
 import { AppLocation, AppManifest, Extension } from '../../typings'
+import * as errors from './errors.json'
 
 export function deriveAppManifestFromSDKResponse(
   response: any
@@ -51,4 +52,8 @@ export function getOrgAppUiLocation(): Extension[] {
     ],
   }
   return [orgConfigLocation]
+}
+
+export function getErrorMessage(errorCode: string): string {
+  return (errors as any)[errorCode]
 }
