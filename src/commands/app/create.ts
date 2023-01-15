@@ -1,5 +1,6 @@
 import { CliUx } from '@oclif/core'
 import * as path from 'path'
+const inquirer = require('inquirer')
 
 import { flags } from '@contentstack/cli-command'
 
@@ -13,7 +14,10 @@ import { APP_TEMPLATE_GITHUB_URL } from '../../core/constants'
 import { AppManifest, AppManifestWithUiLocation, AppType } from '../../typings'
 import {
   deriveAppManifestFromSDKResponse,
+  getErrorMessage,
   getOrgAppUiLocation,
+  validateAppName,
+  validateOrgUid,
 } from '../../core/apps/app-utils'
 
 type CreateCommandArgs = {
@@ -64,6 +68,40 @@ export default class Create extends Command {
     }),
   }
 
+  getQuestionSet() {
+    return [
+      {
+        type: 'input',
+        name: 'appName',
+        message: 'Enter a 3 to 20 character long name for your app',
+        validate: function (appName: string) {
+          if (!validateAppName(appName)) {
+            return getErrorMessage('invalid_app_name')
+          }
+          return true
+        },
+      },
+      {
+        type: 'input',
+        name: 'orgUid',
+        message:
+          'Enter the organization uid on which you wish to register the app',
+        validate: function (orgUid: string) {
+          if (!validateOrgUid(orgUid)) {
+            return getErrorMessage('invalid_org_uid')
+          }
+          return true
+        },
+      },
+      {
+        type: 'list',
+        name: 'appType',
+        message: 'Enter the type of the app, you wish to create',
+        choices: [AppType.STACK, AppType.ORGANIZATION],
+      },
+    ]
+  }
+
   async run(): Promise<any> {
     try {
       const {
@@ -72,46 +110,52 @@ export default class Create extends Command {
       }: { flags: CreateCommandFlags; args: CreateCommandArgs } =
         this.parse(Create)
       this.checkIsUserLoggedIn()
-      let appName = args.appName || ''
-      let orgUid = flags.org || ''
-      let appType = flags['app-type'] as AppType
-      const isInteractiveMode = flags.interactive
-      const isOrgAppSelected = flags['app-type'] === AppType.ORGANIZATION
+      let appName = args.appName
+      let orgUid = flags.org
+      let appType: AppType | undefined = flags['app-type'] as AppType
+      const isInteractiveMode = !!flags.interactive
+      //? All values to be disregarded if interactive flag present
+      if (isInteractiveMode) {
+        appName = undefined
+        orgUid = undefined
+        appType = undefined
+      } else {
+        // ? Ask for app name if it does not pass the constraints
+        if (!validateAppName(appName || '')) {
+          appName = undefined
+        }
+        // ? Ask for org uid if it does not pass the constraints
+        if (!validateOrgUid(orgUid || '')) {
+          orgUid = undefined
+        }
+        // ? Explicilty ask for app type when app name or org uid is missing and app type is not specified as organization
+        if ((!appName || !orgUid) && appType !== AppType.ORGANIZATION) {
+          appType = undefined
+        }
+      }
+
       // ? prompt user if args or flags are missing
-      if (!args.appName || isInteractiveMode) {
-        // ? ask for app name
-        appName = await CliUx.ux.prompt('Enter a name for your app', {
-          required: true,
-        })
-      }
-      if (!flags.org || isInteractiveMode) {
-        // ? ask for app name
-        orgUid = await CliUx.ux.prompt(
-          'Enter the organization uid on which you wish to register the app',
-          { required: true }
-        )
-        // ? Ask for app type if was not mentioned as Org app above
-        if (!isOrgAppSelected || isInteractiveMode)
-          appType = (await CliUx.ux.prompt(
-            `Enter the type of the app (stack/organization). Press enter to continue with ${
-              isOrgAppSelected ? 'your selection' : 'the default'
-            } selection`,
-            { default: isOrgAppSelected ? AppType.ORGANIZATION : AppType.STACK }
-          )) as AppType
-      }
-      if (flags) this.setup(orgUid)
-      CliUx.ux.action.type = 'spinner'
+      const answers = await inquirer.prompt(this.getQuestionSet(), {
+        appName,
+        orgUid,
+        appType,
+      })
+      appName = answers.appName
+      orgUid = answers.orgUid
+      appType = answers.appType
+
+      if (flags) this.setup(orgUid as string)
+
       CliUx.ux.action.start('Fetching the app template')
       const targetPath = process.cwd()
-
       const filePath = await downloadProject(APP_TEMPLATE_GITHUB_URL)
       unzipFile(filePath, targetPath)
       const manifestData = await readFile(
         path.join(__dirname, '../../core/apps/manifest.json')
       )
       const manifestObject: AppManifestWithUiLocation = JSON.parse(manifestData)
-      manifestObject.name = appName
-      manifestObject.target_type = appType
+      manifestObject.name = appName as string
+      manifestObject.target_type = appType as AppType
       if (appType === AppType.ORGANIZATION) {
         manifestObject.ui_location.locations = getOrgAppUiLocation()
       }
