@@ -8,7 +8,13 @@ import {
   downloadProject,
   installDependencies,
 } from '../../core/apps/build-project'
-import { createFile, readFile, unzipFile } from '../../core/apps/fs-utils'
+import {
+  changeDirectory,
+  createFile,
+  makeDirectory,
+  readFile,
+  unzipFileToDirectory,
+} from '../../core/apps/fs-utils'
 import Command from '../../core/command'
 import { APP_TEMPLATE_GITHUB_URL } from '../../core/constants'
 import { AppManifest, AppManifestWithUiLocation, AppType } from '../../typings'
@@ -147,9 +153,10 @@ export default class Create extends Command {
       if (flags) this.setup(orgUid as string)
 
       CliUx.ux.action.start('Fetching the app template')
-      const targetPath = process.cwd()
+      const targetPath = path.join(process.cwd(), appName as string)
       const filePath = await downloadProject(APP_TEMPLATE_GITHUB_URL)
-      unzipFile(filePath, targetPath)
+      await makeDirectory(appName as string)
+      unzipFileToDirectory(filePath, targetPath, 'template_fetch_failure')
       const manifestData = await readFile(
         path.join(__dirname, '../../core/apps/manifest.json')
       )
@@ -168,20 +175,17 @@ export default class Create extends Command {
       )
       const appManifest = deriveAppManifestFromSDKResponse(clientResponse)
       await createFile(
-        path.join(
-          targetPath,
-          'marketplace-app-boilerplate-main',
-          'app-manifest.json'
-        ),
-        JSON.stringify(appManifest)
+        path.join(targetPath, 'app-manifest.json'),
+        JSON.stringify(appManifest),
+        'manifest_generation_failure'
       )
       CliUx.ux.action.stop()
       CliUx.ux.action.start('Installing dependencies')
-      installDependencies(
-        path.join(targetPath, 'marketplace-app-boilerplate-main')
-      )
+      installDependencies(targetPath)
       CliUx.ux.action.stop()
+      changeDirectory(targetPath)
     } catch (error: any) {
+      CliUx.ux.action.stop('Failed')
       this.error(error.message)
     }
   }

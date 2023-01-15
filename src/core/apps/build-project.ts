@@ -33,7 +33,13 @@ export async function downloadProject(projectUrl: string): Promise<any> {
 }
 
 export async function installDependencies(filePath: string) {
-  shell.cd(filePath)
+  try {
+    shell.cd(filePath)
+  } catch (error) {
+    throw new ContentstackError(
+      getErrorMessage('dependency_installation_failure')
+    )
+  }
   if (shell.which('npm')) {
     // ? Install Deps using npm
     shell.exec('npm i', { silent: true })
@@ -41,6 +47,6 @@ export async function installDependencies(filePath: string) {
     // ? Install Deps using yarn
     shell.exec('yarn install', { silent: true })
   } else {
-    throw new ContentstackError('No package managers found, exiting')
+    throw new ContentstackError(getErrorMessage('no_package_managers'))
   }
 }
