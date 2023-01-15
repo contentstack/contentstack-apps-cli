@@ -6,6 +6,8 @@
   "file_operation_failure": "File operation failed. Please try running the command again.",
   "file_fetching_failure": "Could not fetch the file. Please check your internet connectivity and try running the command again.",
   "file_generation_failure": "Could not generate the file. Please try running the command again.",
+  "invalid_org_uid": "Please enter a valid organization uid.",
+  "invalid_app_name": "Please enter a name that is 3 to 20 characters long.",
   "manifest_generation_failure": "App manifest json file could not be generated.",
   "no_package_managers": "No package managers found on your system. Please install either npm or yarn and try running the command again.",
   "generic_request_failure": "Request failed. Please try running the command again."
