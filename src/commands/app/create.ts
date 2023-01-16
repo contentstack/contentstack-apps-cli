@@ -180,7 +180,7 @@ export default class Create extends Command {
       )
       CliUx.ux.action.stop()
       CliUx.ux.action.start('Installing dependencies')
-      installDependencies(targetPath)
+      await installDependencies(targetPath)
       CliUx.ux.action.stop()
       changeDirectory(targetPath)
     } catch (error: any) {
