@@ -35,18 +35,35 @@ export async function downloadProject(projectUrl: string): Promise<any> {
 export async function installDependencies(filePath: string) {
   try {
     shell.cd(filePath)
-  } catch (error) {
+    if (shell.which('npm')) {
+      // ? Install Deps using npm
+      await new Promise<void>((resolve, reject) => {
+        shell.exec('npm install', { silent: true }, (error) => {
+          if (error !== 0) {
+            return reject(error)
+          }
+          resolve()
+        })
+      })
+    } else if (shell.which('yarn')) {
+      // ? Install Deps using yarn
+      await new Promise<void>((resolve, reject) => {
+        shell.exec('yarn install', { silent: true }, (error) => {
+          if (error !== 0) {
+            return reject(error)
+          }
+          resolve()
+        })
+      })
+    } else {
+      throw new Error('no_package_managers')
+    }
+  } catch (error: any) {
+    if (error?.message === 'no_package_managers') {
+      throw new ContentstackError(getErrorMessage('no_package_managers'))
+    }
     throw new ContentstackError(
       getErrorMessage('dependency_installation_failure')
     )
-  }
-  if (shell.which('npm')) {
-    // ? Install Deps using npm
-    shell.exec('npm i', { silent: true })
-  } else if (shell.which('yarn')) {
-    // ? Install Deps using yarn
-    shell.exec('yarn install', { silent: true })
-  } else {
-    throw new ContentstackError(getErrorMessage('no_package_managers'))
   }
 }
