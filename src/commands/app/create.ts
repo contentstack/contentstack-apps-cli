@@ -12,7 +12,6 @@ import {
   changeDirectory,
   createFile,
   makeDirectory,
-  readFile,
   unzipFileToDirectory,
 } from '../../core/apps/fs-utils'
 import Command from '../../core/command'
@@ -25,6 +24,7 @@ import {
   validateAppName,
   validateOrgUid,
 } from '../../core/apps/app-utils'
+import * as manifestData from '../../core/apps/manifest.json'
 
 type CreateCommandArgs = {
   appName?: string
@@ -157,10 +157,9 @@ export default class Create extends Command {
       const filePath = await downloadProject(APP_TEMPLATE_GITHUB_URL)
       await makeDirectory(appName as string)
       unzipFileToDirectory(filePath, targetPath, 'template_fetch_failure')
-      const manifestData = await readFile(
-        path.join(__dirname, '../../core/apps/manifest.json')
+      const manifestObject: AppManifestWithUiLocation = JSON.parse(
+        JSON.stringify(manifestData)
       )
-      const manifestObject: AppManifestWithUiLocation = JSON.parse(manifestData)
       manifestObject.name = appName as string
       manifestObject.target_type = appType as AppType
       if (appType === AppType.ORGANIZATION) {
