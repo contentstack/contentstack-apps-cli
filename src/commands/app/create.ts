@@ -2,8 +2,10 @@ import { CliUx } from '@oclif/core'
 import * as path from 'path'
 const inquirer = require('inquirer')
 
-import { flags } from '@contentstack/cli-command'
+import { Command, flags } from '@contentstack/cli-command'
+import { configHandler } from '@contentstack/cli-utilities'
 
+import CMAClient from '../../core/contentstack/client'
 import {
   downloadProject,
   installDependencies,
@@ -14,8 +16,7 @@ import {
   makeDirectory,
   unzipFileToDirectory,
 } from '../../core/apps/fs-utils'
-import Command from '../../core/command'
-import { APP_TEMPLATE_GITHUB_URL } from '../../core/constants'
+import { APP_TEMPLATE_GITHUB_URL, AUTHTOKEN } from '../../core/constants'
 import { AppManifest, AppManifestWithUiLocation, AppType } from '../../typings'
 import {
   deriveAppManifestFromSDKResponse,
@@ -37,6 +38,8 @@ type CreateCommandFlags = {
 }
 
 export default class Create extends Command {
+  private client!: CMAClient
+
   static description: string | undefined = 'create and register an app.'
 
   static examples: string[] | undefined = [
@@ -72,6 +75,16 @@ export default class Create extends Command {
       default: false,
       required: false,
     }),
+  }
+
+  setup(orgUid: string) {
+    if (!this.authToken) {
+      this.error('You need to login, first. See: auth:login --help', {
+        exit: 2,
+        ref: 'https://www.contentstack.com/docs/developers/cli/authentication/',
+      })
+    }
+    this.client = new CMAClient(this.authToken, orgUid)
   }
 
   getQuestionSet() {
@@ -115,7 +128,13 @@ export default class Create extends Command {
         args,
       }: { flags: CreateCommandFlags; args: CreateCommandArgs } =
         this.parse(Create)
-      this.checkIsUserLoggedIn()
+      const _authToken = configHandler.get(AUTHTOKEN)
+      if (!_authToken) {
+        this.error('You need to login, first. See: auth:login --help', {
+          exit: 2,
+          ref: 'https://www.contentstack.com/docs/developers/cli/authentication/',
+        })
+      }
       let appName = args.appName
       let orgUid = flags.org
       let appType: AppType | undefined = flags['app-type'] as AppType
@@ -150,7 +169,7 @@ export default class Create extends Command {
       orgUid = answers.orgUid
       appType = answers.appType
 
-      if (flags) this.setup(orgUid as string)
+      this.setup(orgUid as string)
 
       CliUx.ux.action.start('Fetching the app template')
       const targetPath = path.join(process.cwd(), appName as string)
