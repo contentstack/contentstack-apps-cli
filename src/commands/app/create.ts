@@ -20,8 +20,8 @@ import { APP_TEMPLATE_GITHUB_URL, AUTHTOKEN } from '../../core/constants'
 import { AppManifest, AppManifestWithUiLocation, AppType } from '../../typings'
 import {
   deriveAppManifestFromSDKResponse,
-  getErrorMessage,
   getOrgAppUiLocation,
+  getQuestionSet,
   validateAppName,
   validateOrgUid,
 } from '../../core/apps/app-utils'
@@ -87,40 +87,6 @@ export default class Create extends Command {
     this.client = new CMAClient(this.authToken, orgUid)
   }
 
-  getQuestionSet() {
-    return [
-      {
-        type: 'input',
-        name: 'appName',
-        message: 'Enter a 3 to 20 character long name for your app',
-        validate: function (appName: string) {
-          if (!validateAppName(appName)) {
-            return getErrorMessage('invalid_app_name')
-          }
-          return true
-        },
-      },
-      {
-        type: 'input',
-        name: 'orgUid',
-        message:
-          'Enter the organization uid on which you wish to register the app',
-        validate: function (orgUid: string) {
-          if (!validateOrgUid(orgUid)) {
-            return getErrorMessage('invalid_org_uid')
-          }
-          return true
-        },
-      },
-      {
-        type: 'list',
-        name: 'appType',
-        message: 'Enter the type of the app, you wish to create',
-        choices: [AppType.STACK, AppType.ORGANIZATION],
-      },
-    ]
-  }
-
   async run(): Promise<any> {
     try {
       const {
@@ -160,7 +126,7 @@ export default class Create extends Command {
       }
 
       // ? prompt user if args or flags are missing
-      const answers = await inquirer.prompt(this.getQuestionSet(), {
+      const answers = await inquirer.prompt(getQuestionSet(), {
         appName,
         orgUid,
         appType,

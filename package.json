@@ -28,6 +28,7 @@
     "axios": "^1.2.2",
     "inquirer": "^8.2.5",
     "shelljs": "^0.8.5",
+    "sinon": "^15.0.1",
     "tmp": "^0.2.1"
   },
   "devDependencies": {
@@ -38,6 +39,7 @@
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.18.11",
     "@types/shelljs": "^0.8.11",
+    "@types/sinon": "^10.0.13",
     "@types/tmp": "^0.2.3",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
