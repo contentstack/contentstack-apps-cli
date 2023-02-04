@@ -1,4 +1,4 @@
-import { AppLocation, AppManifest, Extension } from '../../typings'
+import { AppLocation, AppManifest, AppType, Extension } from '../../typings'
 import * as errors from './errors.json'
 
 export function deriveAppManifestFromSDKResponse(
@@ -66,4 +66,38 @@ export function validateAppName(name: string): boolean {
 export function validateOrgUid(orgUid: string): boolean {
   if (orgUid && orgUid.length > 10) return true // Todo: Add valid org uid condition
   return false
+}
+
+export function getQuestionSet() {
+  return [
+    {
+      type: 'input',
+      name: 'appName',
+      message: 'Enter a 3 to 20 character long name for your app',
+      validate: function (appName: string) {
+        if (!validateAppName(appName)) {
+          return getErrorMessage('invalid_app_name')
+        }
+        return true
+      },
+    },
+    {
+      type: 'input',
+      name: 'orgUid',
+      message:
+        'Enter the organization uid on which you wish to register the app',
+      validate: function (orgUid: string) {
+        if (!validateOrgUid(orgUid)) {
+          return getErrorMessage('invalid_org_uid')
+        }
+        return true
+      },
+    },
+    {
+      type: 'list',
+      name: 'appType',
+      message: 'Enter the type of the app, you wish to create',
+      choices: [AppType.STACK, AppType.ORGANIZATION],
+    },
+  ]
 }
