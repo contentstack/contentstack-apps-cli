@@ -1,3 +1,5 @@
+import { cliux } from '@contentstack/cli-utilities'
+
 import { AppLocation, AppManifest, AppType, Extension } from '../../typings'
 import * as errors from './errors.json'
 
@@ -70,36 +72,41 @@ export function validateOrgUid(orgUid = ''): boolean {
   return false
 }
 
-export function getQuestionSet() {
-  return [
-    {
+export async function askAppName(): Promise<string> {
+  let appName = ''
+  do {
+    if (appName.length > 0) cliux.error(getErrorMessage('invalid_app_name'))
+    appName = await cliux.inquire({
       type: 'input',
-      name: 'appName',
       message: 'Enter a 3 to 20 character long name for your app',
-      validate: function (appName: string) {
-        if (!validateAppName(appName)) {
-          return getErrorMessage('invalid_app_name')
-        }
-        return true
-      },
-    },
-    {
+      name: 'appName',
+    })
+  } while (!validateAppName(appName))
+  return appName
+}
+
+export async function askOrgUid(): Promise<string> {
+  let orgUid = ''
+  do {
+    if (orgUid.length > 0) cliux.error(getErrorMessage('invalid_org_uid'))
+    orgUid = await cliux.inquire({
       type: 'input',
-      name: 'orgUid',
       message:
         'Enter the organization uid on which you wish to register the app',
-      validate: function (orgUid: string) {
-        if (!validateOrgUid(orgUid)) {
-          return getErrorMessage('invalid_org_uid')
-        }
-        return true
-      },
-    },
-    {
-      type: 'list',
-      name: 'appType',
-      message: 'Enter the type of the app, you wish to create',
-      choices: [AppType.STACK, AppType.ORGANIZATION],
-    },
-  ]
+      name: 'orgUid',
+    })
+  } while (!validateOrgUid(orgUid))
+  return orgUid
+}
+
+export async function askAppType(): Promise<AppType> {
+  return await await cliux.inquire({
+    type: 'list',
+    message: 'Enter the type of the app, you wish to create',
+    name: 'appType',
+    choices: [
+      { name: AppType.STACK, value: AppType.STACK },
+      { name: AppType.ORGANIZATION, value: AppType.ORGANIZATION },
+    ],
+  })
 }
