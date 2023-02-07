@@ -1,9 +1,8 @@
 import { CliUx } from '@oclif/core'
 import * as path from 'path'
-const inquirer = require('inquirer')
 
 import { Command, flags } from '@contentstack/cli-command'
-import { configHandler } from '@contentstack/cli-utilities'
+import { configHandler, cliux } from '@contentstack/cli-utilities'
 
 import CMAClient from '../../core/contentstack/client'
 import {
@@ -20,8 +19,8 @@ import { APP_TEMPLATE_GITHUB_URL, AUTHTOKEN } from '../../core/constants'
 import { AppManifest, AppManifestWithUiLocation, AppType } from '../../typings'
 import {
   deriveAppManifestFromSDKResponse,
+  getErrorMessage,
   getOrgAppUiLocation,
-  getQuestionSet,
   validateAppName,
   validateOrgUid,
 } from '../../core/apps/app-utils'
@@ -87,6 +86,45 @@ export default class Create extends Command {
     this.client = new CMAClient(this.authToken, orgUid)
   }
 
+  async askAppName(): Promise<string> {
+    let appName = ''
+    do {
+      if (appName.length > 0) cliux.error(getErrorMessage('invalid_app_name'))
+      appName = await cliux.inquire({
+        type: 'input',
+        message: 'Enter a 3 to 20 character long name for your app',
+        name: 'appName',
+      })
+    } while (!validateAppName(appName))
+    return appName
+  }
+
+  async askOrgUid(): Promise<string> {
+    let orgUid = ''
+    do {
+      if (orgUid.length > 0) cliux.error(getErrorMessage('invalid_org_uid'))
+      orgUid = await cliux.inquire({
+        type: 'input',
+        message:
+          'Enter the organization uid on which you wish to register the app',
+        name: 'orgUid',
+      })
+    } while (!validateOrgUid(orgUid))
+    return orgUid
+  }
+
+  async askAppType(): Promise<AppType> {
+    return await await cliux.inquire({
+      type: 'list',
+      message: 'Enter the type of the app, you wish to create',
+      name: 'appType',
+      choices: [
+        { name: AppType.STACK, value: AppType.STACK },
+        { name: AppType.ORGANIZATION, value: AppType.ORGANIZATION },
+      ],
+    })
+  }
+
   async run(): Promise<any> {
     try {
       const {
@@ -103,49 +141,43 @@ export default class Create extends Command {
       }
       let appName = args.appName
       let orgUid = flags.org
-      let appType: AppType | undefined = flags['app-type'] as AppType
+      let appType: AppType | undefined =
+        (!appName || !orgUid) && flags['app-type'] !== AppType.ORGANIZATION
+          ? undefined
+          : (flags['app-type'] as AppType)
       const isInteractiveMode = !!flags.interactive
       //? All values to be disregarded if interactive flag present
       if (isInteractiveMode) {
-        appName = undefined
-        orgUid = undefined
-        appType = undefined
+        appName = await this.askAppName()
+        orgUid = await this.askOrgUid()
+        appType = await this.askAppType()
       } else {
         // ? Ask for app name if it does not pass the constraints
-        if (!validateAppName(appName || '')) {
-          appName = undefined
+        if (!validateAppName(appName)) {
+          appName = await this.askAppName()
         }
         // ? Ask for org uid if it does not pass the constraints
-        if (!validateOrgUid(orgUid || '')) {
-          orgUid = undefined
+        if (!validateOrgUid(orgUid)) {
+          orgUid = await this.askOrgUid()
         }
-        // ? Explicilty ask for app type when app name or org uid is missing and app type is not specified as organization
-        if ((!appName || !orgUid) && appType !== AppType.ORGANIZATION) {
-          appType = undefined
+        // ? Explicilty ask for app type when app type is not present
+        if (
+          !appType ||
+          (appType !== AppType.STACK && appType !== AppType.ORGANIZATION)
+        ) {
+          appType = await this.askAppType()
         }
       }
-
-      // ? prompt user if args or flags are missing
-      const answers = await inquirer.prompt(getQuestionSet(), {
-        appName,
-        orgUid,
-        appType,
-      })
-      appName = answers.appName
-      orgUid = answers.orgUid
-      appType = answers.appType
-
-      this.setup(orgUid as string)
-
+      this.setup(orgUid)
       CliUx.ux.action.start('Fetching the app template')
-      const targetPath = path.join(process.cwd(), appName as string)
+      const targetPath = path.join(process.cwd(), appName)
       const filePath = await downloadProject(APP_TEMPLATE_GITHUB_URL)
-      await makeDirectory(appName as string)
+      await makeDirectory(appName)
       unzipFileToDirectory(filePath, targetPath, 'template_fetch_failure')
       const manifestObject: AppManifestWithUiLocation = JSON.parse(
         JSON.stringify(manifestData)
       )
-      manifestObject.name = appName as string
+      manifestObject.name = appName
       manifestObject.target_type = appType as AppType
       if (appType === AppType.ORGANIZATION) {
         manifestObject.ui_location.locations = getOrgAppUiLocation()

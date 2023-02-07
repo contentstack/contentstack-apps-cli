@@ -58,12 +58,14 @@ export function getErrorMessage(errorCode: string): string {
   return (errors as any)[errorCode]
 }
 
-export function validateAppName(name: string): boolean {
-  if (name && name.length > 3 && name.length < 20) return true
+export function validateAppName(name = ''): boolean {
+  name = name.trim()
+  if (name && name.length >= 3 && name.length < 20) return true
   return false
 }
 
-export function validateOrgUid(orgUid: string): boolean {
+export function validateOrgUid(orgUid = ''): boolean {
+  orgUid = orgUid.trim()
   if (orgUid && orgUid.length > 10) return true // Todo: Add valid org uid condition
   return false
 }
