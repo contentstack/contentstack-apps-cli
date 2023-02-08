@@ -24,7 +24,7 @@
     "@oclif/plugin-help": "^5",
     "@oclif/plugin-plugins": "^2.1.9",
     "adm-zip": "^0.5.10",
-    "axios": "^1.2.2",
+    "axios": "^1.2.3",
     "inquirer": "^8.2.5",
     "shelljs": "^0.8.5",
     "tmp": "^0.2.1"
