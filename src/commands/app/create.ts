@@ -1,3 +1,4 @@
+import { CliUx } from '@oclif/core'
 import * as path from 'path'
 
 import { Command, flags } from '@contentstack/cli-command'
@@ -21,6 +22,7 @@ import {
   askAppType,
   askOrgUid,
   deriveAppManifestFromSDKResponse,
+  getErrorMessage,
   getOrgAppUiLocation,
   validateAppName,
   validateOrgUid,
@@ -79,7 +81,7 @@ export default class Create extends Command {
 
   setup(orgUid: string) {
     if (!this.authToken) {
-      this.error('You need to login, first. See: auth:login --help', {
+      this.error(getErrorMessage('authentication_error'), {
         exit: 2,
         ref: 'https://www.contentstack.com/docs/developers/cli/authentication/',
       })
@@ -96,7 +98,7 @@ export default class Create extends Command {
         this.parse(Create)
       const _authToken = configHandler.get(AUTHTOKEN)
       if (!_authToken) {
-        this.error('You need to login, first. See: auth:login --help', {
+        this.error(getErrorMessage('authentication_error'), {
           exit: 2,
           ref: 'https://www.contentstack.com/docs/developers/cli/authentication/',
         })
@@ -109,7 +111,6 @@ export default class Create extends Command {
           : (flags['app-type'] as AppType)
       const isInteractiveMode = !!flags.interactive
 
-      // const answer = inquirer.prompt()
       //? All values to be disregarded if interactive flag present
       if (isInteractiveMode) {
         appName = await askAppName()
@@ -133,7 +134,7 @@ export default class Create extends Command {
         }
       }
       this.setup(orgUid)
-      cliux.loader('Fetching the app template')
+      CliUx.ux.action.start('Fetching the app template')
       const targetPath = path.join(process.cwd(), appName)
       const filePath = await downloadProject(APP_TEMPLATE_GITHUB_URL)
       await makeDirectory(appName)
@@ -146,8 +147,10 @@ export default class Create extends Command {
       if (appType === AppType.ORGANIZATION) {
         manifestObject.ui_location.locations = getOrgAppUiLocation()
       }
-      cliux.loader('done')
-      cliux.loader(`Registering the app with name ${appName} on Developer Hub`)
+      CliUx.ux.action.stop()
+      CliUx.ux.action.start(
+        `Registering the app with name ${appName} on Developer Hub`
+      )
       const clientResponse: any = await this.client.createApp(
         manifestObject as AppManifest
       )
@@ -157,14 +160,14 @@ export default class Create extends Command {
         JSON.stringify(appManifest),
         'manifest_generation_failure'
       )
-      cliux.loader('done')
-      cliux.loader('Installing dependencies')
+      CliUx.ux.action.stop()
+      CliUx.ux.action.start('Installing dependencies')
       await installDependencies(targetPath)
-      cliux.loader('done')
+      CliUx.ux.action.stop()
       changeDirectory(targetPath)
       cliux.success('App creation successful!!')
     } catch (error: any) {
-      cliux.loader('Failed')
+      CliUx.ux.action.stop('Failed')
       this.error(error.message)
     }
   }

@@ -2,6 +2,7 @@
   "app_creation_failure": "App could not be registered on Developer Hub. Please check your internet connectivity and try running the command again.",
   "app_creation_constraint_failure": "App could not be registered. Please go through the constraints on app name and try running the command again.",
   "app_creation_invalid_org": "App could not be registered. Please verify the inputs and try again.",
+  "authentication_error": "You need to login, first. See: auth:login --help",
   "dependency_installation_failure": "Could not install the dependencies in the new directory.",
   "directory_change_failure": "Directory could not be changed.",
   "duplicate_app_name": "App with same name already exists. Please create an app with a different name.",
