@@ -6,11 +6,15 @@ import { configHandler, cliux } from '@contentstack/cli-utilities'
 import CMAClient from '../../../src/core/contentstack/client'
 import * as projectUtils from '../../../src/core/apps/project-utils'
 import * as fileUtils from '../../../src/core/apps/fs-utils'
-import * as appUtils from '../../../src/core/apps/app-utils'
 import { AppType } from '../../../src/typings'
 
 const mockData = {
+  appName: 'sample_app',
   authtoken: 'sample_auth_token',
+  invalidAppName: 'KS',
+  invalidOrgUid: 'invalid',
+  orgUid: 'sample_org_uid',
+  appType: AppType.STACK,
 }
 
 describe('Create App command', () => {
@@ -24,7 +28,6 @@ describe('Create App command', () => {
   sinon.stub(fileUtils, 'unzipFileToDirectory').callsFake(() => {})
   sinon.stub(fileUtils, 'createFile').callsFake(() => {})
   sinon.stub(fileUtils, 'changeDirectory').callsFake(() => {})
-  sinon.stub(appUtils, 'getQuestionSet').returns({})
 
   describe('User input prompts', () => {
     const appName = 'sample_app'
@@ -148,6 +151,21 @@ describe('Create App command', () => {
 
     test
       .stdout({ print: true })
+      .command(['app:create', mockData.invalidAppName])
+      .it(
+        'should prompt user for app name if a valid app name is not provided in the argument',
+        () => {
+          expect(inquireStub.calledThrice).to.be.true
+          expect(inquireStub.firstCall.args[0]).to.deep.equal({
+            type: 'input',
+            message: 'Enter a 3 to 20 character long name for your app',
+            name: 'appName',
+          })
+        }
+      )
+
+    test
+      .stdout({ print: true })
       .command(['app:create', '-i'])
       .it('should prompt the user for all inputs in interactive mode', () => {
         expect(inquireStub.calledThrice).to.be.true
@@ -207,15 +225,75 @@ describe('Create App command', () => {
       })
   })
 
-  describe.skip('Input Field Validations', () => {
+  describe('Input field validations', () => {
+    let inquireStub
+    let cliUxStub
+
+    beforeEach(() => {
+      inquireStub = sinon.stub(cliux, 'inquire')
+      inquireStub.callsFake((inquire: any) => {
+        switch (inquire.name) {
+          case 'appName':
+            return mockData.appName
+          case 'orgUid':
+            return mockData.orgUid
+          case 'appType':
+            return mockData.appType
+        }
+      })
+      inquireStub.onFirstCall().callsFake((inquire: any) => {
+        switch (inquire.name) {
+          case 'appName':
+            return mockData.invalidAppName
+          case 'orgUid':
+            return mockData.orgUid
+          case 'appType':
+            return mockData.appType
+        }
+      })
+      inquireStub.onThirdCall().callsFake((inquire: any) => {
+        switch (inquire.name) {
+          case 'appName':
+            return mockData.invalidAppName
+          case 'orgUid':
+            return mockData.invalidOrgUid
+          case 'appType':
+            return mockData.appType
+        }
+      })
+      cliUxStub = sinon.spy(cliux, 'loader')
+    })
+
+    afterEach(() => {
+      inquireStub.reset()
+      inquireStub.restore()
+      cliUxStub.restore()
+    })
+
     test
       .stdout({ print: true })
       .command(['app:create'])
       .it(
-        'should show an error message on entering invalid app name',
+        'should show an error message on entering an invalid app name',
         (ctx) => {
-          expect(ctx).contain('')
+          expect(ctx.stdout).contain(
+            'Please enter a valid name that is 3 to 20 characters long.'
+          )
+        }
+      )
+
+    test
+      .stdout({ print: true })
+      .command(['app:create'])
+      .it(
+        'should show an error message on entering an invalid Org uid',
+        (ctx) => {
+          expect(ctx.stdout).contain('Please enter a valid organization uid.')
         }
       )
   })
+
+  describe('Error Paths', () => {})
+
+  describe('Happy Paths', () => {})
 })

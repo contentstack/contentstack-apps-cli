@@ -108,6 +108,8 @@ export default class Create extends Command {
           ? undefined
           : (flags['app-type'] as AppType)
       const isInteractiveMode = !!flags.interactive
+
+      // const answer = inquirer.prompt()
       //? All values to be disregarded if interactive flag present
       if (isInteractiveMode) {
         appName = await askAppName()
@@ -160,6 +162,7 @@ export default class Create extends Command {
       await installDependencies(targetPath)
       cliux.loader('done')
       changeDirectory(targetPath)
+      cliux.success('App creation successful!!')
     } catch (error: any) {
       cliux.loader('Failed')
       this.error(error.message)
