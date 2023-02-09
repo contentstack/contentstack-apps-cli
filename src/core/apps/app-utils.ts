@@ -23,7 +23,7 @@ export function deriveAppManifestFromSDKResponse(
     organization_uid,
     oauth,
   } = response
-  return {
+  const appManifest = {
     uid,
     framework_version,
     version,
@@ -40,6 +40,7 @@ export function deriveAppManifestFromSDKResponse(
     organization_uid,
     oauth,
   }
+  return JSON.parse(JSON.stringify(appManifest))
 }
 
 export function getOrgAppUiLocation(): Extension[] {
@@ -62,7 +63,7 @@ export function getErrorMessage(errorCode: string): string {
 
 export function validateAppName(name = ''): boolean {
   name = name.trim()
-  if (name && name.length >= 3 && name.length < 20) return true
+  if (name && name.length >= 3 && name.length <= 20) return true
   return false
 }
 
@@ -100,7 +101,7 @@ export async function askOrgUid(): Promise<string> {
 }
 
 export async function askAppType(): Promise<AppType> {
-  return await await cliux.inquire({
+  return await cliux.inquire({
     type: 'list',
     message: 'Enter the type of the app, you wish to create',
     name: 'appType',
