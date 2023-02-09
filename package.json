@@ -22,7 +22,7 @@
     "@oclif/core": "^1.23.0",
     "@oclif/errors": "^1.3.6",
     "@oclif/plugin-help": "^5",
-    "@oclif/plugin-plugins": "^2.1.9",
+    "@oclif/plugin-plugins": "^2.2.2",
     "adm-zip": "^0.5.10",
     "axios": "^1.2.2",
     "inquirer": "^8.2.5",
