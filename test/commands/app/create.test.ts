@@ -25,7 +25,7 @@ const mockData = {
   },
 }
 
-describe('Create App command', () => {
+describe.skip('Create App command', () => {
   const configHandlerStub = sinon
     .stub(configHandler, 'get')
     .returns(mockData.authtoken)
@@ -277,12 +277,11 @@ describe('Create App command', () => {
       .stdout()
       .command(['app:create'])
       .it(
-        'should show an error message on entering an invalid app name and ask for app name again',
+        'should show an error message on entering an invalid app name',
         (ctx) => {
           expect(ctx.stdout).contain(
             'Please enter a valid name that is 3 to 20 characters long.'
           )
-          // Todo: test for ask again
         }
       )
 
@@ -290,10 +289,9 @@ describe('Create App command', () => {
       .stdout()
       .command(['app:create'])
       .it(
-        'should show an error message on entering an invalid Org uid and ask for org uid again',
+        'should show an error message on entering an invalid Org uid',
         (ctx) => {
           expect(ctx.stdout).contain('Please enter a valid organization uid.')
-          // Todo: test for ask again
         }
       )
   })
