@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-const sinon = require('sinon')
+import * as sinon from 'sinon'
 
 import { cliux } from '@contentstack/cli-utilities'
 
@@ -84,8 +84,6 @@ describe.skip('App utility functions', () => {
   })
 
   afterEach(() => {
-    cliuxInquireStub.reset()
-    cliuxErrorStub.reset()
     cliuxInquireStub.restore()
     cliuxErrorStub.restore()
   })
