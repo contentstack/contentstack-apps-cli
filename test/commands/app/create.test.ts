@@ -50,7 +50,7 @@ describe('Create App command', () => {
       .returns(Promise.resolve('path/to/file'))
     installDepsStub = sinon
       .stub(projectUtils, 'installDependencies')
-      .callsFake((_: string) => Promise.resolve())
+      .callsFake(() => Promise.resolve())
     makeDirectory = sinon
       .stub(fileUtils, 'makeDirectory')
       .callsFake(() => Promise.resolve(''))

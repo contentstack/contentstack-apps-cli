@@ -74,7 +74,7 @@ const mockData = {
   appType: AppType.STACK,
 }
 
-describe.skip('App utility functions', () => {
+describe('App utility functions', () => {
   let cliuxInquireStub
   let cliuxErrorStub
 
