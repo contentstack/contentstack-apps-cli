@@ -19,17 +19,15 @@ const mockData = {
   targetPath: 'sample/path',
 }
 
+// Todo: Add test cases for unzipFileToDirectory
 describe.skip('unzipFileToDirectory', () => {
-  let sandbox: sinon.SinonSandbox
   let admZipStub: sinon.SinonStub
   let getEntriesStub: sinon.SinonStub
   let addFileStub: sinon.SinonStub
   let extractAllToStub: sinon.SinonStub
-  let entries: any
+  // let entries: any
 
   beforeEach(() => {
-    // sandbox = sinon.createSandbox()
-
     admZipStub = sinon.stub(AdmZip.prototype, 'constructor')
     getEntriesStub = sinon.stub().returns([])
     addFileStub = sinon.stub().callsFake(() => {})
@@ -41,21 +39,19 @@ describe.skip('unzipFileToDirectory', () => {
     })
   })
 
-  afterEach(() => {
-    sandbox.restore()
-  })
+  afterEach(() => {})
 
   it('should unzip the file to the specified directory', async () => {
-    entries = [
-      {
-        entryName: 'path/to/file1.txt',
-        getData: sandbox.stub().returns('file1 content'),
-      },
-      {
-        entryName: 'path/to/file2.txt',
-        getData: sandbox.stub().returns('file2 content'),
-      },
-    ]
+    // entries = [
+    //   {
+    //     entryName: 'path/to/file1.txt',
+    //     getData: sandbox.stub().returns('file1 content'),
+    //   },
+    //   {
+    //     entryName: 'path/to/file2.txt',
+    //     getData: sandbox.stub().returns('file2 content'),
+    //   },
+    // ]
 
     await unzipFileToDirectory('file.zip', 'target/path')
 
@@ -66,7 +62,7 @@ describe.skip('unzipFileToDirectory', () => {
     expect(extractAllToStub.calledWith('target/path', true)).to.be.true
   })
 
-  it.skip('should throw an error with the specified errorKey', async () => {
+  it('should throw an error with the specified errorKey', async () => {
     const error = new Error('error')
     admZipStub.throws(error)
 
