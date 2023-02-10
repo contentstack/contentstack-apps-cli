@@ -1,6 +1,7 @@
 import { expect, test } from '@oclif/test'
 import { CliUx } from '@oclif/core'
-const sinon = require('sinon')
+
+import * as sinon from 'sinon'
 import * as path from 'path'
 
 import { configHandler, cliux } from '@contentstack/cli-utilities'
@@ -25,27 +26,55 @@ const mockData = {
   },
 }
 
-describe.skip('Create App command', () => {
-  const configHandlerStub = sinon
-    .stub(configHandler, 'get')
-    .returns(mockData.authtoken)
-  const createAppStub = sinon
-    .stub(CMAClient.prototype, 'createApp')
-    .returns(mockData.appManifest)
-  const downloadProjectStub = sinon
-    .stub(projectUtils, 'downloadProject')
-    .returns('path/to/file')
-  const installDepsStub = sinon
-    .stub(projectUtils, 'installDependencies')
-    .callsFake(() => {})
-  sinon.stub(fileUtils, 'makeDirectory').callsFake(() => {})
-  const unzipFileStub = sinon
-    .stub(fileUtils, 'unzipFileToDirectory')
-    .callsFake(() => {})
-  const createFileStub = sinon.stub(fileUtils, 'createFile').callsFake(() => {})
-  sinon.stub(fileUtils, 'changeDirectory').callsFake(() => {})
+describe('Create App command', () => {
+  let changeDirectoryStub
+  let configHandlerStub
+  let createAppStub
+  let createFileStub
+  let downloadProjectStub
+  let installDepsStub
+  let makeDirectory
+  let unzipFileStub
 
   const targetPath = path.join(process.cwd(), mockData.appName)
+
+  before(() => {
+    configHandlerStub = sinon
+      .stub(configHandler, 'get')
+      .returns(mockData.authtoken)
+    createAppStub = sinon
+      .stub(CMAClient.prototype, 'createApp')
+      .returns(Promise.resolve(mockData.appManifest) as any)
+    downloadProjectStub = sinon
+      .stub(projectUtils, 'downloadProject')
+      .returns(Promise.resolve('path/to/file'))
+    installDepsStub = sinon
+      .stub(projectUtils, 'installDependencies')
+      .callsFake((_: string) => Promise.resolve())
+    makeDirectory = sinon
+      .stub(fileUtils, 'makeDirectory')
+      .callsFake(() => Promise.resolve(''))
+    unzipFileStub = sinon
+      .stub(fileUtils, 'unzipFileToDirectory')
+      .callsFake(() => Promise.resolve())
+    createFileStub = sinon
+      .stub(fileUtils, 'createFile')
+      .callsFake(() => Promise.resolve())
+    changeDirectoryStub = sinon
+      .stub(fileUtils, 'changeDirectory')
+      .callsFake(() => {})
+  })
+
+  after(() => {
+    changeDirectoryStub.restore()
+    configHandlerStub.restore()
+    createAppStub.restore()
+    createFileStub.restore()
+    downloadProjectStub.restore()
+    installDepsStub.restore()
+    makeDirectory.restore()
+    unzipFileStub.restore()
+  })
 
   describe('User input prompts', () => {
     let inquireStub
@@ -55,11 +84,11 @@ describe.skip('Create App command', () => {
       inquireStub = sinon.stub(cliux, 'inquire').callsFake((inquire: any) => {
         switch (inquire.name) {
           case 'appName':
-            return mockData.appName
+            return mockData.appName as any
           case 'orgUid':
-            return mockData.orgUid
+            return mockData.orgUid as any
           case 'appType':
-            return mockData.appType
+            return mockData.appType as any
         }
       })
       cliuxSpy = sinon.spy(CliUx.ux.action, 'start')
