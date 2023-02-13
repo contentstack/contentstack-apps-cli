@@ -5,7 +5,7 @@ import { getErrorMessage } from '../apps/app-utils'
 import { DEVELOPERHUB_API_HOST_URL } from '../constants'
 import ContentstackError from './error'
 
-export default class CMAClient {
+export default class DeveloperHubClient {
   private client: contentstack.ContentstackClient
   private organizationUid: string
 
