@@ -16,7 +16,7 @@ import {
   makeDirectory,
   unzipFileToDirectory,
 } from '../../core/apps/fs-utils'
-import { APP_TEMPLATE_GITHUB_URL, AUTHTOKEN } from '../../core/constants'
+import { APP_TEMPLATE_GITHUB_URL, AUTHTOKEN } from '../../constants'
 import { AppManifest, AppManifestWithUiLocation, AppType } from '../../typings'
 import {
   deriveAppManifestFromSDKResponse,
@@ -48,9 +48,8 @@ export default class Create extends Command {
   static description: string | undefined = 'create and register an app.'
 
   static examples: string[] | undefined = [
-    '$ csdx app:create <app_name>',
+    '$ csdx app:create',
     '$ csdx app:create <app_name> --org "xxxxxxxxxxxxxxxxxxx" --app-type [stack/organization>]',
-    '$ csdx app:create <app_name> -o "xxxxxxxxxxxxxxxxxxx" -t [stack/organization>]',
   ]
 
   static args = [
@@ -63,19 +62,16 @@ export default class Create extends Command {
 
   static flags = {
     org: flags.string({
-      char: 'o',
       description: 'Organization UID',
       required: false,
     }),
     'app-type': flags.string({
-      char: 't',
       description: 'Type of App',
       options: ['stack', 'organization'],
       default: 'stack',
       required: false,
     }),
     interactive: flags.boolean({
-      char: 'i',
       description: 'Run command in interactive mode',
       default: false,
       required: false,
