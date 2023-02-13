@@ -14,5 +14,6 @@
   "invalid_app_name": "Please enter a valid name that is 3 to 20 characters long.",
   "manifest_generation_failure": "App manifest json file could not be generated.",
   "no_package_managers": "No package managers found on your system. Please install either npm or yarn and try running the command again.",
-  "template_fetch_failure": "App template could not be fetched. Please try running the command again."
+  "template_fetch_failure": "App template could not be fetched. Please try running the command again.",
+  "request_failure_org_list": "Organization list could not be fetched."
 }
