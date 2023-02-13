@@ -2,7 +2,7 @@ import * as contentstack from '@contentstack/management'
 
 import { AppManifest } from '../../typings'
 import { getErrorMessage } from '../apps/app-utils'
-import { DEVELOPERHUB_API_HOST_URL } from '../constants'
+import { DEVELOPERHUB_API_HOST_URL } from '../../constants'
 import ContentstackError from './error'
 
 export default class DeveloperHubClient {
