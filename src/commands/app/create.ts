@@ -150,7 +150,7 @@ export default class Create extends Command {
         JSON.stringify(manifestData)
       )
       manifestObject.name = appName
-      manifestObject.target_type = appType as AppType
+      manifestObject.target_type = appType
       if (appType === AppType.ORGANIZATION) {
         manifestObject.ui_location.locations = getOrgAppUiLocation()
       }
