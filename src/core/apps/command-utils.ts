@@ -6,7 +6,9 @@ import { cliux } from '@contentstack/cli-utilities'
 import { getErrorMessage, validateAppName, validateOrgUid } from './app-utils'
 import { AppType } from '../../typings'
 
-async function getOrganizationList(client: ContentstackClient): Promise<any[]> {
+export async function getOrganizationList(
+  client: ContentstackClient
+): Promise<any[]> {
   const organizations = await client.organization().fetchAll({ limit: 100 })
   return organizations.items
 }
@@ -17,7 +19,7 @@ export async function getOrganizationChoice(
   const orgUidList = {}
   const orgChoice = {
     type: 'list',
-    name: 'Organization',
+    name: 'orgUid',
     message: 'Choose an organization where you want to create your app',
     choices: [],
   }

@@ -6,24 +6,40 @@ import * as path from 'path'
 
 import { configHandler, cliux } from '@contentstack/cli-utilities'
 
-import CMAClient from '../../../src/core/contentstack/client'
+import DeveloperHubClient from '../../../src/core/contentstack/client'
 import * as projectUtils from '../../../src/core/apps/project-utils'
 import * as fileUtils from '../../../src/core/apps/fs-utils'
+import * as commandUtils from '../../../src/core/apps/command-utils'
 import { AppType } from '../../../src/typings'
 import { getErrorMessage } from '../../../src/core/apps/app-utils'
 import ContentstackError from '../../../src/core/contentstack/error'
 
 const mockData = {
-  appName: 'sample_app',
-  authtoken: 'sample_auth_token',
-  invalidAppName: 'KS',
-  invalidOrgUid: 'invalid',
-  orgUid: 'sample_org_uid',
-  appType: AppType.STACK,
   appManifest: {
     name: 'sample_app',
     uid: 'sampleAppUid',
   },
+  appName: 'sample_app',
+  appType: AppType.STACK,
+  authtoken: 'sample_auth_token',
+  invalidAppName: 'KS',
+  invalidOrgUid: 'invalid',
+  orgName: 'sample Org 1',
+  orgList: [
+    {
+      name: 'sample Org 1',
+      uid: 'sample-org-1',
+    },
+    {
+      name: 'sample Org 2',
+      uid: 'sample-org-2',
+    },
+    {
+      name: 'sample Org 3',
+      uid: 'sample-org-3',
+    },
+  ],
+  orgUid: 'sample_org_uid',
 }
 
 describe('Create App command', () => {
@@ -33,7 +49,7 @@ describe('Create App command', () => {
   let createFileStub
   let downloadProjectStub
   let installDepsStub
-  let makeDirectory
+  let makeDirectoryStub
   let unzipFileStub
 
   const targetPath = path.join(process.cwd(), mockData.appName)
@@ -43,7 +59,7 @@ describe('Create App command', () => {
       .stub(configHandler, 'get')
       .returns(mockData.authtoken)
     createAppStub = sinon
-      .stub(CMAClient.prototype, 'createApp')
+      .stub(DeveloperHubClient.prototype, 'createApp')
       .returns(Promise.resolve(mockData.appManifest) as any)
     downloadProjectStub = sinon
       .stub(projectUtils, 'downloadProject')
@@ -51,7 +67,7 @@ describe('Create App command', () => {
     installDepsStub = sinon
       .stub(projectUtils, 'installDependencies')
       .callsFake(() => Promise.resolve())
-    makeDirectory = sinon
+    makeDirectoryStub = sinon
       .stub(fileUtils, 'makeDirectory')
       .callsFake(() => Promise.resolve(''))
     unzipFileStub = sinon
@@ -72,114 +88,89 @@ describe('Create App command', () => {
     createFileStub.restore()
     downloadProjectStub.restore()
     installDepsStub.restore()
-    makeDirectory.restore()
+    makeDirectoryStub.restore()
     unzipFileStub.restore()
   })
 
   describe('User input prompts', () => {
-    let inquireStub
     let cliuxSpy
 
+    let getOrganizationStub
+    let askAppNameStub
+    let askAppTypeStub
+
     beforeEach(() => {
-      inquireStub = sinon.stub(cliux, 'inquire').callsFake((inquire: any) => {
-        switch (inquire.name) {
-          case 'appName':
-            return mockData.appName as any
-          case 'orgUid':
-            return mockData.orgUid as any
-          case 'appType':
-            return mockData.appType as any
-        }
-      })
+      askAppNameStub = sinon
+        .stub(commandUtils, 'askAppName')
+        .returns(Promise.resolve(mockData.appName))
+      askAppTypeStub = sinon
+        .stub(commandUtils, 'askAppType')
+        .returns(Promise.resolve(mockData.appType))
+      getOrganizationStub = sinon
+        .stub(commandUtils, 'getOrganizationChoice')
+        .returns(Promise.resolve(mockData.orgUid))
       cliuxSpy = sinon.spy(CliUx.ux.action, 'start')
     })
 
     afterEach(() => {
-      inquireStub.restore()
-      inquireStub.reset()
       cliuxSpy.restore()
+      askAppNameStub.restore()
+      askAppTypeStub.restore()
+      getOrganizationStub.restore()
     })
 
     test
       .stdout()
       .command(['app:create'])
-      .it('should prompt the user for inputs when not provided', () => {
-        expect(inquireStub.calledThrice).to.be.true
-        expect(inquireStub.firstCall.args[0]).to.deep.equal({
-          type: 'input',
-          message: 'Enter a 3 to 20 character long name for your app',
-          name: 'appName',
-        })
-        expect(inquireStub.secondCall.args[0]).to.deep.equal({
-          type: 'input',
-          message:
-            'Enter the organization uid on which you wish to register the app',
-          name: 'orgUid',
-        })
-        expect(inquireStub.thirdCall.args[0]).to.deep.equal({
-          type: 'list',
-          message: 'Enter the type of the app, you wish to create',
-          name: 'appType',
-          choices: [
-            { name: AppType.STACK, value: AppType.STACK },
-            { name: AppType.ORGANIZATION, value: AppType.ORGANIZATION },
-          ],
-        })
+      .it('should prompt the user for all 3 inputs when not provided', () => {
+        expect(askAppNameStub.calledOnce).to.be.true
+        expect(getOrganizationStub.calledOnce).to.be.true
+        expect(askAppTypeStub.calledOnce).to.be.true
         expect(cliuxSpy.firstCall.args[0]).to.equal('Fetching the app template')
       })
+
+    test
+      .stdout()
+      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .it(
+        'should not prompt the user for any inputs when provided in the command',
+        () => {
+          expect(askAppNameStub.notCalled).to.be.true
+          expect(getOrganizationStub.notCalled).to.be.true
+          expect(askAppTypeStub.notCalled).to.be.true
+          expect(cliuxSpy.firstCall.args[0]).to.equal(
+            'Fetching the app template'
+          )
+        }
+      )
 
     test
       .stdout()
       .command(['app:create', mockData.appName])
       .it('should not prompt for app name when provided in the command', () => {
-        expect(inquireStub.calledTwice).to.be.true
-        expect(inquireStub.firstCall.args[0]).to.deep.equal({
-          type: 'input',
-          message:
-            'Enter the organization uid on which you wish to register the app',
-          name: 'orgUid',
-        })
-        expect(inquireStub.secondCall.args[0]).to.deep.equal({
-          type: 'list',
-          message: 'Enter the type of the app, you wish to create',
-          name: 'appType',
-          choices: [
-            { name: AppType.STACK, value: AppType.STACK },
-            { name: AppType.ORGANIZATION, value: AppType.ORGANIZATION },
-          ],
-        })
+        expect(askAppNameStub.notCalled).to.be.true
+        expect(getOrganizationStub.calledOnce).to.be.true
+        expect(askAppTypeStub.calledOnce).to.be.true
         expect(cliuxSpy.firstCall.args[0]).to.equal('Fetching the app template')
       })
 
     test
       .stdout()
-      .command(['app:create', '-o', mockData.orgUid])
+      .command(['app:create', '--org', mockData.orgUid])
       .it('should not prompt for org uid when provided in the command', () => {
-        expect(inquireStub.calledTwice).to.be.true
-        expect(inquireStub.firstCall.args[0]).to.deep.equal({
-          type: 'input',
-          message: 'Enter a 3 to 20 character long name for your app',
-          name: 'appName',
-        })
-        expect(inquireStub.secondCall.args[0]).to.deep.equal({
-          type: 'list',
-          message: 'Enter the type of the app, you wish to create',
-          name: 'appType',
-          choices: [
-            { name: AppType.STACK, value: AppType.STACK },
-            { name: AppType.ORGANIZATION, value: AppType.ORGANIZATION },
-          ],
-        })
+        expect(askAppNameStub.calledOnce).to.be.true
+        expect(askAppTypeStub.calledOnce).to.be.true
+        expect(getOrganizationStub.notCalled).to.be.true
         expect(cliuxSpy.firstCall.args[0]).to.equal('Fetching the app template')
       })
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '-o', mockData.orgUid])
+      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
       .it(
         'should take the default value for app type when not provided in the command',
         () => {
-          expect(inquireStub.notCalled).to.be.true
+          expect(askAppTypeStub.notCalled).to.be.true
           expect(cliuxSpy.firstCall.args[0]).to.equal(
             'Fetching the app template'
           )
@@ -192,137 +183,35 @@ describe('Create App command', () => {
       .it(
         'should prompt user for app name if a valid app name is not provided in the argument',
         () => {
-          expect(inquireStub.calledThrice).to.be.true
-          expect(inquireStub.firstCall.args[0]).to.deep.equal({
-            type: 'input',
-            message: 'Enter a 3 to 20 character long name for your app',
-            name: 'appName',
-          })
+          expect(askAppNameStub.calledOnce).to.be.true
         }
       )
 
     test
       .stdout()
-      .command(['app:create', '-i'])
+      .command(['app:create', '--interactive'])
       .it('should prompt the user for all inputs in interactive mode', () => {
-        expect(inquireStub.calledThrice).to.be.true
-        expect(inquireStub.firstCall.args[0]).to.deep.equal({
-          type: 'input',
-          message: 'Enter a 3 to 20 character long name for your app',
-          name: 'appName',
-        })
-        expect(inquireStub.secondCall.args[0]).to.deep.equal({
-          type: 'input',
-          message:
-            'Enter the organization uid on which you wish to register the app',
-          name: 'orgUid',
-        })
-        expect(inquireStub.thirdCall.args[0]).to.deep.equal({
-          type: 'list',
-          message: 'Enter the type of the app, you wish to create',
-          name: 'appType',
-          choices: [
-            { name: AppType.STACK, value: AppType.STACK },
-            { name: AppType.ORGANIZATION, value: AppType.ORGANIZATION },
-          ],
-        })
+        expect(askAppNameStub.calledOnce).to.be.true
+        expect(getOrganizationStub.calledOnce).to.be.true
+        expect(askAppTypeStub.calledOnce).to.be.true
         expect(cliuxSpy.firstCall.args[0]).to.equal('Fetching the app template')
       })
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '-o', mockData.orgUid, '-i'])
+      .command([
+        'app:create',
+        mockData.appName,
+        '--org',
+        mockData.orgUid,
+        '--interactive',
+      ])
       .it('should disregard any inputs in interactive mode', () => {
-        expect(inquireStub.calledThrice).to.be.true
-        expect(inquireStub.firstCall.args[0]).to.deep.equal({
-          type: 'input',
-          message: 'Enter a 3 to 20 character long name for your app',
-          name: 'appName',
-        })
-        expect(inquireStub.secondCall.args[0]).to.deep.equal({
-          type: 'input',
-          message:
-            'Enter the organization uid on which you wish to register the app',
-          name: 'orgUid',
-        })
-        expect(inquireStub.thirdCall.args[0]).to.deep.equal({
-          type: 'list',
-          message: 'Enter the type of the app, you wish to create',
-          name: 'appType',
-          choices: [
-            { name: AppType.STACK, value: AppType.STACK },
-            { name: AppType.ORGANIZATION, value: AppType.ORGANIZATION },
-          ],
-        })
+        expect(askAppNameStub.calledOnce).to.be.true
+        expect(getOrganizationStub.calledOnce).to.be.true
+        expect(askAppTypeStub.calledOnce).to.be.true
         expect(cliuxSpy.firstCall.args[0]).to.equal('Fetching the app template')
       })
-  })
-
-  describe('User input errors', () => {
-    let inquireStub
-
-    beforeEach(() => {
-      inquireStub = sinon.stub(cliux, 'inquire')
-      inquireStub.callsFake((inquire: any) => {
-        switch (inquire.name) {
-          case 'appName':
-            return mockData.appName
-          case 'orgUid':
-            return mockData.orgUid
-          case 'appType':
-            return mockData.appType
-        }
-      })
-
-      inquireStub.onFirstCall().callsFake((inquire: any) => {
-        switch (inquire.name) {
-          case 'appName':
-            return mockData.invalidAppName
-          case 'orgUid':
-            return mockData.orgUid
-          case 'appType':
-            return mockData.appType
-        }
-      })
-
-      inquireStub.onThirdCall().callsFake((inquire: any) => {
-        switch (inquire.name) {
-          case 'appName':
-            return mockData.appName
-          case 'orgUid':
-            return mockData.invalidOrgUid
-          case 'appType':
-            return mockData.appType
-        }
-      })
-    })
-
-    afterEach(() => {
-      inquireStub.reset()
-      inquireStub.restore()
-    })
-
-    test
-      .stdout()
-      .command(['app:create'])
-      .it(
-        'should show an error message on entering an invalid app name',
-        (ctx) => {
-          expect(ctx.stdout).contain(
-            'Please enter a valid name that is 3 to 20 characters long.'
-          )
-        }
-      )
-
-    test
-      .stdout()
-      .command(['app:create'])
-      .it(
-        'should show an error message on entering an invalid Org uid',
-        (ctx) => {
-          expect(ctx.stdout).contain('Please enter a valid organization uid.')
-        }
-      )
   })
 
   describe('App creation tests', () => {
@@ -344,7 +233,7 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '-o', mockData.orgUid])
+      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
       .it(
         'should fetch the app template and unzip it on providing valid inputs',
         () => {
@@ -359,7 +248,7 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '-o', mockData.orgUid])
+      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
       .it(
         'should register the app on Developer Hub on providing valid inputs',
         () => {
@@ -376,7 +265,7 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '-o', mockData.orgUid])
+      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
       .it(
         'should install dependencies in the target path on providing valid inputs',
         () => {
@@ -389,7 +278,7 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '-o', mockData.orgUid])
+      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
       .it('should sucessfully create an app on providing valid inputs', () => {
         expect(cliuxSuccessSpy.calledWith('App creation successful!!')).to.be
           .true
@@ -421,7 +310,7 @@ describe('Create App command', () => {
         throw new ContentstackError(getErrorMessage('file_fetching_failure'))
       })
       .stdout()
-      .command(['app:create', mockData.appName, '-o', mockData.orgUid])
+      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
       .catch((error) => {
         expect(error.message).to.contain(
           getErrorMessage('file_fetching_failure')
@@ -431,11 +320,11 @@ describe('Create App command', () => {
       .it('should inform the user if fetching the app template failed')
 
     test
-      .stub(CMAClient.prototype, 'createApp', () => {
+      .stub(DeveloperHubClient.prototype, 'createApp', () => {
         throw new ContentstackError(getErrorMessage('app_creation_failure'))
       })
       .stdout()
-      .command(['app:create', mockData.appName, '-o', mockData.orgUid])
+      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
       .catch((error) => {
         expect(error.message).to.contain(
           getErrorMessage('app_creation_failure')
@@ -445,11 +334,11 @@ describe('Create App command', () => {
       .it('should inform the user if registering the app failed')
 
     test
-      .stub(CMAClient.prototype, 'createApp', () => {
+      .stub(DeveloperHubClient.prototype, 'createApp', () => {
         throw new ContentstackError(getErrorMessage('duplicate_app_name'))
       })
       .stdout()
-      .command(['app:create', mockData.appName, '-o', mockData.orgUid])
+      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
       .catch((error) => {
         expect(error.message).to.contain(getErrorMessage('duplicate_app_name'))
         expect(cliuxSpy.calledWith('Failed')).to.be.true
@@ -461,7 +350,7 @@ describe('Create App command', () => {
         throw new ContentstackError(getErrorMessage('no_package_managers'))
       })
       .stdout()
-      .command(['app:create', mockData.appName, '-o', mockData.orgUid])
+      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
       .catch((error) => {
         expect(error.message).to.contain(getErrorMessage('no_package_managers'))
         expect(cliuxSpy.calledWith('Failed')).to.be.true
@@ -475,7 +364,7 @@ describe('Create App command', () => {
         )
       })
       .stdout()
-      .command(['app:create', mockData.appName, '-o', mockData.orgUid])
+      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
       .catch((error) => {
         expect(error.message).to.contain(
           getErrorMessage('dependency_installation_failure')
