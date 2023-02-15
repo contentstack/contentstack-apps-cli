@@ -2,6 +2,7 @@
   "app_creation_failure": "App could not be registered on Developer Hub. Please check your internet connectivity and try running the command again.",
   "app_creation_constraint_failure": "App could not be registered. Please go through the constraints on app name and try running the command again.",
   "app_creation_invalid_org": "App could not be registered. Please verify the inputs and try again.",
+  "authentication_error": "You need to login, first. See: auth:login --help",
   "dependency_installation_failure": "Could not install the dependencies in the new directory.",
   "directory_change_failure": "Directory could not be changed.",
   "duplicate_app_name": "App with same name already exists. Please create an app with a different name.",
@@ -10,8 +11,9 @@
   "generic_request_failure": "Request failed. Please try running the command again.",
   "file_generation_failure": "Could not generate the file. Please try running the command again.",
   "invalid_org_uid": "Please enter a valid organization uid.",
-  "invalid_app_name": "Please enter a name that is 3 to 20 characters long.",
+  "invalid_app_name": "Please enter a valid name that is 3 to 20 characters long.",
   "manifest_generation_failure": "App manifest json file could not be generated.",
   "no_package_managers": "No package managers found on your system. Please install either npm or yarn and try running the command again.",
-  "template_fetch_failure": "App template could not be fetched. Please try running the command again."
+  "template_fetch_failure": "App template could not be fetched. Please try running the command again.",
+  "request_failure_org_list": "Organization list could not be fetched."
 }

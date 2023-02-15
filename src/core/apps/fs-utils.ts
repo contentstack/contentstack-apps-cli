@@ -1,6 +1,6 @@
-import { readFile as fsReadFile, writeFile, mkdir } from 'node:fs/promises'
+const AdmZip = require('adm-zip')
+import * as fs from 'node:fs/promises'
 import { chdir } from 'node:process'
-import * as AdmZip from 'adm-zip'
 
 import ContentstackError from '../contentstack/error'
 import { getErrorMessage } from './app-utils'
@@ -31,7 +31,7 @@ export async function unzipFileToDirectory(
 
 export async function makeDirectory(directory: string, errorKey?: string) {
   try {
-    const dir = await mkdir(directory, { recursive: true })
+    const dir = await fs.mkdir(directory, { recursive: true })
     return dir
   } catch (error) {
     if (errorKey) {
@@ -47,22 +47,7 @@ export async function createFile(
   errorKey?: string
 ): Promise<void> {
   try {
-    await writeFile(filePath, content)
-  } catch (error: any) {
-    if (errorKey) {
-      throw new ContentstackError(getErrorMessage(errorKey))
-    }
-    throw new ContentstackError(getErrorMessage('file_operation_failure'))
-  }
-}
-
-export async function readFile(
-  filePath: string,
-  errorKey?: string
-): Promise<string> {
-  try {
-    const fileContent = await fsReadFile(filePath, { encoding: 'utf8' })
-    return fileContent
+    await fs.writeFile(filePath, content)
   } catch (error: any) {
     if (errorKey) {
       throw new ContentstackError(getErrorMessage(errorKey))
