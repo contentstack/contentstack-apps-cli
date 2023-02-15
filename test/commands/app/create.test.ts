@@ -131,7 +131,7 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .command(['app:create', '-n', mockData.appName, '--org', mockData.orgUid])
       .it(
         'should not prompt the user for any inputs when provided in the command',
         () => {
@@ -146,8 +146,18 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.appName])
+      .command(['app:create', '--name', mockData.appName])
       .it('should not prompt for app name when provided in the command', () => {
+        expect(askAppNameStub.notCalled).to.be.true
+        expect(getOrganizationStub.calledOnce).to.be.true
+        expect(askAppTypeStub.calledOnce).to.be.true
+        expect(cliuxSpy.firstCall.args[0]).to.equal('Fetching the app template')
+      })
+
+    test
+      .stdout()
+      .command(['app:create', '-n', mockData.appName])
+      .it('should accept app name when provided with short hand flag', () => {
         expect(askAppNameStub.notCalled).to.be.true
         expect(getOrganizationStub.calledOnce).to.be.true
         expect(askAppTypeStub.calledOnce).to.be.true
@@ -166,7 +176,7 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .command(['app:create', '-n', mockData.appName, '--org', mockData.orgUid])
       .it(
         'should take the default value for app type when not provided in the command',
         () => {
@@ -179,7 +189,7 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.invalidAppName])
+      .command(['app:create', '-n', mockData.invalidAppName])
       .it(
         'should prompt user for app name if a valid app name is not provided in the argument',
         () => {
@@ -201,6 +211,7 @@ describe('Create App command', () => {
       .stdout()
       .command([
         'app:create',
+        '-n',
         mockData.appName,
         '--org',
         mockData.orgUid,
@@ -233,7 +244,7 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .command(['app:create', '-n', mockData.appName, '--org', mockData.orgUid])
       .it(
         'should fetch the app template and unzip it on providing valid inputs',
         () => {
@@ -248,7 +259,7 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .command(['app:create', '-n', mockData.appName, '--org', mockData.orgUid])
       .it(
         'should register the app on Developer Hub on providing valid inputs',
         () => {
@@ -265,7 +276,7 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .command(['app:create', '-n', mockData.appName, '--org', mockData.orgUid])
       .it(
         'should install dependencies in the target path on providing valid inputs',
         () => {
@@ -278,7 +289,7 @@ describe('Create App command', () => {
 
     test
       .stdout()
-      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .command(['app:create', '-n', mockData.appName, '--org', mockData.orgUid])
       .it('should sucessfully create an app on providing valid inputs', () => {
         expect(cliuxSuccessSpy.calledWith('App creation successful!!')).to.be
           .true
@@ -310,7 +321,7 @@ describe('Create App command', () => {
         throw new ContentstackError(getErrorMessage('file_fetching_failure'))
       })
       .stdout()
-      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .command(['app:create', '-n', mockData.appName, '--org', mockData.orgUid])
       .catch((error) => {
         expect(error.message).to.contain(
           getErrorMessage('file_fetching_failure')
@@ -324,7 +335,7 @@ describe('Create App command', () => {
         throw new ContentstackError(getErrorMessage('app_creation_failure'))
       })
       .stdout()
-      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .command(['app:create', '-n', mockData.appName, '--org', mockData.orgUid])
       .catch((error) => {
         expect(error.message).to.contain(
           getErrorMessage('app_creation_failure')
@@ -338,7 +349,7 @@ describe('Create App command', () => {
         throw new ContentstackError(getErrorMessage('duplicate_app_name'))
       })
       .stdout()
-      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .command(['app:create', '-n', mockData.appName, '--org', mockData.orgUid])
       .catch((error) => {
         expect(error.message).to.contain(getErrorMessage('duplicate_app_name'))
         expect(cliuxSpy.calledWith('Failed')).to.be.true
@@ -350,7 +361,7 @@ describe('Create App command', () => {
         throw new ContentstackError(getErrorMessage('no_package_managers'))
       })
       .stdout()
-      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .command(['app:create', '-n', mockData.appName, '--org', mockData.orgUid])
       .catch((error) => {
         expect(error.message).to.contain(getErrorMessage('no_package_managers'))
         expect(cliuxSpy.calledWith('Failed')).to.be.true
@@ -364,7 +375,7 @@ describe('Create App command', () => {
         )
       })
       .stdout()
-      .command(['app:create', mockData.appName, '--org', mockData.orgUid])
+      .command(['app:create', '-n', mockData.appName, '--org', mockData.orgUid])
       .catch((error) => {
         expect(error.message).to.contain(
           getErrorMessage('dependency_installation_failure')

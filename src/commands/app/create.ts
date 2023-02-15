@@ -32,35 +32,30 @@ import {
   getOrganizationChoice,
 } from '../../core/apps/command-utils'
 
-type CreateCommandArgs = {
-  appName?: string
-}
-
 type CreateCommandFlags = {
   'app-type': string
   org?: string
+  name?: string
   interactive?: boolean
 }
 
 export default class Create extends Command {
-  private client!: DeveloperHubClient
+  private client: DeveloperHubClient
 
   static description: string | undefined = 'create and register an app.'
 
   static examples: string[] | undefined = [
     '$ csdx app:create',
-    '$ csdx app:create <app_name> --org "xxxxxxxxxxxxxxxxxxx" --app-type [stack/organization>]',
-  ]
-
-  static args = [
-    {
-      name: 'appName',
-      description: 'Name of the app to be created',
-      required: false,
-    },
+    '$ csdx app:create -n "sample app"',
+    '$ csdx app:create --name="app_name" --org "xxxxxxxxxxxxxxxxxxx" --app-type [stack/organization>]',
   ]
 
   static flags = {
+    name: flags.string({
+      char: 'n',
+      description: 'Name of the app to be created',
+      required: false,
+    }),
     org: flags.string({
       description: 'Organization UID',
       required: false,
@@ -91,11 +86,7 @@ export default class Create extends Command {
 
   async run(): Promise<any> {
     try {
-      const {
-        flags,
-        args,
-      }: { flags: CreateCommandFlags; args: CreateCommandArgs } =
-        this.parse(Create)
+      const { flags }: { flags: CreateCommandFlags } = this.parse(Create)
       const _authToken: string = configHandler.get(AUTHTOKEN)
       if (!_authToken) {
         this.error(getErrorMessage('authentication_error'), {
@@ -106,7 +97,7 @@ export default class Create extends Command {
       this.managementAPIClient = {
         authtoken: _authToken,
       }
-      let appName = args.appName
+      let appName = flags.name
       let orgUid = flags.org
       let appType: AppType | undefined =
         (!appName || !orgUid) && flags['app-type'] !== AppType.ORGANIZATION
