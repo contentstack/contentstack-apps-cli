@@ -1,21 +1,22 @@
 import { CliUx } from '@oclif/core'
 import * as path from 'path'
-const inquirer = require('inquirer')
 
-import { flags } from '@contentstack/cli-command'
+import { Command, flags } from '@contentstack/cli-command'
+import { configHandler, cliux } from '@contentstack/cli-utilities'
+import { ContentstackClient } from '@contentstack/management'
 
+import DeveloperHubClient from '../../core/contentstack/client'
 import {
   downloadProject,
   installDependencies,
-} from '../../core/apps/build-project'
+} from '../../core/apps/project-utils'
 import {
   changeDirectory,
   createFile,
   makeDirectory,
   unzipFileToDirectory,
 } from '../../core/apps/fs-utils'
-import Command from '../../core/command'
-import { APP_TEMPLATE_GITHUB_URL } from '../../core/constants'
+import { APP_TEMPLATE_GITHUB_URL, AUTHTOKEN } from '../../constants'
 import { AppManifest, AppManifestWithUiLocation, AppType } from '../../typings'
 import {
   deriveAppManifestFromSDKResponse,
@@ -25,6 +26,11 @@ import {
   validateOrgUid,
 } from '../../core/apps/app-utils'
 import * as manifestData from '../../core/apps/manifest.json'
+import {
+  askAppName,
+  askAppType,
+  getOrganizationChoice,
+} from '../../core/apps/command-utils'
 
 type CreateCommandArgs = {
   appName?: string
@@ -37,12 +43,13 @@ type CreateCommandFlags = {
 }
 
 export default class Create extends Command {
+  private client!: DeveloperHubClient
+
   static description: string | undefined = 'create and register an app.'
 
   static examples: string[] | undefined = [
-    '$ csdx app:create <app_name>',
+    '$ csdx app:create',
     '$ csdx app:create <app_name> --org "xxxxxxxxxxxxxxxxxxx" --app-type [stack/organization>]',
-    '$ csdx app:create <app_name> -o "xxxxxxxxxxxxxxxxxxx" -t [stack/organization>]',
   ]
 
   static args = [
@@ -55,57 +62,31 @@ export default class Create extends Command {
 
   static flags = {
     org: flags.string({
-      char: 'o',
       description: 'Organization UID',
       required: false,
     }),
     'app-type': flags.string({
-      char: 't',
       description: 'Type of App',
       options: ['stack', 'organization'],
       default: 'stack',
       required: false,
     }),
     interactive: flags.boolean({
-      char: 'i',
       description: 'Run command in interactive mode',
       default: false,
       required: false,
     }),
   }
 
-  getQuestionSet() {
-    return [
-      {
-        type: 'input',
-        name: 'appName',
-        message: 'Enter a 3 to 20 character long name for your app',
-        validate: function (appName: string) {
-          if (!validateAppName(appName)) {
-            return getErrorMessage('invalid_app_name')
-          }
-          return true
-        },
-      },
-      {
-        type: 'input',
-        name: 'orgUid',
-        message:
-          'Enter the organization uid on which you wish to register the app',
-        validate: function (orgUid: string) {
-          if (!validateOrgUid(orgUid)) {
-            return getErrorMessage('invalid_org_uid')
-          }
-          return true
-        },
-      },
-      {
-        type: 'list',
-        name: 'appType',
-        message: 'Enter the type of the app, you wish to create',
-        choices: [AppType.STACK, AppType.ORGANIZATION],
-      },
-    ]
+  setup(authtoken: string, orgUid: string) {
+    if (!this.authToken) {
+      this.error(getErrorMessage('authentication_error'), {
+        exit: 2,
+        ref: 'https://www.contentstack.com/docs/developers/cli/authentication/',
+      })
+    }
+
+    this.client = new DeveloperHubClient(authtoken, orgUid)
   }
 
   async run(): Promise<any> {
@@ -115,53 +96,61 @@ export default class Create extends Command {
         args,
       }: { flags: CreateCommandFlags; args: CreateCommandArgs } =
         this.parse(Create)
-      this.checkIsUserLoggedIn()
+      const _authToken: string = configHandler.get(AUTHTOKEN)
+      if (!_authToken) {
+        this.error(getErrorMessage('authentication_error'), {
+          exit: 2,
+          ref: 'https://www.contentstack.com/docs/developers/cli/authentication/',
+        })
+      }
+      this.managementAPIClient = {
+        authtoken: _authToken,
+      }
       let appName = args.appName
       let orgUid = flags.org
-      let appType: AppType | undefined = flags['app-type'] as AppType
+      let appType: AppType | undefined =
+        (!appName || !orgUid) && flags['app-type'] !== AppType.ORGANIZATION
+          ? undefined
+          : (flags['app-type'] as AppType)
       const isInteractiveMode = !!flags.interactive
+
       //? All values to be disregarded if interactive flag present
       if (isInteractiveMode) {
-        appName = undefined
-        orgUid = undefined
-        appType = undefined
+        appName = await askAppName()
+        orgUid = await getOrganizationChoice(
+          this.managementAPIClient as ContentstackClient
+        )
+        appType = await askAppType()
       } else {
         // ? Ask for app name if it does not pass the constraints
-        if (!validateAppName(appName || '')) {
-          appName = undefined
+        if (!validateAppName(appName)) {
+          appName = await askAppName()
         }
         // ? Ask for org uid if it does not pass the constraints
-        if (!validateOrgUid(orgUid || '')) {
-          orgUid = undefined
+        if (!validateOrgUid(orgUid)) {
+          orgUid = await getOrganizationChoice(
+            this.managementAPIClient as ContentstackClient
+          )
         }
-        // ? Explicilty ask for app type when app name or org uid is missing and app type is not specified as organization
-        if ((!appName || !orgUid) && appType !== AppType.ORGANIZATION) {
-          appType = undefined
+        // ? Explicilty ask for app type when app type is not present
+        if (
+          !appType ||
+          (appType !== AppType.STACK && appType !== AppType.ORGANIZATION)
+        ) {
+          appType = await askAppType()
         }
       }
-
-      // ? prompt user if args or flags are missing
-      const answers = await inquirer.prompt(this.getQuestionSet(), {
-        appName,
-        orgUid,
-        appType,
-      })
-      appName = answers.appName
-      orgUid = answers.orgUid
-      appType = answers.appType
-
-      if (flags) this.setup(orgUid as string)
-
+      this.setup(_authToken, orgUid)
       CliUx.ux.action.start('Fetching the app template')
-      const targetPath = path.join(process.cwd(), appName as string)
+      const targetPath = path.join(process.cwd(), appName)
       const filePath = await downloadProject(APP_TEMPLATE_GITHUB_URL)
-      await makeDirectory(appName as string)
+      await makeDirectory(appName)
       unzipFileToDirectory(filePath, targetPath, 'template_fetch_failure')
       const manifestObject: AppManifestWithUiLocation = JSON.parse(
         JSON.stringify(manifestData)
       )
-      manifestObject.name = appName as string
-      manifestObject.target_type = appType as AppType
+      manifestObject.name = appName
+      manifestObject.target_type = appType
       if (appType === AppType.ORGANIZATION) {
         manifestObject.ui_location.locations = getOrgAppUiLocation()
       }
@@ -183,6 +172,7 @@ export default class Create extends Command {
       await installDependencies(targetPath)
       CliUx.ux.action.stop()
       changeDirectory(targetPath)
+      cliux.success('App creation successful!!')
     } catch (error: any) {
       CliUx.ux.action.stop('Failed')
       this.error(error.message)
