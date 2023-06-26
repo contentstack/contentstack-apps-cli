@@ -10,20 +10,30 @@ import {
   managementSDKInitiator,
 } from "@contentstack/cli-utilities";
 
+import config from "../../config";
 import { Logger } from "../../util";
+import messages, { $t } from "../../messages";
 import { ConfigType, LogFn } from "../../types";
 
 export type Flags<T extends typeof Command> = Interfaces.InferredFlags<
-  typeof BaseCommand["baseFlags"] & T["flags"]
+  (typeof BaseCommand)["baseFlags"] & T["flags"]
 >;
 export type Args<T extends typeof Command> = Interfaces.InferredArgs<T["args"]>;
 
 export abstract class BaseCommand<T extends typeof Command> extends Command {
   public log!: LogFn;
   public logger!: Logger;
+  public readonly $t = $t;
   protected $event!: EventEmitter;
-  protected sharedConfig!: ConfigType;
+  protected sharedConfig: ConfigType = {
+    ...config,
+    projectBasePath: process.cwd(),
+  };
+  readonly messages: typeof messages = {
+    ...messages,
+  };
   protected managementSdk!: ContentstackClient;
+  protected managementAppSdk!: ContentstackClient;
 
   protected flags!: Flags<T>;
   protected args!: Args<T>;
@@ -33,7 +43,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
   // define flags that can be inherited by any command that extends BaseCommand
   static baseFlags: FlagInput = {
     org: Flags.string({
-      description: "[Optional] Provide the organization UID",
+      description: "Provide the organization UID",
     }),
   };
 
@@ -49,6 +59,8 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
     this.args = args as Args<T>;
 
     ux.registerSearchPlugin();
+
+    this.initCmaSDK();
 
     // Init logger
     const logger = new Logger(this.sharedConfig);
@@ -74,7 +86,10 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
   async initCmaSDK() {
     managementSDKInitiator.init(this.context);
     this.managementSdk = await managementSDKClient({
-      host: this.sharedConfig.host,
+      host: this.cmaHost,
+    });
+    this.managementAppSdk = await managementSDKClient({
+      host: this.sharedConfig.developerHubBaseUrl,
     });
   }
 }
