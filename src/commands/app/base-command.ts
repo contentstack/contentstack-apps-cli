@@ -60,7 +60,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 
     ux.registerSearchPlugin();
 
-    this.initCmaSDK();
+    await this.initCmaSDK();
 
     // Init logger
     const logger = new Logger(this.sharedConfig);

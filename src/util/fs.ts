@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from "fs";
+import { existsSync, readdirSync, writeFileSync } from "fs";
 
 export function getDirectories(source: string): string[] | [] {
   if (!existsSync(source)) return [];
@@ -27,4 +27,12 @@ export async function getFileList(
   }
 
   return files;
+}
+
+export function writeFile(source: string, data: object | string) {
+  if (existsSync(source)) {
+    // this file already exists, do you want to overwrite it?
+    // if yes then overwrite. if no then exit?
+  }
+  writeFileSync(source, JSON.stringify(data))
 }
