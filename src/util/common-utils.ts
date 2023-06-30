@@ -45,4 +45,31 @@ function getOrgAppUiLocation(): Extension[] {
   return [orgConfigLocation];
 }
 
-export { getOrganizations, getOrgAppUiLocation };
+async function getApps(
+  orgUid: string,
+  options: CommonOptions,
+  skip = 0,
+  apps: Record<string, any>[] = []
+): Promise<Record<string, any>[]> {
+  const { log, managementSdk } = options;
+  const response = await managementSdk
+    .organization(orgUid)
+    .app()
+    .findAll({ limit: 100, asc: "name", include_count: true, skip: skip})
+    .catch((error) => {
+      log("Some error occurred while fetching apps.", "warn");
+      log(error, "error");
+      process.exit(1);
+    });
+  
+  if (response) {
+    apps = apps.concat(response.items as any);
+    if (apps.length < response.count) {
+      apps = await getApps(orgUid, options, skip + 100, apps)
+    }
+  }
+
+  return apps;
+}
+
+export { getOrganizations, getOrgAppUiLocation, getApps };

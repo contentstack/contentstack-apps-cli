@@ -30,9 +30,14 @@ const appCreate = {
     "Registering the app with name {appName} on Developer Hub",
 };
 
+const getApp = {
+  CHOOSE_APP: "Choose an App"
+}
+
 const messages: typeof errors & typeof appCreate = {
   ...errors,
   ...appCreate,
+  ...getApp
 };
 
 const $t = (msg: string, args: Record<string, string>): string => {
@@ -46,4 +51,4 @@ const $t = (msg: string, args: Record<string, string>): string => {
 };
 
 export default messages;
-export { $t, errors, appCreate };
+export { $t, errors, appCreate, getApp };

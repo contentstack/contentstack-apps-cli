@@ -1,5 +1,5 @@
 import { BaseCommand } from "./base-command";
-// import { getOrg } from "../../util";
+import { getOrg, getApp } from "../../util";
 import { flags } from "@contentstack/cli-utilities";
 
 export default class Get extends BaseCommand<typeof Get> {
@@ -11,23 +11,17 @@ export default class Get extends BaseCommand<typeof Get> {
 
   static flags = {
     'app-uid': flags.string({
-      description: "",
+      description: "something",
     }),
     'org-uid': flags.string({
-      description: ""
+      description: "something"
     })
   };
 
   async run(): Promise<void> {
-    // this.sharedConfig.org = await getOrg(this.flags, {managementSdk: this.managementAppSdk, log: this.log});
-    let apps = await this.getAllAppsFromOrg()
+    this.sharedConfig.org = await getOrg(this.flags, {managementSdk: this.managementSdk, log: this.log});
+    let apps = await getApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
     console.log(apps)
   }
 
-  async getAllAppsFromOrg(): Promise<any> {
-    return this.managementAppSdk
-    .organization(this.sharedConfig.org)
-    .app()
-    .findAll()
-  }
 }

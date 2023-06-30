@@ -2,7 +2,7 @@ import find from "lodash/find";
 import { FlagInput, cliux } from "@contentstack/cli-utilities";
 
 import messages, { errors } from "../messages";
-import { CommonOptions, getOrganizations } from "./common-utils";
+import { CommonOptions, getOrganizations, getApps } from "./common-utils";
 
 /**
  * @method getAppName
@@ -53,4 +53,26 @@ async function getOrg(flags: FlagInput, options: CommonOptions) {
   return flags.org;
 }
 
-export { getOrg, getAppName };
+/**
+ * @method 
+ */
+async function getApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
+  const { log } = options;
+  const apps = (await getApps(orgUid, options)) || [];
+  if (!(flags['app-uid'] && apps.find(app => app.uid === flags['app-uid']))) {
+    if (flags['app-uid']) {
+      // app-uid not found?
+    }
+
+    // flags['app-uid'] = await cliux
+    //   .inquire({
+    //     type: "search-list",
+    //     name: "App",
+    //     choices: apps,
+    //     message: messages.CHOOSE_APP
+    //   })
+  }
+  console.log(apps)
+}
+
+export { getOrg, getAppName, getApp };
