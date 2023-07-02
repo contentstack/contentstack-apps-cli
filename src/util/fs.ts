@@ -1,5 +1,8 @@
-import { existsSync, readdirSync, writeFileSync } from "fs";
+import { existsSync, readdirSync, writeFileSync, mkdirSync } from "fs";
+import { resolve } from "path";
 import config from "../config";
+import messages, {$t} from "../messages";
+import { LogFn } from "../types";
 
 export function getDirectories(source: string): string[] | [] {
   if (!existsSync(source)) return [];
@@ -30,12 +33,22 @@ export async function getFileList(
   return files;
 }
 
-export function writeFile(source: string, data: object | string) {
-  if (existsSync(source)) {
-    // this file already exists, save 
-    // if yes then overwrite. if no then exit?
+export async function writeFile(dir: string, data: Record<string, any> | undefined, log: LogFn) {
+  await ensureDirectoryExists(dir)
+  const files = readdirSync(dir)
+  const latestFileName = files.filter(fileName => fileName.match(new RegExp(config.defaultAppFileName))).pop()?.split('.')[0] || config.defaultAppFileName;
+  let target = resolve(dir, `${latestFileName}.json`)
+  if (existsSync(target)) {
+    target = resolve(dir, `${incrementName(latestFileName)}.json`)
   }
-  writeFileSync(source, JSON.stringify(data))
+  await writeFileSync(target, JSON.stringify(data))
+  log($t(messages.FILE_WRITTEN_SUCCESS, { file: target }), "info")
+}
+
+async function ensureDirectoryExists(dir: string) {
+  if (!existsSync(dir)) {
+    await mkdirSync(dir, {recursive: true})
+  }
 }
 
 function incrementName(name: string) {

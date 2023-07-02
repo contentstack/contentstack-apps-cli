@@ -32,7 +32,9 @@ const appCreate = {
 
 const getApp = {
   CHOOSE_APP: "Choose an App",
-  APP_UID_NOT_FOUND: "App UID not found"
+  APP_UID_NOT_FOUND: "App UID not found",
+  FILE_WRITTEN_SUCCESS: "App data has been written to {file} successfully.",
+  APPS_NOT_FOUND: "No apps found"
 }
 
 const messages: typeof errors & typeof appCreate & typeof getApp = {
