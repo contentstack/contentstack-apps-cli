@@ -10,18 +10,32 @@ export default class Get extends BaseCommand<typeof Get> {
   ];
 
   static flags = {
-    'app-uid': flags.string({
-      description: "something",
+    'app': flags.string({
+      description: "App UID",
     }),
-    'org-uid': flags.string({
-      description: "something"
+    'org': flags.string({
+      description: "Organization UID"
+    }),
+    'data-dir': flags.string({
+      description: "Path to the directory where the data will be saved",
+      default: "."
+    }),
+    'app-type': flags.string({
+      default: "stack",
+      options: ["stack", "organization"],
+      description: "Type of app"
     })
   };
 
   async run(): Promise<void> {
-    this.sharedConfig.org = await getOrg(this.flags, {managementSdk: this.managementSdk, log: this.log});
-    let app = await getApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
-    
+    try {
+      this.sharedConfig.org = await getOrg(this.flags, {managementSdk: this.managementSdk, log: this.log});
+      let app = await getApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
+      await writeFile(this.flags['data-dir'], app, this.log)
+    } catch(error: any) {
+      this.log(error.message, "error")
+      this.exit()
+    }
   }
 
 }

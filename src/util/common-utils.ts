@@ -1,4 +1,4 @@
-import { ContentstackClient } from "@contentstack/cli-utilities";
+import { ContentstackClient, FlagInput } from "@contentstack/cli-utilities";
 import { AppLocation, Extension, LogFn } from "../types";
 
 export type CommonOptions = {
@@ -46,30 +46,31 @@ function getOrgAppUiLocation(): Extension[] {
 }
 
 async function getApps(
+  flags: FlagInput,
   orgUid: string,
   options: CommonOptions,
   skip = 0,
   apps: Record<string, any>[] = []
 ): Promise<Record<string, any>[]> {
   const { log, managementSdk } = options;
-  const response = await managementSdk
+    const response = await managementSdk
     .organization(orgUid)
     .app()
-    .findAll({ limit: 50, asc: "name", include_count: true, skip: skip})
+    .findAll({ limit: 50, asc: "name", include_count: true, skip: skip, target_type: flags["app-type"]})
     .catch((error) => {
       log("Some error occurred while fetching apps.", "warn");
-      log(error, "error");
+      log(error.errorMessage, "error");
       process.exit(1);
     });
   
-  if (response) {
-    apps = apps.concat(response.items as any);
-    if (apps.length < response.count) {
-      apps = await getApps(orgUid, options, skip + 50, apps)
+    if (response) {
+      apps = apps.concat(response.items as any);
+      if (apps.length < response.count) {
+        apps = await getApps(flags, orgUid, options, skip + 50, apps)
+      }
     }
-  }
 
-  return apps;
+    return apps;
 }
 
 export { getOrganizations, getOrgAppUiLocation, getApps };
