@@ -31,10 +31,11 @@ const appCreate = {
 };
 
 const getApp = {
-  CHOOSE_APP: "Choose an App"
+  CHOOSE_APP: "Choose an App",
+  APP_UID_NOT_FOUND: "App UID not found"
 }
 
-const messages: typeof errors & typeof appCreate = {
+const messages: typeof errors & typeof appCreate & typeof getApp = {
   ...errors,
   ...appCreate,
   ...getApp

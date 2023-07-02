@@ -58,21 +58,25 @@ async function getOrg(flags: FlagInput, options: CommonOptions) {
  */
 async function getApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
   const { log } = options;
+  cliux.loader("Loading Apps");
   const apps = (await getApps(orgUid, options)) || [];
+  cliux.loader("");
   if (!(flags['app-uid'] && apps.find(app => app.uid === flags['app-uid']))) {
     if (flags['app-uid']) {
-      // app-uid not found?
+      log(messages.APP_UID_NOT_FOUND, "error");
     }
 
-    // flags['app-uid'] = await cliux
-    //   .inquire({
-    //     type: "search-list",
-    //     name: "App",
-    //     choices: apps,
-    //     message: messages.CHOOSE_APP
-    //   })
+    flags['app-uid'] = await cliux
+      .inquire({
+        type: "search-list",
+        name: "App",
+        choices: apps,
+        message: messages.CHOOSE_APP
+      })
+      .then((name) => apps.find(app => app.name === name)?.uid)
   }
-  console.log(apps)
+
+  return apps.find(app => app.uid === flags['app-uid']);
 }
 
 export { getOrg, getAppName, getApp };
