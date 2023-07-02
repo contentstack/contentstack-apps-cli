@@ -55,7 +55,7 @@ async function getApps(
   const response = await managementSdk
     .organization(orgUid)
     .app()
-    .findAll({ limit: 100, asc: "name", include_count: true, skip: skip})
+    .findAll({ limit: 50, asc: "name", include_count: true, skip: skip})
     .catch((error) => {
       log("Some error occurred while fetching apps.", "warn");
       log(error, "error");
@@ -65,7 +65,7 @@ async function getApps(
   if (response) {
     apps = apps.concat(response.items as any);
     if (apps.length < response.count) {
-      apps = await getApps(orgUid, options, skip + 100, apps)
+      apps = await getApps(orgUid, options, skip + 50, apps)
     }
   }
 
