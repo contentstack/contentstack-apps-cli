@@ -16,12 +16,11 @@
   "dependencies": {
     "@contentstack/cli-command": "^1.2.9",
     "@contentstack/cli-utilities": "^1.4.5",
-    "@oclif/plugin-help": "^5.1.10",
-    "@oclif/plugin-plugins": "^2.0.12",
+    "@oclif/plugin-help": "^5.2.11",
+    "@oclif/plugin-plugins": "^3.1.6",
     "adm-zip": "^0.5.10",
     "chalk": "^4.1.2",
     "dotenv": "^16.3.1",
-    "listr2": "^6.6.0",
     "lodash": "^4.17.21",
     "open": "^9.1.0",
     "shelljs": "^0.8.5",
@@ -41,7 +40,7 @@
     "eslint-config-oclif": "^4.0.0",
     "eslint-config-oclif-typescript": "^1.0.3",
     "mocha": "^10.2.0",
-    "oclif": "^2.3.1",
+    "oclif": "^3.9.1",
     "shx": "^0.3.4",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.3",
@@ -65,16 +64,17 @@
     "topics": {}
   },
   "scripts": {
-    "build": "shx rm -rf lib && tsc -b",
+    "build": "npm run clean && shx rm -rf lib && tsc -b",
     "lint": "eslint . --ext .ts --config .eslintrc",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "npm run lint",
     "prepack": "npm run build && oclif manifest && oclif readme",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
-    "version": "oclif readme && git add README.md"
+    "version": "oclif readme && git add README.md",
+    "clean": "rm -rf ./lib tsconfig.tsbuildinfo oclif.manifest.json"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   },
   "bugs": "https://github.com/contentstack/contentstack-apps-cli/issues",
   "keywords": [

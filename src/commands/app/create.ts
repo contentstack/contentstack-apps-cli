@@ -1,14 +1,13 @@
 import * as tmp from "tmp";
 import { join } from "path";
 import AdmZip from "adm-zip";
-import { Listr } from "listr2";
 import pick from "lodash/pick";
 import * as shell from "shelljs";
 import merge from "lodash/merge";
 import isEmpty from "lodash/isEmpty";
-import { renameSync, writeFileSync, createWriteStream } from "fs";
-import { flags, HttpClient } from "@contentstack/cli-utilities";
 import { AppData } from "@contentstack/management/types/app";
+import { renameSync, writeFileSync, createWriteStream } from "fs";
+import { ux, cliux, flags, HttpClient } from "@contentstack/cli-utilities";
 
 import { appCreate } from "../../messages";
 import { BaseCommand } from "./base-command";
@@ -17,13 +16,6 @@ import { getAppName, getOrg, getOrgAppUiLocation } from "../../util";
 
 export default class Create extends BaseCommand<typeof Create> {
   private appData!: AppManifest;
-  readonly manifestPath = join(
-    __dirname,
-    "..",
-    "..",
-    "config",
-    "manifest.json"
-  );
 
   static description = "Create new app in marketplace app";
 
@@ -43,11 +35,11 @@ export default class Create extends BaseCommand<typeof Create> {
   };
 
   async run(): Promise<void> {
-    this.appData = require(this.manifestPath);
     this.sharedConfig.org = this.flags.org;
     this.sharedConfig.appName = this.flags.name;
+    this.appData = require(this.sharedConfig.manifestPath);
 
-    await this.promptQueue();
+    await this.flagsPromptQueue();
 
     this.appData.name = this.sharedConfig.appName;
     this.appData.target_type = this.flags["app-type"] as AppType;
@@ -56,40 +48,51 @@ export default class Create extends BaseCommand<typeof Create> {
       this.appData.ui_location.locations = getOrgAppUiLocation();
     }
 
-    const tasks = new Listr(
-      [
-        {
-          // NOTE Step 1: download the boilerplate app from GitHub
-          title: this.messages.CLONE_BOILERPLATE,
-          task: async (): Promise<void> => {
-            await this.unZipBoilerplate(await this.cloneBoilerplate());
-            // NOTE If graceful cleanup is set, tmp will remove all controlled temporary objects on process exit
-            tmp.setGracefulCleanup();
-          },
-        },
-        {
-          // NOTE Step 2: Registering the app
-          title: this.$t(this.messages.REGISTER_THE_APP_ON_DEVELOPER_HUB, {
-            appName: this.sharedConfig.appName,
-          }),
-          task: async (): Promise<void> => {
-            await this.registerTheAppOnDeveloperHub();
-          },
-        },
-        {
-          // NOTE Step 3: Install dependencies
-          title: this.messages.INSTALL_DEPENDENCIES,
-          task: async (): Promise<void> => {
-            await this.installDependencies();
-          },
-        },
-      ],
-      { concurrent: false }
-    );
+    if (
+      this.flags.yes ||
+      (await cliux.inquire({
+        type: "confirm",
+        name: "cloneBoilerplate",
+        message: this.messages.CONFIRM_CLONE_BOILERPLATE,
+      }))
+    ) {
+      await this.boilerplateFlow();
+    } else {
+      ux.action.start(
+        this.$t(this.messages.REGISTER_THE_APP_ON_DEVELOPER_HUB, {
+          appName: this.sharedConfig.appName,
+        })
+      );
+      await this.registerTheAppOnDeveloperHub(false);
+      ux.action.stop();
+    }
+  }
 
-    await tasks.run().catch((error) => {
-      this.log(error, "error");
-    });
+  /**
+   * @method boilerplateFlow
+   *
+   * @memberof Create
+   */
+  async boilerplateFlow() {
+    // NOTE Step 1: download the boilerplate app from GitHub
+    ux.action.start(this.messages.CLONE_BOILERPLATE);
+    await this.unZipBoilerplate(await this.cloneBoilerplate());
+    tmp.setGracefulCleanup(); // NOTE If graceful cleanup is set, tmp will remove all controlled temporary objects on process exit
+    ux.action.stop();
+
+    // NOTE Step 2: Registering the app
+    ux.action.start(
+      this.$t(this.messages.REGISTER_THE_APP_ON_DEVELOPER_HUB, {
+        appName: this.sharedConfig.appName,
+      })
+    );
+    await this.registerTheAppOnDeveloperHub();
+    ux.action.stop();
+
+    // NOTE Step 3: Install dependencies
+    ux.action.start(this.messages.INSTALL_DEPENDENCIES);
+    await this.installDependencies();
+    ux.action.stop();
   }
 
   /**
@@ -97,7 +100,7 @@ export default class Create extends BaseCommand<typeof Create> {
    *
    * @memberof Create
    */
-  async promptQueue() {
+  async flagsPromptQueue() {
     if (isEmpty(this.sharedConfig.appName)) {
       this.sharedConfig.appName = await getAppName();
     }
@@ -163,40 +166,43 @@ export default class Create extends BaseCommand<typeof Create> {
   /**
    * @method registerTheAppOnDeveloperHub
    *
+   * @param {boolean} [saveManifest=true]
    * @memberof Create
    */
-  async registerTheAppOnDeveloperHub() {
+  async registerTheAppOnDeveloperHub(saveManifest: boolean = true) {
     await this.managementAppSdk
       .organization(this.sharedConfig.org)
       .app()
       .create(this.appData as AppData)
       .then((response) => {
-        const pickList = [
+        const validKeys = [
           "uid",
-          "framework_version",
-          "version",
           "name",
           "icon",
-          "target_type",
-          "description",
+          "oauth",
+          "version",
           "visibility",
-          "ui_location",
           "created_by",
           "created_at",
           "updated_by",
           "updated_at",
+          "target_type",
+          "description",
+          "ui_location",
           "organization_uid",
-          "oauth",
+          "framework_version",
         ];
-        this.appData = merge(this.appData, pick(response, pickList));
-        writeFileSync(
-          join(process.cwd(), this.sharedConfig.appName, "manifest.json"),
-          JSON.stringify(this.appData),
-          {
-            encoding: "utf8",
-            flag: "w",
-          }
-        );
+        this.appData = merge(this.appData, pick(response, validKeys));
+        if (saveManifest) {
+          writeFileSync(
+            join(process.cwd(), this.sharedConfig.appName, "manifest.json"),
+            JSON.stringify(this.appData),
+            {
+              encoding: "utf8",
+              flag: "w",
+            }
+          );
+        }
         this.log(this.messages.APP_CREATION_SUCCESS, "info");
       })
       .catch((error) => {
