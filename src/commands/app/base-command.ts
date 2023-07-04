@@ -12,8 +12,8 @@ import {
 
 import config from "../../config";
 import { Logger } from "../../util";
-import messages, { $t } from "../../messages";
 import { ConfigType, LogFn } from "../../types";
+import messages, { $t, commonMsg } from "../../messages";
 
 export type Flags<T extends typeof Command> = Interfaces.InferredFlags<
   (typeof BaseCommand)["baseFlags"] & T["flags"]
@@ -38,12 +38,16 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
   protected flags!: Flags<T>;
   protected args!: Args<T>;
 
-  // static hidden = true;
+  static hidden = true;
 
   // define flags that can be inherited by any command that extends BaseCommand
   static baseFlags: FlagInput = {
     org: Flags.string({
       description: "Provide the organization UID",
+    }),
+    yes: Flags.boolean({
+      char: "y",
+      description: commonMsg.SKIP_CONFIRMATION,
     }),
   };
 
@@ -60,7 +64,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 
     ux.registerSearchPlugin();
 
-    this.initCmaSDK();
+    await this.initCmaSDK();
 
     // Init logger
     const logger = new Logger(this.sharedConfig);

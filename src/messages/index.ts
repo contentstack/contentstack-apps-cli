@@ -15,6 +15,10 @@ const errors = {
     "The {appName} app already exists. Please create an app with a different name.",
 };
 
+const commonMsg = {
+  SKIP_CONFIRMATION: "Use this flag to skip confirmation",
+};
+
 const appCreate = {
   ORG_UID: "Org UID",
   APP_NAME: "App Name",
@@ -26,12 +30,15 @@ const appCreate = {
   NAME_DESCRIPTION: "Name of the app to be created",
   APP_CREATION_SUCCESS: "App creation successful!!",
   CLONE_BOILERPLATE: "Fetching the app template from GitHub",
+  CONFIRM_CLONE_BOILERPLATE:
+    "Would you like to fetching the app template from GitHub",
   REGISTER_THE_APP_ON_DEVELOPER_HUB:
     "Registering the app with name {appName} on Developer Hub",
 };
 
 const messages: typeof errors & typeof appCreate = {
   ...errors,
+  ...commonMsg,
   ...appCreate,
 };
 
@@ -46,4 +53,4 @@ const $t = (msg: string, args: Record<string, string>): string => {
 };
 
 export default messages;
-export { $t, errors, appCreate };
+export { $t, errors, commonMsg, appCreate };
