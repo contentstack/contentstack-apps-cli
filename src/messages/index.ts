@@ -16,6 +16,7 @@ const errors = {
 };
 
 const commonMsg = {
+  PROVIDE_ORG_UID: "Provide the organization UID",
   SKIP_CONFIRMATION: "Use this flag to skip confirmation",
 };
 
@@ -25,7 +26,6 @@ const appCreate = {
   DEFAULT_APP_NAME: "app-boilerplate",
   APP_TYPE_DESCRIPTION: "Type of App",
   CHOOSE_ORG: "Choose an organization",
-  PROVIDE_ORG_UID: "Provide the organization UID",
   INSTALL_DEPENDENCIES: "Installing dependencies",
   NAME_DESCRIPTION: "Name of the app to be created",
   APP_CREATION_SUCCESS: "App creation successful!!",

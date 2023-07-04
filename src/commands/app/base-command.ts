@@ -43,7 +43,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
   // define flags that can be inherited by any command that extends BaseCommand
   static baseFlags: FlagInput = {
     org: Flags.string({
-      description: "Provide the organization UID",
+      description: commonMsg.PROVIDE_ORG_UID,
     }),
     yes: Flags.boolean({
       char: "y",
