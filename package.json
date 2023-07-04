@@ -6,6 +6,9 @@
   "homepage": "https://github.com/contentstack/contentstack-apps-cli",
   "license": "MIT",
   "main": "./lib/index.js",
+  "bin": {
+    "app": "./bin/run"
+  },
   "repository": "contentstack/apps-cli",
   "files": [
     "/bin",
@@ -17,10 +20,8 @@
     "@contentstack/cli-command": "^1.2.9",
     "@contentstack/cli-utilities": "^1.4.5",
     "@oclif/plugin-help": "^5.2.11",
-    "@oclif/plugin-plugins": "^3.1.6",
     "adm-zip": "^0.5.10",
     "chalk": "^4.1.2",
-    "dotenv": "^16.3.1",
     "lodash": "^4.17.21",
     "open": "^9.1.0",
     "shelljs": "^0.8.5",
@@ -36,6 +37,7 @@
     "@types/shelljs": "^0.8.12",
     "@types/tmp": "^0.2.3",
     "chai": "^4.3.7",
+    "dotenv": "^16.3.1",
     "eslint": "^8.43.0",
     "eslint-config-oclif": "^4.0.0",
     "eslint-config-oclif-typescript": "^1.0.3",
@@ -51,8 +53,7 @@
     "dirname": "apps-cli",
     "commands": "./lib/commands",
     "plugins": [
-      "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
+      "@oclif/plugin-help"
     ],
     "topicSeparator": ":",
     "additionalHelpFlags": [
@@ -74,7 +75,7 @@
     "clean": "rm -rf ./lib tsconfig.tsbuildinfo oclif.manifest.json"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=16"
   },
   "bugs": "https://github.com/contentstack/contentstack-apps-cli/issues",
   "keywords": [
