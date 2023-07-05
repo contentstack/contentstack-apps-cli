@@ -45,6 +45,10 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
     org: Flags.string({
       description: commonMsg.PROVIDE_ORG_UID,
     }),
+    "data-dir": Flags.string({
+      char: "d",
+      description: commonMsg.CURRENT_WORKING_DIR,
+    }),
     yes: Flags.boolean({
       char: "y",
       description: commonMsg.SKIP_CONFIRMATION,
