@@ -28,6 +28,7 @@ const appCreate = {
   DEFAULT_APP_NAME: "app-boilerplate",
   APP_TYPE_DESCRIPTION: "Type of App",
   CHOOSE_ORG: "Choose an organization",
+  ROLLBACK_BOILERPLATE: "Roll back boilerplate",
   INSTALL_DEPENDENCIES: "Installing dependencies",
   NAME_DESCRIPTION: "Name of the app to be created",
   APP_CREATION_SUCCESS: "App creation successful!!",
@@ -36,7 +37,7 @@ const appCreate = {
     "Would you like to fetching the app template from GitHub",
   REGISTER_THE_APP_ON_DEVELOPER_HUB:
     "Registering the app with name {appName} on Developer Hub",
-  START_APP_COMMAND: "Start App using following commands: {command}",
+  START_APP_COMMAND: "Start the app using following command: {command}",
 };
 
 const messages: typeof errors & typeof appCreate = {
