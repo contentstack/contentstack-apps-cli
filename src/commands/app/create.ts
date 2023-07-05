@@ -1,5 +1,5 @@
 import * as tmp from "tmp";
-import { join } from "path";
+import { dirname, join } from "path";
 import AdmZip from "adm-zip";
 import pick from "lodash/pick";
 import * as shell from "shelljs";
@@ -7,6 +7,7 @@ import merge from "lodash/merge";
 import isEmpty from "lodash/isEmpty";
 import { AppData } from "@contentstack/management/types/app";
 import {
+  rmSync,
   mkdirSync,
   renameSync,
   existsSync,
@@ -90,9 +91,6 @@ export default class Create extends BaseCommand<typeof Create> {
     ux.action.start(this.messages.INSTALL_DEPENDENCIES);
     await this.installDependencies();
     ux.action.stop();
-
-    this.log("", "info");
-
     this.log(
       this.$t(this.messages.START_APP_COMMAND, {
         command: `cd ${this.sharedConfig.folderPath} && npm run start`,
@@ -206,6 +204,14 @@ export default class Create extends BaseCommand<typeof Create> {
       .create(this.appData as AppData)
       .then((response) => {
         ux.action.stop();
+
+        if (this.sharedConfig.nameChanged) {
+          renameSync(
+            this.sharedConfig.oldFolderPath,
+            this.sharedConfig.folderPath
+          );
+        }
+
         const validKeys = [
           "uid",
           "name",
@@ -263,12 +269,31 @@ export default class Create extends BaseCommand<typeof Create> {
             break;
         }
 
+        await this.rollbackBoilerplate();
+
         if (error.errorMessage) {
           this.log(error.errorMessage, "error");
         }
         this.log(error, "error");
         this.exit(1);
       });
+  }
+
+  /**
+   * @method rollbackBoilerplate
+   *
+   * @memberof Create
+   */
+  rollbackBoilerplate() {
+    if (existsSync(this.sharedConfig.folderPath)) {
+      ux.action.start(this.messages.ROLLBACK_BOILERPLATE);
+      rmSync(this.sharedConfig.folderPath, {
+        force: true,
+        recursive: true,
+        maxRetries: 3,
+      });
+      ux.action.stop();
+    }
   }
 
   /**
@@ -287,6 +312,16 @@ export default class Create extends BaseCommand<typeof Create> {
       `${this.sharedConfig.appName}+${retry + 1}`
     );
     this.appData.name = this.sharedConfig.appName;
+
+    if (!this.sharedConfig.oldFolderPath) {
+      this.sharedConfig.oldFolderPath = this.sharedConfig.folderPath;
+    }
+
+    this.sharedConfig.folderPath = join(
+      dirname(this.sharedConfig.folderPath),
+      this.appData.name
+    );
+    this.sharedConfig.nameChanged = true;
 
     return await this.registerTheAppOnDeveloperHub(saveManifest, retry);
   }
