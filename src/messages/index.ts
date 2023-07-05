@@ -1,12 +1,11 @@
 const errors = {
   ORG_UID_NOT_FOUND: "Organization UID not found!",
   INVALID_ORG_UID: "Please enter a valid organization uid.",
-  INVALID_APP_NAME:
-    "Please enter a valid name that is 3 to 20 characters long.",
+  INVALID_NAME:
+    "Please enter a valid name that is {min} to {max} characters long.",
   FILE_GENERATION_FAILURE:
     "Could not generate the file. Please try running the command again.",
-  APP_CREATION_FAILURE:
-    "App could not be registered on Developer Hub. Please check your internet connectivity and try running the command again.",
+  APP_CREATION_FAILURE: "App could not be registered on Developer Hub",
   APP_CREATION_CONSTRAINT_FAILURE:
     "App could not be registered. Please go through the constraints on app name and try running the command again.",
   APP_CREATION_INVALID_ORG:
@@ -17,12 +16,15 @@ const errors = {
 
 const commonMsg = {
   PROVIDE_ORG_UID: "Provide the organization UID",
+  CURRENT_WORKING_DIR: "Current working directory",
   SKIP_CONFIRMATION: "Use this flag to skip confirmation",
 };
 
 const appCreate = {
   ORG_UID: "Org UID",
-  APP_NAME: "App Name",
+  NAME: "{target} name",
+  DIR_EXIST: "Directory name already exist",
+  UNZIP: "Unzipping the boilerplate",
   DEFAULT_APP_NAME: "app-boilerplate",
   APP_TYPE_DESCRIPTION: "Type of App",
   CHOOSE_ORG: "Choose an organization",
@@ -34,6 +36,7 @@ const appCreate = {
     "Would you like to fetching the app template from GitHub",
   REGISTER_THE_APP_ON_DEVELOPER_HUB:
     "Registering the app with name {appName} on Developer Hub",
+  START_APP_COMMAND: "Start App using following commands: {command}",
 };
 
 const messages: typeof errors & typeof appCreate = {

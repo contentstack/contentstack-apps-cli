@@ -6,13 +6,24 @@ import * as shell from "shelljs";
 import merge from "lodash/merge";
 import isEmpty from "lodash/isEmpty";
 import { AppData } from "@contentstack/management/types/app";
-import { renameSync, writeFileSync, createWriteStream } from "fs";
+import {
+  mkdirSync,
+  renameSync,
+  existsSync,
+  writeFileSync,
+  createWriteStream,
+} from "fs";
 import { ux, cliux, flags, HttpClient } from "@contentstack/cli-utilities";
 
 import { appCreate } from "../../messages";
 import { BaseCommand } from "./base-command";
 import { AppManifest, AppType } from "../../types";
-import { getAppName, getOrg, getOrgAppUiLocation } from "../../util";
+import {
+  getOrg,
+  getAppName,
+  getDirName,
+  getOrgAppUiLocation,
+} from "../../util";
 
 export default class Create extends BaseCommand<typeof Create> {
   private appData!: AppManifest;
@@ -58,13 +69,7 @@ export default class Create extends BaseCommand<typeof Create> {
     ) {
       await this.boilerplateFlow();
     } else {
-      ux.action.start(
-        this.$t(this.messages.REGISTER_THE_APP_ON_DEVELOPER_HUB, {
-          appName: this.sharedConfig.appName,
-        })
-      );
       await this.registerTheAppOnDeveloperHub(false);
-      ux.action.stop();
     }
   }
 
@@ -75,24 +80,25 @@ export default class Create extends BaseCommand<typeof Create> {
    */
   async boilerplateFlow() {
     // NOTE Step 1: download the boilerplate app from GitHub
-    ux.action.start(this.messages.CLONE_BOILERPLATE);
     await this.unZipBoilerplate(await this.cloneBoilerplate());
     tmp.setGracefulCleanup(); // NOTE If graceful cleanup is set, tmp will remove all controlled temporary objects on process exit
-    ux.action.stop();
 
     // NOTE Step 2: Registering the app
-    ux.action.start(
-      this.$t(this.messages.REGISTER_THE_APP_ON_DEVELOPER_HUB, {
-        appName: this.sharedConfig.appName,
-      })
-    );
     await this.registerTheAppOnDeveloperHub();
-    ux.action.stop();
 
     // NOTE Step 3: Install dependencies
     ux.action.start(this.messages.INSTALL_DEPENDENCIES);
     await this.installDependencies();
     ux.action.stop();
+
+    this.log("", "info");
+
+    this.log(
+      this.$t(this.messages.START_APP_COMMAND, {
+        command: `cd ${this.sharedConfig.folderPath} && npm run start`,
+      }),
+      "info"
+    );
   }
 
   /**
@@ -118,18 +124,22 @@ export default class Create extends BaseCommand<typeof Create> {
    * @memberof Create
    */
   async cloneBoilerplate(): Promise<string> {
+    ux.action.start(this.messages.CLONE_BOILERPLATE);
     const tmpObj = tmp.fileSync();
     const filePath = tmpObj.name;
+
     const writer = createWriteStream(filePath);
     const response = await new HttpClient({ responseType: "stream" }).get(
       this.sharedConfig.appBoilerplateGithubUrl
     );
+
     response.data.pipe(writer);
 
     return new Promise((resolve) => {
       writer
         .on("finish", function () {
           resolve(filePath);
+          ux.action.stop();
         })
         .on("error", () => {
           this.log(this.messages.FILE_GENERATION_FAILURE, "error");
@@ -146,13 +156,28 @@ export default class Create extends BaseCommand<typeof Create> {
    */
   async unZipBoilerplate(filepath: string) {
     const zip = new AdmZip(filepath);
+    const dataDir = this.flags["data-dir"] || process.cwd();
+    let targetPath = join(dataDir, this.sharedConfig.appName);
+    const sourcePath = join(dataDir, this.sharedConfig.boilerplateName);
+
+    if (this.flags["data-dir"] && !existsSync(this.flags["data-dir"])) {
+      mkdirSync(this.flags["data-dir"], { recursive: true });
+    }
+
+    if (existsSync(targetPath)) {
+      this.log(this.messages.DIR_EXIST, "warn");
+      targetPath = await getDirName(targetPath);
+    }
+
+    this.sharedConfig.folderPath = targetPath;
+
     await new Promise<void>((resolve) => {
-      zip.extractAllToAsync(process.cwd(), true, false, (error) => {
+      ux.action.start(this.messages.UNZIP);
+      zip.extractAllToAsync(dataDir, true, false, (error) => {
+        ux.action.stop();
+
         if (!error) {
-          renameSync(
-            join(process.cwd(), this.sharedConfig.boilerplateName),
-            join(process.cwd(), this.sharedConfig.appName)
-          );
+          renameSync(sourcePath, targetPath);
           // NOTE write manifest into Boilerplate location
           return resolve();
         }
@@ -169,12 +194,18 @@ export default class Create extends BaseCommand<typeof Create> {
    * @param {boolean} [saveManifest=true]
    * @memberof Create
    */
-  async registerTheAppOnDeveloperHub(saveManifest: boolean = true) {
+  async registerTheAppOnDeveloperHub(saveManifest: boolean = true, retry = 0) {
+    ux.action.start(
+      this.$t(this.messages.REGISTER_THE_APP_ON_DEVELOPER_HUB, {
+        appName: this.sharedConfig.appName,
+      })
+    );
     await this.managementAppSdk
       .organization(this.sharedConfig.org)
       .app()
       .create(this.appData as AppData)
       .then((response) => {
+        ux.action.stop();
         const validKeys = [
           "uid",
           "name",
@@ -195,7 +226,7 @@ export default class Create extends BaseCommand<typeof Create> {
         this.appData = merge(this.appData, pick(response, validKeys));
         if (saveManifest) {
           writeFileSync(
-            join(process.cwd(), this.sharedConfig.appName, "manifest.json"),
+            join(this.sharedConfig.folderPath, "manifest.json"),
             JSON.stringify(this.appData),
             {
               encoding: "utf8",
@@ -205,8 +236,8 @@ export default class Create extends BaseCommand<typeof Create> {
         }
         this.log(this.messages.APP_CREATION_SUCCESS, "info");
       })
-      .catch((error) => {
-        if (error.errorMessage) this.log(error.errorMessage, "error");
+      .catch(async (error) => {
+        ux.action.stop("Failed");
         switch (error.status) {
           case 400:
             this.log(this.messages.APP_CREATION_CONSTRAINT_FAILURE, "error");
@@ -215,8 +246,13 @@ export default class Create extends BaseCommand<typeof Create> {
             this.log(this.messages.APP_CREATION_INVALID_ORG, "error");
             break;
           case 409:
-            this.log(this.messages.DUPLICATE_APP_NAME, "error");
-            break;
+            this.log(
+              this.$t(this.messages.DUPLICATE_APP_NAME, {
+                appName: this.appData.name,
+              }),
+              "warn"
+            );
+            return await this.manageNameConflict(saveManifest, retry);
           default:
             this.log(
               this.$t(this.messages.APP_CREATION_FAILURE, {
@@ -227,9 +263,32 @@ export default class Create extends BaseCommand<typeof Create> {
             break;
         }
 
+        if (error.errorMessage) {
+          this.log(error.errorMessage, "error");
+        }
         this.log(error, "error");
         this.exit(1);
       });
+  }
+
+  /**
+   * @method manageNameConflict
+   *
+   * @param {boolean} saveManifest
+   * @param {number} retry
+   * @return {*}  {Promise<void>}
+   * @memberof Create
+   */
+  async manageNameConflict(
+    saveManifest: boolean,
+    retry: number
+  ): Promise<void> {
+    this.sharedConfig.appName = await getAppName(
+      `${this.sharedConfig.appName}+${retry + 1}`
+    );
+    this.appData.name = this.sharedConfig.appName;
+
+    return await this.registerTheAppOnDeveloperHub(saveManifest, retry);
   }
 
   /**
@@ -238,7 +297,7 @@ export default class Create extends BaseCommand<typeof Create> {
    * @memberof Create
    */
   async installDependencies() {
-    shell.cd(join(process.cwd(), this.sharedConfig.appName));
+    shell.cd(this.sharedConfig.folderPath);
     await new Promise<void>((resolve, reject) => {
       shell.exec("npm install", { silent: true }, (error) => {
         if (error !== 0) {
