@@ -10,30 +10,48 @@ import {
   managementSDKInitiator,
 } from "@contentstack/cli-utilities";
 
+import config from "../../config";
 import { Logger } from "../../util";
 import { ConfigType, LogFn } from "../../types";
+import messages, { $t, commonMsg } from "../../messages";
 
 export type Flags<T extends typeof Command> = Interfaces.InferredFlags<
-  typeof BaseCommand["baseFlags"] & T["flags"]
+  (typeof BaseCommand)["baseFlags"] & T["flags"]
 >;
 export type Args<T extends typeof Command> = Interfaces.InferredArgs<T["args"]>;
 
 export abstract class BaseCommand<T extends typeof Command> extends Command {
   public log!: LogFn;
   public logger!: Logger;
+  public readonly $t = $t;
   protected $event!: EventEmitter;
-  protected sharedConfig!: ConfigType;
+  protected sharedConfig: ConfigType = {
+    ...config,
+    projectBasePath: process.cwd(),
+  };
+  readonly messages: typeof messages = {
+    ...messages,
+  };
   protected managementSdk!: ContentstackClient;
+  protected managementAppSdk!: ContentstackClient;
 
   protected flags!: Flags<T>;
   protected args!: Args<T>;
 
-  // static hidden = true;
+  static hidden = true;
 
   // define flags that can be inherited by any command that extends BaseCommand
   static baseFlags: FlagInput = {
     org: Flags.string({
-      description: "[Optional] Provide the organization UID",
+      description: commonMsg.PROVIDE_ORG_UID,
+    }),
+    "data-dir": Flags.string({
+      char: "d",
+      description: commonMsg.CURRENT_WORKING_DIR,
+    }),
+    yes: Flags.boolean({
+      char: "y",
+      description: commonMsg.SKIP_CONFIRMATION,
     }),
   };
 
@@ -49,6 +67,8 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
     this.args = args as Args<T>;
 
     ux.registerSearchPlugin();
+
+    await this.initCmaSDK();
 
     // Init logger
     const logger = new Logger(this.sharedConfig);
@@ -74,7 +94,10 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
   async initCmaSDK() {
     managementSDKInitiator.init(this.context);
     this.managementSdk = await managementSDKClient({
-      host: this.sharedConfig.host,
+      host: this.cmaHost,
+    });
+    this.managementAppSdk = await managementSDKClient({
+      host: this.sharedConfig.developerHubBaseUrl,
     });
   }
 }
