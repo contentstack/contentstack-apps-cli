@@ -1,5 +1,6 @@
 const errors = {
   ORG_UID_NOT_FOUND: "Organization UID not found!",
+  BASE_URL_EMPTY: "Developer-hub URL can't be empty.",
   INVALID_ORG_UID: "Please enter a valid organization uid.",
   INVALID_NAME:
     "Please enter a valid name that is {min} to {max} characters long.",
@@ -15,9 +16,11 @@ const errors = {
 };
 
 const commonMsg = {
+  CONFIG: "[optional] path of the external config",
   PROVIDE_ORG_UID: "Provide the organization UID",
   CURRENT_WORKING_DIR: "Current working directory",
   SKIP_CONFIRMATION: "Use this flag to skip confirmation",
+  DEVELOPER_HUB_URL_PROMPT: "Enter the developer-hub base URL for the {name} region - "
 };
 
 const appCreate = {
@@ -40,10 +43,16 @@ const appCreate = {
   START_APP_COMMAND: "Start the app using following command: {command}",
 };
 
+const appUpdate = {
+  APP_UID: "Provide the app UID",
+  MANIFEST_PATH: "Path to the app-manifest.json file",
+};
+
 const messages: typeof errors & typeof appCreate = {
   ...errors,
   ...commonMsg,
   ...appCreate,
+  ...appUpdate,
 };
 
 const $t = (msg: string, args: Record<string, string>): string => {
@@ -57,4 +66,4 @@ const $t = (msg: string, args: Record<string, string>): string => {
 };
 
 export default messages;
-export { $t, errors, commonMsg, appCreate };
+export { $t, errors, commonMsg, appCreate, appUpdate };
