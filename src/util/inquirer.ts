@@ -1,9 +1,10 @@
 import find from "lodash/find";
 import { existsSync } from "fs";
 import { basename, dirname, join } from "path";
-import { FlagInput, cliux } from "@contentstack/cli-utilities";
+import { FlagInput, cliux, configHandler } from "@contentstack/cli-utilities";
 
-import messages, { $t, errors } from "../messages";
+import config from "../config";
+import messages, { $t, commonMsg, errors } from "../messages";
 import { CommonOptions, getOrganizations } from "./common-utils";
 
 /**
@@ -87,4 +88,33 @@ async function getOrg(flags: FlagInput, options: CommonOptions) {
   return flags.org;
 }
 
-export { getOrg, getAppName, getDirName };
+/**
+ * @method getDeveloperHubUrl
+ *
+ * @return {*}  {Promise<string>}
+ */
+async function getDeveloperHubUrl(): Promise<string> {
+  const { cma, name } = configHandler.get("region") || {};
+  let developerHubBaseUrl = (config.developerHubUrls as Record<string, string>)[
+    cma
+  ];
+
+  if (!developerHubBaseUrl) {
+    developerHubBaseUrl = await cliux.inquire({
+      type: "input",
+      name: "name",
+      validate: (url) => {
+        if (!url) return errors.BASE_URL_EMPTY;
+
+        return true;
+      },
+      message: $t(commonMsg.DEVELOPER_HUB_URL_PROMPT, { name }),
+    });
+  }
+
+  return developerHubBaseUrl.startsWith("http")
+    ? developerHubBaseUrl
+    : `https://${developerHubBaseUrl}`;
+}
+
+export { getOrg, getAppName, getDirName, getDeveloperHubUrl };

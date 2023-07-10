@@ -1,4 +1,5 @@
 import { Command } from "@contentstack/cli-utilities";
+
 import { print } from "../../util/log";
 
 export default class App extends Command {
@@ -6,11 +7,11 @@ export default class App extends Command {
 
   static examples = [
     "$ <%= config.bin %> <%= command.id %>:create",
+    "$ <%= config.bin %> <%= command.id %>:update",
     "$ <%= config.bin %> <%= command.id %>:get",
   ];
 
   async run(): Promise<void> {
-    // Do nothing
     print([
       {
         bold: true,
