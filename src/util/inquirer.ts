@@ -1,7 +1,11 @@
 import find from "lodash/find";
 import { existsSync } from "fs";
 import { basename, dirname, join } from "path";
-import { FlagInput, cliux, configHandler } from "@contentstack/cli-utilities";
+import {
+  cliux,
+  FlagInput,
+  configHandler,
+} from "@contentstack/cli-utilities";
 
 import config from "../config";
 import messages, { $t, commonMsg, errors } from "../messages";
