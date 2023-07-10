@@ -29,7 +29,7 @@ import {
 export default class Create extends BaseCommand<typeof Create> {
   private appData!: AppManifest;
 
-  static description = "Create new app in marketplace app";
+  static description = "Create new app in developer hub";
 
   static examples = ["$ <%= config.bin %> <%= command.id %>"];
 
@@ -269,7 +269,7 @@ export default class Create extends BaseCommand<typeof Create> {
             break;
         }
 
-        await this.rollbackBoilerplate();
+        this.rollbackBoilerplate();
 
         if (error.errorMessage) {
           this.log(error.errorMessage, "error");
