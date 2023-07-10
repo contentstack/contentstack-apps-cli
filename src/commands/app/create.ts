@@ -36,7 +36,6 @@ export default class Create extends BaseCommand<typeof Create> {
   static flags = {
     name: flags.string({
       char: "n",
-      default: appCreate.DEFAULT_APP_NAME,
       description: appCreate.NAME_DESCRIPTION,
     }),
     "app-type": flags.string({
@@ -106,7 +105,9 @@ export default class Create extends BaseCommand<typeof Create> {
    */
   async flagsPromptQueue() {
     if (isEmpty(this.sharedConfig.appName)) {
-      this.sharedConfig.appName = await getAppName();
+      this.sharedConfig.appName = await getAppName(
+        this.messages.DEFAULT_APP_NAME
+      );
     }
 
     this.sharedConfig.org = await getOrg(this.flags, {
