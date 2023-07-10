@@ -1,12 +1,16 @@
 const errors = {
+  NOT_EMPTY: "{value} can't be empty",
   ORG_UID_NOT_FOUND: "Organization UID not found!",
   BASE_URL_EMPTY: "Developer-hub URL can't be empty.",
   INVALID_ORG_UID: "Please enter a valid organization uid.",
+  PATH_NOT_FOUND: "Provide path '{path}' is not valid/found.",
   INVALID_NAME:
     "Please enter a valid name that is {min} to {max} characters long.",
   FILE_GENERATION_FAILURE:
     "Could not generate the file. Please try running the command again.",
   APP_CREATION_FAILURE: "App could not be registered on Developer Hub",
+  APP_UID_NOT_MATCH:
+    "Provided App UID not matching with app-manifest.json app UID",
   APP_CREATION_CONSTRAINT_FAILURE:
     "App could not be registered. Please go through the constraints on app name and try running the command again.",
   APP_CREATION_INVALID_ORG:
@@ -16,11 +20,13 @@ const errors = {
 };
 
 const commonMsg = {
-  CONFIG: "[optional] path of the external config",
+  CONFIG: "Path of the external config",
+  MAX_RETRY_LIMIT: "Maximum retry limit reached.",
   PROVIDE_ORG_UID: "Provide the organization UID",
   CURRENT_WORKING_DIR: "Current working directory",
   SKIP_CONFIRMATION: "Use this flag to skip confirmation",
-  DEVELOPER_HUB_URL_PROMPT: "Enter the developer-hub base URL for the {name} region - "
+  DEVELOPER_HUB_URL_PROMPT:
+    "Enter the developer-hub base URL for the {name} region - ",
 };
 
 const appCreate = {
@@ -45,10 +51,13 @@ const appCreate = {
 
 const appUpdate = {
   APP_UID: "Provide the app UID",
-  MANIFEST_PATH: "Path to the app-manifest.json file",
+  FILE_PATH: "Path to the {fileName} file",
 };
 
-const messages: typeof errors & typeof appCreate = {
+const messages: typeof errors &
+  typeof commonMsg &
+  typeof appCreate &
+  typeof appUpdate = {
   ...errors,
   ...commonMsg,
   ...appCreate,

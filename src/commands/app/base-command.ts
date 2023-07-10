@@ -10,6 +10,8 @@ import {
   ContentstackClient,
   managementSDKClient,
   managementSDKInitiator,
+  InquirePayload,
+  cliux,
 } from "@contentstack/cli-utilities";
 
 import config from "../../config";
@@ -124,6 +126,37 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
     });
     this.managementAppSdk = await managementSDKClient({
       host: this.developerHubBaseUrl,
+    });
+  }
+
+  /**
+   * @method getValPrompt
+   *
+   * @param {(Partial<InquirePayload> & Record<string, any>)} [options={
+   *       validate: (val) => {
+   *         if (!val) return this.messages.NOT_EMPTY;
+   *         return true;
+   *       },
+   *     }]
+   * @return {*}  {(Promise<string | boolean>)}
+   * @memberof BaseCommand
+   */
+  getValPrompt(
+    options: Partial<InquirePayload> & Record<string, any> = {
+      message: 'Enter value',
+      validate: (val) => {
+        if (!val) return this.$t(this.messages.NOT_EMPTY, { value: 'Value' });
+        return true;
+      },
+    }
+  ): Promise<string | boolean> {
+    const { message, validate } = options;
+    return cliux.inquire({
+      validate,
+      type: "input",
+      name: "getVal",
+      default: options?.default,
+      message: message as string,
     });
   }
 }
