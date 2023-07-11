@@ -108,7 +108,11 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
         const config = JSON.parse(
           readFileSync(this.flags.config, { encoding: "utf-8" })
         );
-        const omitKeys = ["boilerplateName", "manifestPath"];
+        const omitKeys = [
+          "manifestPath",
+          "boilerplateName",
+          "developerHubUrls",
+        ];
         this.sharedConfig = merge(this.sharedConfig, omit(config, omitKeys));
       } catch (error) {}
     }

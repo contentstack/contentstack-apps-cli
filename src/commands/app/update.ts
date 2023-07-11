@@ -1,9 +1,13 @@
+import pick from "lodash/pick";
+import { resolve } from "path";
+import merge from "lodash/merge";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { flags } from "@contentstack/cli-utilities";
 
+import { getOrg } from "../../util";
 import { AppManifest } from "../../types";
 import { BaseCommand } from "./base-command";
 import { $t, appUpdate } from "../../messages";
-import { existsSync, readFileSync } from "fs";
 
 export default class Create extends BaseCommand<typeof Create> {
   private appUidRetry: number = 0;
@@ -15,33 +19,46 @@ export default class Create extends BaseCommand<typeof Create> {
 
   static flags = {
     "app-uid": flags.string({
-      required: true,
       description: appUpdate.APP_UID,
     }),
     "app-manifest": flags.string({
-      required: true,
-      description: $t(appUpdate.FILE_PATH, { fileName: "app-manifest.json" }),
+      description: $t(appUpdate.FILE_PATH, { fileName: "app manifest.json" }),
     }),
   };
 
   async run(): Promise<void> {
+    if (this.flags["data-dir"] && !this.flags["app-manifest"]) {
+      this.flags["app-manifest"] = resolve(
+        this.flags["data-dir"],
+        "manifest.json"
+      );
+    }
+
     await this.flagsPromptQueue();
     await this.validateManifest();
     await this.validateAppUid();
+    await this.appVersionValidation();
+    await this.updateAppOnDeveloperHub();
   }
 
   /**
    * @method flagsPromptQueue
    *
+   * @return {*}  {Promise<void>}
    * @memberof Create
    */
-  async flagsPromptQueue() {
+  async flagsPromptQueue(): Promise<void> {
     const validate = (value: string) => {
       return (val: string) => {
         if (!val) return this.$t(this.messages.NOT_EMPTY, { value });
         return true;
       };
     };
+
+    this.sharedConfig.org = await getOrg(this.flags, {
+      log: this.log,
+      managementSdk: this.managementSdk,
+    });
 
     if (!this.flags["app-uid"]) {
       this.flags["app-uid"] = (await this.getValPrompt({
@@ -54,7 +71,7 @@ export default class Create extends BaseCommand<typeof Create> {
       this.flags["app-manifest"] = (await this.getValPrompt({
         validate: validate("App manifest path"),
         message: this.$t(this.messages.FILE_PATH, {
-          fileName: "app-manifest.json",
+          fileName: "app manifest.json",
         }),
       })) as string;
     }
@@ -63,14 +80,18 @@ export default class Create extends BaseCommand<typeof Create> {
   /**
    * @method validateManifest
    *
+   * @return {*}  {Promise<void>}
    * @memberof Create
    */
-  async validateManifest() {
+  async validateManifest(): Promise<void> {
+    const manifestPath = this.flags["app-manifest"] as string;
     let hasError = false;
-    if (existsSync(this.flags["app-manifest"])) {
+    if (existsSync(manifestPath)) {
       try {
         this.manifestData = JSON.parse(
-          readFileSync(this.flags.config, { encoding: "utf-8" })
+          readFileSync(manifestPath, {
+            encoding: "utf-8",
+          })
         );
       } catch (error) {
         hasError = true;
@@ -79,7 +100,7 @@ export default class Create extends BaseCommand<typeof Create> {
     } else {
       hasError = true;
       this.$t(this.messages.PATH_NOT_FOUND, {
-        path: this.flags["app-manifest"],
+        path: manifestPath,
       });
     }
 
@@ -99,9 +120,10 @@ export default class Create extends BaseCommand<typeof Create> {
   /**
    * @method validateAppUid
    *
+   * @return {*}  {Promise<void>}
    * @memberof Create
    */
-  async validateAppUid() {
+  async validateAppUid(): Promise<void> {
     if (this.flags["app-uid"] !== this.manifestData.uid) {
       this.log(this.messages.APP_UID_NOT_MATCH, "error");
       this.appUidRetry++;
@@ -114,5 +136,94 @@ export default class Create extends BaseCommand<typeof Create> {
         this.exit(1);
       }
     }
+  }
+
+  /**
+   * @method appVersionValidation
+   *
+   * @return {*}  {(Promise<Record<string, any> | void>)}
+   * @memberof Create
+   */
+  async appVersionValidation(): Promise<Record<string, any> | void> {
+    const app = await this.managementAppSdk
+      .organization(this.flags.org)
+      .app(this.flags["app-uid"] as string)
+      .fetch()
+      .catch((er) => {
+        this.log(er, "error");
+      });
+
+    if (this.manifestData.version !== app?.version) {
+      this.log(this.messages.APP_VERSION_MISS_MATCH, "warn");
+      this.exit(1);
+    }
+
+    return app;
+  }
+
+  /**
+   * @method updateAppOnDeveloperHub
+   *
+   * @return {*}  {Promise<void>}
+   * @memberof Create
+   */
+  async updateAppOnDeveloperHub(): Promise<void> {
+    await this.managementAppSdk
+      .organization(this.flags.org)
+      .app(this.flags["app-uid"] as string)
+      .update(this.manifestData)
+      .then((response) => {
+        const validKeys = [
+          "uid",
+          "name",
+          "icon",
+          "oauth",
+          "version",
+          "visibility",
+          "created_by",
+          "created_at",
+          "updated_by",
+          "updated_at",
+          "target_type",
+          "description",
+          "ui_location",
+          "organization_uid",
+          "framework_version",
+        ];
+        this.manifestData = merge(this.manifestData, pick(response, validKeys));
+        writeFileSync(
+          this.flags["app-manifest"] as string,
+          JSON.stringify(this.manifestData),
+          {
+            encoding: "utf8",
+            flag: "w",
+          }
+        );
+        this.log(this.messages.APP_UPDATE_SUCCESS, "info");
+      })
+      .catch((er) => {
+        switch (er.status) {
+          case 400:
+            this.log(this.messages.INVALID_APP_ID, "error");
+            break;
+          case 403:
+            this.log(this.messages.APP_INVALID_ORG, "error");
+            break;
+          case 409:
+            this.log(
+              this.$t(this.messages.DUPLICATE_APP_NAME, {
+                appName: this.manifestData.name,
+              }),
+              "warn"
+            );
+            break;
+          default:
+            this.log(this.messages.APP_UPDATE_FAILED, "warn");
+            break;
+        }
+
+        this.log(er, "error");
+        this.exit(1);
+      });
   }
 }
