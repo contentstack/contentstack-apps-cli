@@ -116,9 +116,11 @@ async function getDeveloperHubUrl(): Promise<string> {
     });
   }
 
-  return developerHubBaseUrl.startsWith("http")
-    ? developerHubBaseUrl
-    : `https://${developerHubBaseUrl}`;
+  if (developerHubBaseUrl.startsWith("http")) {
+    developerHubBaseUrl = developerHubBaseUrl.split("//")[1];
+  }
+
+  return developerHubBaseUrl;
 }
 
 export { getOrg, getAppName, getDirName, getDeveloperHubUrl };

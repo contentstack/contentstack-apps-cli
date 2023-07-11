@@ -1,5 +1,6 @@
 const errors = {
   NOT_EMPTY: "{value} can't be empty",
+  INVALID_APP_ID: "App UID must be valid",
   ORG_UID_NOT_FOUND: "Organization UID not found!",
   BASE_URL_EMPTY: "Developer-hub URL can't be empty.",
   INVALID_ORG_UID: "Please enter a valid organization uid.",
@@ -10,10 +11,10 @@ const errors = {
     "Could not generate the file. Please try running the command again.",
   APP_CREATION_FAILURE: "App could not be registered on Developer Hub",
   APP_UID_NOT_MATCH:
-    "Provided App UID not matching with app-manifest.json app UID",
+    "Provided App UID not matching with app manifest.json app UID",
   APP_CREATION_CONSTRAINT_FAILURE:
     "App could not be registered. Please go through the constraints on app name and try running the command again.",
-  APP_CREATION_INVALID_ORG:
+  APP_INVALID_ORG:
     "App could not be registered. Please verify the inputs and try again.",
   DUPLICATE_APP_NAME:
     "The {appName} app already exists. Please create an app with a different name.",
@@ -32,15 +33,16 @@ const commonMsg = {
 const appCreate = {
   ORG_UID: "Org UID",
   NAME: "{target} name",
-  DIR_EXIST: "Directory name already exist",
   UNZIP: "Unzipping the boilerplate",
   DEFAULT_APP_NAME: "app-boilerplate",
   APP_TYPE_DESCRIPTION: "Type of App",
   CHOOSE_ORG: "Choose an organization",
+  DIR_EXIST: "Directory name already exist",
   ROLLBACK_BOILERPLATE: "Roll back boilerplate",
+  APP_UPDATE_FAILED: "Update app process failed",
   INSTALL_DEPENDENCIES: "Installing dependencies",
   NAME_DESCRIPTION: "Name of the app to be created",
-  APP_CREATION_SUCCESS: "App creation successful!!",
+  APP_CREATION_SUCCESS: "App creation successful!",
   CLONE_BOILERPLATE: "Fetching the app template from GitHub",
   CONFIRM_CLONE_BOILERPLATE:
     "Would you like to fetching the app template from GitHub",
@@ -52,6 +54,9 @@ const appCreate = {
 const appUpdate = {
   APP_UID: "Provide the app UID",
   FILE_PATH: "Path to the {fileName} file",
+  APP_UPDATE_SUCCESS: "App update successful!",
+  APP_VERSION_MISS_MATCH:
+    "App versions are not matching. Please download the latest file using the `csdx app:get` command and sync their file with this file",
 };
 
 const messages: typeof errors &

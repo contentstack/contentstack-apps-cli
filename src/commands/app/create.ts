@@ -128,11 +128,13 @@ export default class Create extends BaseCommand<typeof Create> {
     const filePath = tmpObj.name;
 
     const writer = createWriteStream(filePath);
-    const response = await new HttpClient({ responseType: "stream" }).get(
-      this.sharedConfig.appBoilerplateGithubUrl
-    );
+    const response = await new HttpClient({ responseType: "stream" })
+      .get(this.sharedConfig.appBoilerplateGithubUrl)
+      .catch((er) => {
+        this.log(er, "error");
+      });
 
-    response.data.pipe(writer);
+    response?.data.pipe(writer);
 
     return new Promise((resolve) => {
       writer
@@ -250,7 +252,7 @@ export default class Create extends BaseCommand<typeof Create> {
             this.log(this.messages.APP_CREATION_CONSTRAINT_FAILURE, "error");
             break;
           case 403:
-            this.log(this.messages.APP_CREATION_INVALID_ORG, "error");
+            this.log(this.messages.APP_INVALID_ORG, "error");
             break;
           case 409:
             this.log(
