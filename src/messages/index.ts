@@ -55,7 +55,8 @@ const getApp = {
   CHOOSE_APP: "Choose an App",
   APP_UID_NOT_FOUND: "App UID not found",
   FILE_WRITTEN_SUCCESS: "App data has been written to {file} successfully.",
-  APPS_NOT_FOUND: "No apps found"
+  APPS_NOT_FOUND: "No apps found",
+  FILE_ALREADY_EXISTS: "{file} already exists, would you like to save app to a new file? (Selecting No will over-write {file})"
 }
 
 const appUpdate = {
@@ -82,7 +83,7 @@ const $t = (msg: string, args: Record<string, string>): string => {
   if (!msg) return "";
 
   for (const key of Object.keys(args)) {
-    msg = msg.replace(new RegExp(`{${key}}`), args[key]);
+    msg = msg.replace(new RegExp(`{${key}}`, 'g'), args[key]);
   }
 
   return msg;
