@@ -3,8 +3,7 @@ import { resolve } from "path";
 import config from "../config";
 import messages, {$t} from "../messages";
 import { LogFn } from "../types";
-import { FlagInput, cliux } from "@contentstack/cli-utilities";
-import { Flags } from "../commands/app/base-command";
+import { cliux } from "@contentstack/cli-utilities";
 
 export function getDirectories(source: string): string[] | [] {
   if (!existsSync(source)) return [];
@@ -35,14 +34,13 @@ export async function getFileList(
   return files;
 }
 
-export async function writeFile(flags: Flags, data: Record<string, any> | undefined, log: LogFn) {
-  const dir = flags['data-dir']
+export async function writeFile(dir: string='.', force: boolean=false, data: Record<string, any> | undefined={}, log: LogFn=console.log) {
   await ensureDirectoryExists(dir)
   const files = readdirSync(dir)
   const latestFileName = files.filter(fileName => fileName.match(new RegExp(config.defaultAppFileName))).pop()?.split('.')[0] || config.defaultAppFileName;
   let target = resolve(dir, `${latestFileName}.json`)
   if (existsSync(target)) {
-    const userConfirmation: boolean = await cliux.confirm($t(messages.FILE_ALREADY_EXISTS, { file: `${config.defaultAppFileName}.json` }))
+    const userConfirmation: boolean = force || (await cliux.confirm($t(messages.FILE_ALREADY_EXISTS, { file: `${config.defaultAppFileName}.json` })))
     if (userConfirmation) {
       target = resolve(dir, `${incrementName(latestFileName)}.json`);
     } else {
