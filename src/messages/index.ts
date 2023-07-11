@@ -28,6 +28,8 @@ const commonMsg = {
   SKIP_CONFIRMATION: "Use this flag to skip confirmation",
   DEVELOPER_HUB_URL_PROMPT:
     "Enter the developer-hub base URL for the {name} region - ",
+  APP_UID: "Provide the app UID",
+  APP_TYPE_DESCRIPTION: "Type of App",
 };
 
 const appCreate = {
@@ -56,7 +58,7 @@ const getApp = {
   APP_UID_NOT_FOUND: "App UID not found",
   FILE_WRITTEN_SUCCESS: "App data has been written to {file} successfully.",
   APPS_NOT_FOUND: "No apps found",
-  FILE_ALREADY_EXISTS: "{file} already exists, would you like to save app to a new file? (Selecting No will over-write {file})"
+  FILE_ALREADY_EXISTS: "{file} already exists, would you like to save app to a new file? (Selecting No will over-write {file}) (y/n)"
 }
 
 const appUpdate = {
