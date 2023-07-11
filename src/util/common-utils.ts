@@ -1,5 +1,6 @@
 import { ContentstackClient, FlagInput } from "@contentstack/cli-utilities";
 import { AppLocation, Extension, LogFn } from "../types";
+import { cliux } from "@contentstack/cli-utilities";
 
 export type CommonOptions = {
   log: LogFn;
@@ -45,7 +46,7 @@ function getOrgAppUiLocation(): Extension[] {
   return [orgConfigLocation];
 }
 
-async function getApps(
+async function fetchApps(
   flags: FlagInput,
   orgUid: string,
   options: CommonOptions,
@@ -66,11 +67,22 @@ async function getApps(
     if (response) {
       apps = apps.concat(response.items as any);
       if (apps.length < response.count) {
-        apps = await getApps(flags, orgUid, options, skip + 50, apps)
+        apps = await fetchApps(flags, orgUid, options, skip + 50, apps)
       }
     }
+    cliux.loader("");
+
 
     return apps;
 }
 
-export { getOrganizations, getOrgAppUiLocation, getApps };
+function fetchApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
+  const { managementSdk } = options;
+  const app : any = flags["app-uid"]
+  return managementSdk
+  .organization(orgUid)
+  .app(app as string)
+  .fetch()
+}
+
+export { getOrganizations, getOrgAppUiLocation, fetchApps, fetchApp };
