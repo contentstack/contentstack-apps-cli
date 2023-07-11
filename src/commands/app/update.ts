@@ -1,8 +1,8 @@
 import pick from "lodash/pick";
 import { resolve } from "path";
 import merge from "lodash/merge";
+import { flags } from "@contentstack/cli-utilities";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { HttpClient, OauthDecorator, flags } from "@contentstack/cli-utilities";
 
 import { getOrg } from "../../util";
 import { AppManifest } from "../../types";
@@ -168,46 +168,14 @@ export default class Create extends BaseCommand<typeof Create> {
    * @memberof Create
    */
   async updateAppOnDeveloperHub(): Promise<void> {
-    // FIXME Need to migrate http call to SDK
-    const http = new HttpClient();
-    const headers = await new OauthDecorator(http).preHeadersCheck({
-      org_uid: this.flags.org,
-    });
-    const httpClient: HttpClient = http.headers(headers);
+    let app = this.managementAppSdk
+      .organization(this.flags.org)
+      .app(this.flags["app-uid"] as string);
 
-    await httpClient
-      .put(
-        `https://${this.developerHubBaseUrl}/manifests/${this.flags["app-uid"]}`,
-        this.manifestData
-      )
-      .then(({ data }) => {
-        if (data.error) {
-          switch (data.statusCode) {
-            case 400:
-              this.log(this.messages.INVALID_APP_ID, "error");
-              break;
-            case 403:
-              this.log(this.messages.APP_INVALID_ORG, "error");
-              break;
-            case 409:
-              this.log(
-                this.$t(this.messages.DUPLICATE_APP_NAME, {
-                  appName: this.manifestData.name,
-                }),
-                "warn"
-              );
-              break;
-            default:
-              this.log(this.messages.APP_UPDATE_FAILED, "warn");
-              break;
-          }
-
-          this.log(data.message, "error");
-          this.exit(1);
-          return;
-        }
-
-        const response = data.data;
+    app = Object.assign(app, this.manifestData);
+    await app
+      .update()
+      .then((response) => {
         const validKeys = [
           "uid",
           "name",
@@ -237,6 +205,26 @@ export default class Create extends BaseCommand<typeof Create> {
         this.log(this.messages.APP_UPDATE_SUCCESS, "info");
       })
       .catch((er) => {
+        switch (er.status) {
+          case 400:
+            this.log(this.messages.INVALID_APP_ID, "error");
+            break;
+          case 403:
+            this.log(this.messages.APP_INVALID_ORG, "error");
+            break;
+          case 409:
+            this.log(
+              this.$t(this.messages.DUPLICATE_APP_NAME, {
+                appName: this.manifestData.name,
+              }),
+              "warn"
+            );
+            break;
+          default:
+            this.log(this.messages.APP_UPDATE_FAILED, "warn");
+            break;
+        }
+
         this.log(er, "error");
         this.exit(1);
       });
