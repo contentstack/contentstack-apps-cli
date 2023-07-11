@@ -2,7 +2,7 @@ import pick from "lodash/pick";
 import { resolve } from "path";
 import merge from "lodash/merge";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { flags } from "@contentstack/cli-utilities";
+import { HttpClient, OauthDecorator, flags } from "@contentstack/cli-utilities";
 
 import { getOrg } from "../../util";
 import { AppManifest } from "../../types";
@@ -168,11 +168,46 @@ export default class Create extends BaseCommand<typeof Create> {
    * @memberof Create
    */
   async updateAppOnDeveloperHub(): Promise<void> {
-    await this.managementAppSdk
-      .organization(this.flags.org)
-      .app(this.flags["app-uid"] as string)
-      .update(this.manifestData)
-      .then((response) => {
+    // FIXME Need to migrate http call to SDK
+    const http = new HttpClient();
+    const headers = await new OauthDecorator(http).preHeadersCheck({
+      org_uid: this.flags.org,
+    });
+    const httpClient: HttpClient = http.headers(headers);
+
+    await httpClient
+      .put(
+        `https://${this.developerHubBaseUrl}/manifests/${this.flags["app-uid"]}`,
+        this.manifestData
+      )
+      .then(({ data }) => {
+        if (data.error) {
+          switch (data.statusCode) {
+            case 400:
+              this.log(this.messages.INVALID_APP_ID, "error");
+              break;
+            case 403:
+              this.log(this.messages.APP_INVALID_ORG, "error");
+              break;
+            case 409:
+              this.log(
+                this.$t(this.messages.DUPLICATE_APP_NAME, {
+                  appName: this.manifestData.name,
+                }),
+                "warn"
+              );
+              break;
+            default:
+              this.log(this.messages.APP_UPDATE_FAILED, "warn");
+              break;
+          }
+
+          this.log(data.message, "error");
+          this.exit(1);
+          return;
+        }
+
+        const response = data.data;
         const validKeys = [
           "uid",
           "name",
@@ -202,26 +237,6 @@ export default class Create extends BaseCommand<typeof Create> {
         this.log(this.messages.APP_UPDATE_SUCCESS, "info");
       })
       .catch((er) => {
-        switch (er.status) {
-          case 400:
-            this.log(this.messages.INVALID_APP_ID, "error");
-            break;
-          case 403:
-            this.log(this.messages.APP_INVALID_ORG, "error");
-            break;
-          case 409:
-            this.log(
-              this.$t(this.messages.DUPLICATE_APP_NAME, {
-                appName: this.manifestData.name,
-              }),
-              "warn"
-            );
-            break;
-          default:
-            this.log(this.messages.APP_UPDATE_FAILED, "warn");
-            break;
-        }
-
         this.log(er, "error");
         this.exit(1);
       });
