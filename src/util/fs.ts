@@ -34,7 +34,7 @@ export async function getFileList(
   return files;
 }
 
-export async function writeFile(dir: string='.', force: boolean=false, data: Record<string, any> | undefined={}, log: LogFn=console.log) {
+export async function writeFile(dir: string=process.cwd(), force: boolean=false, data: Record<string, any> | undefined={}, log: LogFn=console.log) {
   await ensureDirectoryExists(dir)
   const files = readdirSync(dir)
   const latestFileName = files.filter(fileName => fileName.match(new RegExp(config.defaultAppFileName))).pop()?.split('.')[0] || config.defaultAppFileName;
