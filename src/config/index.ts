@@ -1,6 +1,7 @@
 import { join } from "path";
 
 const config = {
+  defaultAppName: "app-boilerplate",
   manifestPath: join(__dirname, "manifest.json"),
   boilerplateName: "marketplace-app-boilerplate-main",
   developerHubBaseUrl: "",

@@ -1,8 +1,8 @@
 import pick from "lodash/pick";
 import { resolve } from "path";
 import merge from "lodash/merge";
-import { existsSync, readFileSync, writeFileSync } from "fs";
 import { flags } from "@contentstack/cli-utilities";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 
 import { getOrg } from "../../util";
 import { AppManifest } from "../../types";
@@ -168,10 +168,13 @@ export default class Create extends BaseCommand<typeof Create> {
    * @memberof Create
    */
   async updateAppOnDeveloperHub(): Promise<void> {
-    await this.managementAppSdk
+    let app = this.managementAppSdk
       .organization(this.flags.org)
-      .app(this.flags["app-uid"] as string)
-      .update(this.manifestData)
+      .app(this.flags["app-uid"] as string);
+
+    app = Object.assign(app, this.manifestData);
+    await app
+      .update()
       .then((response) => {
         const validKeys = [
           "uid",

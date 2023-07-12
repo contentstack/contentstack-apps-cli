@@ -36,7 +36,6 @@ const appCreate = {
   ORG_UID: "Org UID",
   NAME: "{target} name",
   UNZIP: "Unzipping the boilerplate",
-  DEFAULT_APP_NAME: "app-boilerplate",
   APP_TYPE_DESCRIPTION: "Type of App",
   CHOOSE_ORG: "Choose an organization",
   DIR_EXIST: "Directory name already exist",
