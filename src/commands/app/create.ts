@@ -29,7 +29,7 @@ import {
 export default class Create extends BaseCommand<typeof Create> {
   private appData!: AppManifest;
 
-  static description = "Create new app in marketplace app";
+  static description = "Create new app in developer hub";
 
   static examples = ["$ <%= config.bin %> <%= command.id %>"];
 
@@ -106,7 +106,7 @@ export default class Create extends BaseCommand<typeof Create> {
   async flagsPromptQueue() {
     if (isEmpty(this.sharedConfig.appName)) {
       this.sharedConfig.appName = await getAppName(
-        this.messages.DEFAULT_APP_NAME
+        this.sharedConfig.defaultAppName
       );
     }
 
@@ -128,11 +128,13 @@ export default class Create extends BaseCommand<typeof Create> {
     const filePath = tmpObj.name;
 
     const writer = createWriteStream(filePath);
-    const response = await new HttpClient({ responseType: "stream" }).get(
-      this.sharedConfig.appBoilerplateGithubUrl
-    );
+    const response = await new HttpClient({ responseType: "stream" })
+      .get(this.sharedConfig.appBoilerplateGithubUrl)
+      .catch((er) => {
+        this.log(er, "error");
+      });
 
-    response.data.pipe(writer);
+    response?.data.pipe(writer);
 
     return new Promise((resolve) => {
       writer
@@ -250,7 +252,7 @@ export default class Create extends BaseCommand<typeof Create> {
             this.log(this.messages.APP_CREATION_CONSTRAINT_FAILURE, "error");
             break;
           case 403:
-            this.log(this.messages.APP_CREATION_INVALID_ORG, "error");
+            this.log(this.messages.APP_INVALID_ORG, "error");
             break;
           case 409:
             this.log(
@@ -270,7 +272,7 @@ export default class Create extends BaseCommand<typeof Create> {
             break;
         }
 
-        await this.rollbackBoilerplate();
+        this.rollbackBoilerplate();
 
         if (error.errorMessage) {
           this.log(error.errorMessage, "error");
