@@ -1,4 +1,6 @@
-import EventEmitter from "events";
+import omit from "lodash/omit";
+import merge from "lodash/merge";
+import { existsSync, readFileSync } from "fs";
 import { Command } from "@contentstack/cli-command";
 import {
   Flags,
@@ -8,11 +10,13 @@ import {
   ContentstackClient,
   managementSDKClient,
   managementSDKInitiator,
+  InquirePayload,
+  cliux,
 } from "@contentstack/cli-utilities";
 
 import config from "../../config";
-import { Logger } from "../../util";
 import { ConfigType, LogFn } from "../../types";
+import { Logger, getDeveloperHubUrl } from "../../util";
 import messages, { $t, commonMsg } from "../../messages";
 
 export type Flags<T extends typeof Command> = Interfaces.InferredFlags<
@@ -24,7 +28,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
   public log!: LogFn;
   public logger!: Logger;
   public readonly $t = $t;
-  protected $event!: EventEmitter;
+  public developerHubBaseUrl!: string;
   protected sharedConfig: ConfigType = {
     ...config,
     projectBasePath: process.cwd(),
@@ -40,8 +44,12 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 
   static hidden = true;
 
-  // define flags that can be inherited by any command that extends BaseCommand
+  // NOTE define flags that can be inherited by any command that extends BaseCommand
   static baseFlags: FlagInput = {
+    config: Flags.string({
+      char: "c",
+      description: commonMsg.CONFIG,
+    }),
     org: Flags.string({
       description: commonMsg.PROVIDE_ORG_UID,
     }),
@@ -67,7 +75,10 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
     this.args = args as Args<T>;
 
     ux.registerSearchPlugin();
+    this.registerConfig();
 
+    this.developerHubBaseUrl =
+      this.sharedConfig.developerHubBaseUrl || (await getDeveloperHubUrl());
     await this.initCmaSDK();
 
     // Init logger
@@ -87,6 +98,27 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
   }
 
   /**
+   * @method registerConfig
+   *
+   * @memberof BaseCommand
+   */
+  registerConfig() {
+    if (this.flags.config && existsSync(this.flags.config)) {
+      try {
+        const config = JSON.parse(
+          readFileSync(this.flags.config, { encoding: "utf-8" })
+        );
+        const omitKeys = [
+          "manifestPath",
+          "boilerplateName",
+          "developerHubUrls",
+        ];
+        this.sharedConfig = merge(this.sharedConfig, omit(config, omitKeys));
+      } catch (error) {}
+    }
+  }
+
+  /**
    * @method initCmaSDK
    *
    * @memberof BaseCommand
@@ -97,7 +129,38 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
       host: this.cmaHost,
     });
     this.managementAppSdk = await managementSDKClient({
-      host: this.sharedConfig.developerHubBaseUrl,
+      host: this.developerHubBaseUrl,
+    });
+  }
+
+  /**
+   * @method getValPrompt
+   *
+   * @param {(Partial<InquirePayload> & Record<string, any>)} [options={
+   *       validate: (val) => {
+   *         if (!val) return this.messages.NOT_EMPTY;
+   *         return true;
+   *       },
+   *     }]
+   * @return {*}  {(Promise<string | boolean>)}
+   * @memberof BaseCommand
+   */
+  getValPrompt(
+    options: Partial<InquirePayload> & Record<string, any> = {
+      message: 'Enter value',
+      validate: (val) => {
+        if (!val) return this.$t(this.messages.NOT_EMPTY, { value: 'Value' });
+        return true;
+      },
+    }
+  ): Promise<string | boolean> {
+    const { message, validate } = options;
+    return cliux.inquire({
+      validate,
+      type: "input",
+      name: "getVal",
+      default: options?.default,
+      message: message as string,
     });
   }
 }
