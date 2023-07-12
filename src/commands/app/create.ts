@@ -106,7 +106,7 @@ export default class Create extends BaseCommand<typeof Create> {
   async flagsPromptQueue() {
     if (isEmpty(this.sharedConfig.appName)) {
       this.sharedConfig.appName = await getAppName(
-        this.messages.DEFAULT_APP_NAME
+        this.sharedConfig.defaultAppName
       );
     }
 
