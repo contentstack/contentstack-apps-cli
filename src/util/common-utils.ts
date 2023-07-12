@@ -59,6 +59,7 @@ async function fetchApps(
     .app()
     .findAll({ limit: 50, asc: "name", include_count: true, skip: skip, target_type: flags["app-type"]})
     .catch((error) => {
+      cliux.loader("failed");
       log("Some error occurred while fetching apps.", "warn");
       log(error.errorMessage, "error");
       process.exit(1);
@@ -70,7 +71,6 @@ async function fetchApps(
         apps = await fetchApps(flags, orgUid, options, skip + 50, apps)
       }
     }
-    cliux.loader("");
 
 
     return apps;

@@ -102,6 +102,7 @@ async function getApp(flags: FlagInput, orgUid: string, options: CommonOptions) 
   } else {
     cliux.loader("Loading Apps");
     const apps = (await fetchApps(flags, orgUid, options)) || [];
+    cliux.loader("");
     
     if (apps.length === 0) {
       throw new Error(messages.APPS_NOT_FOUND)
