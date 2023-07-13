@@ -68,16 +68,23 @@ const appUpdate = {
     "App versions are not matching. Please download the latest file using the `csdx app:get` command and sync their file with this file",
 };
 
+const deleteAppMsg = {
+  APP_IS_INSTALLED: "This app is installed in one of your stacks. Please uninstall to proceed with delete.",
+  APP_DELETED_SUCCESSFULLY: "{app} has been deleted successfully."
+}
+
 const messages: typeof errors &
   typeof commonMsg &
   typeof appCreate &
   typeof appUpdate &
-  typeof getApp = {
+  typeof getApp &
+  typeof deleteAppMsg = {
   ...errors,
   ...commonMsg,
   ...appCreate,
   ...appUpdate,
-  ...getApp
+  ...getApp,
+  ...deleteAppMsg
 };
 
 const $t = (msg: string, args: Record<string, string>): string => {
@@ -91,4 +98,4 @@ const $t = (msg: string, args: Record<string, string>): string => {
 };
 
 export default messages;
-export { $t, errors, commonMsg, appCreate, appUpdate, getApp };
+export { $t, errors, commonMsg, appCreate, appUpdate, getApp, deleteAppMsg };
