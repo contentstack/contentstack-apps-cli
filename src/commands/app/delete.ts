@@ -13,11 +13,6 @@ export default class Delete extends BaseCommand<typeof Delete> {
     static flags = {
       'app-uid': flags.string({
           description: commonMsg.APP_UID,
-      }),
-      'app-type': flags.string({
-          default: "stack",
-          options: ["stack", "organization"],
-          description: commonMsg.APP_TYPE_DESCRIPTION
       })
     };
 
