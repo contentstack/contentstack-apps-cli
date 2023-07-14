@@ -9,7 +9,7 @@ import {
 
 import config from "../config";
 import messages, { $t, commonMsg, errors } from "../messages";
-import { CommonOptions, getOrganizations, fetchApps, fetchApp } from "./common-utils";
+import { CommonOptions, getOrganizations, fetchApps } from "./common-utils";
 
 /**
  * @method getAppName
@@ -92,33 +92,24 @@ async function getOrg(flags: FlagInput, options: CommonOptions) {
 }
 
 async function getApp(flags: FlagInput, orgUid: string, options: CommonOptions) : Promise<Record<string, any> | undefined> {
-  if (flags['app-uid']) {
-    try {
-      const app = await fetchApp(flags, orgUid, options)
-      return app;
-    } catch (error) {
-      throw new Error(messages.APP_UID_NOT_FOUND)
-    }
-  } else {
-    cliux.loader("Loading Apps");
-    const apps = (await fetchApps(flags, orgUid, options)) || [];
-    cliux.loader("");
-    
-    if (apps.length === 0) {
-      throw new Error(messages.APPS_NOT_FOUND)
-    }
-    
-    flags.app = await cliux
-      .inquire({
-        type: "search-list",
-        name: "App",
-        choices: apps,
-        message: messages.CHOOSE_APP
-      })
-      .then((name) => apps.find(app => app.name === name)?.uid)
-
-    return apps.find(app => app.uid === flags.app);
+  cliux.loader("Loading Apps");
+  const apps = (await fetchApps(flags, orgUid, options)) || [];
+  cliux.loader("");
+  
+  if (apps.length === 0) {
+    throw new Error(messages.APPS_NOT_FOUND)
   }
+  
+  flags.app = await cliux
+    .inquire({
+      type: "search-list",
+      name: "App",
+      choices: apps,
+      message: messages.CHOOSE_APP
+    })
+    .then((name) => apps.find(app => app.name === name)?.uid)
+
+  return apps.find(app => app.uid === flags.app);
 }
 
 /**
