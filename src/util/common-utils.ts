@@ -1,5 +1,6 @@
-import { ContentstackClient } from "@contentstack/cli-utilities";
+import { ContentstackClient, FlagInput } from "@contentstack/cli-utilities";
 import { AppLocation, Extension, LogFn } from "../types";
+import { cliux } from "@contentstack/cli-utilities";
 
 export type CommonOptions = {
   log: LogFn;
@@ -45,4 +46,43 @@ function getOrgAppUiLocation(): Extension[] {
   return [orgConfigLocation];
 }
 
-export { getOrganizations, getOrgAppUiLocation };
+async function fetchApps(
+  flags: FlagInput,
+  orgUid: string,
+  options: CommonOptions,
+  skip = 0,
+  apps: Record<string, any>[] = []
+): Promise<Record<string, any>[]> {
+  const { log, managementSdk } = options;
+    const response = await managementSdk
+    .organization(orgUid)
+    .app()
+    .findAll({ limit: 50, asc: "name", include_count: true, skip: skip, target_type: flags["app-type"]})
+    .catch((error) => {
+      cliux.loader("failed");
+      log("Some error occurred while fetching apps.", "warn");
+      log(error.errorMessage, "error");
+      process.exit(1);
+    });
+  
+    if (response) {
+      apps = apps.concat(response.items as any);
+      if (apps.length < response.count) {
+        apps = await fetchApps(flags, orgUid, options, skip + 50, apps)
+      }
+    }
+
+
+    return apps;
+}
+
+function fetchApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
+  const { managementSdk } = options;
+  const app : any = flags["app-uid"]
+  return managementSdk
+  .organization(orgUid)
+  .app(app as string)
+  .fetch()
+}
+
+export { getOrganizations, getOrgAppUiLocation, fetchApps, fetchApp };

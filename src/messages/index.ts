@@ -28,6 +28,8 @@ const commonMsg = {
   SKIP_CONFIRMATION: "Use this flag to skip confirmation",
   DEVELOPER_HUB_URL_PROMPT:
     "Enter the developer-hub base URL for the {name} region - ",
+  APP_UID: "Provide the app UID",
+  APP_TYPE_DESCRIPTION: "Type of App",
 };
 
 const appCreate = {
@@ -50,6 +52,14 @@ const appCreate = {
   START_APP_COMMAND: "Start the app using following command: {command}",
 };
 
+const getApp = {
+  CHOOSE_APP: "Choose an App",
+  APP_UID_NOT_FOUND: "App UID not found",
+  FILE_WRITTEN_SUCCESS: "App data has been written to {file} successfully.",
+  APPS_NOT_FOUND: "No apps found",
+  FILE_ALREADY_EXISTS: "{file} already exists, would you like to save app to a new file? (Selecting No will over-write {file}) (y/n)"
+}
+
 const appUpdate = {
   APP_UID: "Provide the app UID",
   FILE_PATH: "Path to the {fileName} file",
@@ -61,22 +71,24 @@ const appUpdate = {
 const messages: typeof errors &
   typeof commonMsg &
   typeof appCreate &
-  typeof appUpdate = {
+  typeof appUpdate &
+  typeof getApp = {
   ...errors,
   ...commonMsg,
   ...appCreate,
   ...appUpdate,
+  ...getApp
 };
 
 const $t = (msg: string, args: Record<string, string>): string => {
   if (!msg) return "";
 
   for (const key of Object.keys(args)) {
-    msg = msg.replace(new RegExp(`{${key}}`), args[key]);
+    msg = msg.replace(new RegExp(`{${key}}`, 'g'), args[key]);
   }
 
   return msg;
 };
 
 export default messages;
-export { $t, errors, commonMsg, appCreate, appUpdate };
+export { $t, errors, commonMsg, appCreate, appUpdate, getApp };
