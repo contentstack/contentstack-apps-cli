@@ -1,5 +1,5 @@
 import { BaseCommand } from "./base-command";
-import { getOrg, getApp, writeFile } from "../../util";
+import { getOrg, getApp, writeFile, fetchApp } from "../../util";
 import { flags } from "@contentstack/cli-utilities";
 import { commonMsg } from "../../messages";
 
@@ -23,11 +23,16 @@ export default class Get extends BaseCommand<typeof Get> {
 
   async run(): Promise<void> {
     try {
+      let appData;
       this.sharedConfig.org = await getOrg(this.flags, {managementSdk: this.managementSdk, log: this.log});
-      let app = await getApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
-      await writeFile(this.flags['data-dir'], this.flags['yes'], app, this.log)
+      if (!this.flags['app-uid']) {
+        appData = await getApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log});
+      } else {
+        appData = await fetchApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
+      }
+      await writeFile(this.flags['data-dir'], this.flags['yes'], appData, this.log)
     } catch(error: any) {
-      this.log(error.message, "error")
+      this.log(error.errorMessage, "error")
       this.exit()
     }
   }
