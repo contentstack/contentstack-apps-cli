@@ -30,6 +30,7 @@ const commonMsg = {
     "Enter the developer-hub base URL for the {name} region - ",
   APP_UID: "Provide the app UID",
   APP_TYPE_DESCRIPTION: "Type of App",
+  CONTACT_SUPPORT: "Please contact support team."
 };
 
 const appCreate = {
@@ -70,7 +71,9 @@ const appUpdate = {
 
 const deleteAppMsg = {
   APP_IS_INSTALLED: "This app is installed in one of your stacks. Please uninstall to proceed with delete.",
-  APP_DELETED_SUCCESSFULLY: "{app} has been deleted successfully."
+  APP_DELETED_SUCCESSFULLY: "{app} has been deleted successfully.",
+  APP_UID_INVALID: "app uid must be valid",
+  PLEASE_SELECT_APP_FROM_LIST: "Please select an app from the list",
 }
 
 const messages: typeof errors &

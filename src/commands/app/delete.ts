@@ -18,19 +18,29 @@ export default class Delete extends BaseCommand<typeof Delete> {
 
     async run(): Promise<void> {
       try {
+          let app
           this.sharedConfig.org = await getOrg(this.flags, {managementSdk: this.managementSdk, log: this.log});
-          const app = await getApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log});
-          this.flags["app-uid"] = app?.uid;
+          if (!this.flags['app-uid']) {
+            app = await getApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log});
+            this.flags["app-uid"] = app?.uid;
+          }
           const {items: appInstallations}: any = await fetchAppInstallations(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log});
           if (appInstallations.length === 0) {
             await deleteApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
-            this.log($t(deleteAppMsg.APP_DELETED_SUCCESSFULLY, {app: this.flags["app-uid"] as string}));
+            this.log($t(deleteAppMsg.APP_DELETED_SUCCESSFULLY, {app: app?.name || this.flags["app-uid"] as string}));
           } else {
             this.log(deleteAppMsg.APP_IS_INSTALLED, "error")
           }
       } catch(error: any) {
           this.log(error.errorMessage, "error")
-          this.exit()
+          if (error.errorMessage[0] === deleteAppMsg.APP_UID_INVALID) {
+            this.log(deleteAppMsg.PLEASE_SELECT_APP_FROM_LIST)
+            delete this.flags["app-uid"]
+            await this.run()
+          }
+          if (error.status === 409 && error.statusText === 'Conflict') {
+            this.log(commonMsg.CONTACT_SUPPORT, "error");
+          }
       }
     }
 }
