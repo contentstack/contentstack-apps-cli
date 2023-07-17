@@ -1,0 +1,12 @@
+{
+  "organizations": [
+    {
+      "uid": "test-uid-1",
+      "name": "test org 1"
+    },
+    {
+      "uid": "test-uid-2",
+      "name": "test org 2"
+    }
+  ]
+}
