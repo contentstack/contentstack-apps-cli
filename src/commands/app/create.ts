@@ -59,17 +59,22 @@ export default class Create extends BaseCommand<typeof Create> {
       this.appData.ui_location.locations = getOrgAppUiLocation();
     }
 
-    if (
-      this.flags.yes ||
-      (await cliux.inquire({
-        type: "confirm",
-        name: "cloneBoilerplate",
-        message: this.messages.CONFIRM_CLONE_BOILERPLATE,
-      }))
-    ) {
-      await this.boilerplateFlow();
-    } else {
-      await this.registerTheAppOnDeveloperHub(false);
+    try {
+      if (
+        this.flags.yes ||
+        (await cliux.inquire({
+          type: "confirm",
+          name: "cloneBoilerplate",
+          message: this.messages.CONFIRM_CLONE_BOILERPLATE,
+        }))
+      ) {
+        await this.boilerplateFlow();
+      } else {
+        await this.registerTheAppOnDeveloperHub(false);
+      }
+    } catch (error) {
+      this.log(error, "error");
+      this.exit(1);
     }
   }
 
@@ -128,23 +133,20 @@ export default class Create extends BaseCommand<typeof Create> {
     const filePath = tmpObj.name;
 
     const writer = createWriteStream(filePath);
-    const response = await new HttpClient({ responseType: "stream" })
-      .get(this.sharedConfig.appBoilerplateGithubUrl)
-      .catch((er) => {
-        this.log(er, "error");
-      });
+    const response = await new HttpClient({ responseType: "stream" }).get(
+      this.sharedConfig.appBoilerplateGithubUrl
+    );
 
     response?.data.pipe(writer);
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       writer
         .on("finish", function () {
           resolve(filePath);
           ux.action.stop();
         })
         .on("error", () => {
-          this.log(this.messages.FILE_GENERATION_FAILURE, "error");
-          this.exit(1);
+          reject(this.messages.FILE_GENERATION_FAILURE);
         });
     });
   }
@@ -172,7 +174,7 @@ export default class Create extends BaseCommand<typeof Create> {
 
     this.sharedConfig.folderPath = targetPath;
 
-    await new Promise<void>((resolve) => {
+    await new Promise<void>((resolve, reject) => {
       ux.action.start(this.messages.UNZIP);
       zip.extractAllToAsync(dataDir, true, false, (error) => {
         ux.action.stop();
@@ -183,8 +185,7 @@ export default class Create extends BaseCommand<typeof Create> {
           return resolve();
         }
 
-        this.log(error.message, "error");
-        this.exit(1);
+        reject(error);
       });
     });
   }
@@ -277,8 +278,8 @@ export default class Create extends BaseCommand<typeof Create> {
         if (error.errorMessage) {
           this.log(error.errorMessage, "error");
         }
-        this.log(error, "error");
-        this.exit(1);
+
+        throw error;
       });
   }
 
