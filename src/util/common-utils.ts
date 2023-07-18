@@ -85,4 +85,30 @@ function fetchApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
   .fetch()
 }
 
-export { getOrganizations, getOrgAppUiLocation, fetchApps, fetchApp };
+function fetchAppInstallations(flags: FlagInput, orgUid: string, options: CommonOptions) {
+  const { managementSdk } = options;
+  const app : any = flags["app-uid"];
+  return managementSdk
+  .organization(orgUid)
+  .app(app as string)
+  .installation()
+  .findAll()
+}
+
+function deleteApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
+  const {managementSdk} = options;
+  const app : any = flags["app-uid"];
+  return managementSdk
+  .organization(orgUid)
+  .app(app as string)
+  .delete()
+}
+
+export { 
+  getOrganizations, 
+  getOrgAppUiLocation, 
+  fetchApps, 
+  fetchApp,
+  fetchAppInstallations,
+  deleteApp
+};
