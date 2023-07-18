@@ -79,7 +79,10 @@ const deleteAppMsg = {
 
 const installAppMsg = {
   CHOOSE_A_STACK: "Please select a stack",
-  INSTALL_IN_EXISTING_ORG: "Would you like to install the app in already selected org?"
+  APP_INSTALLED_SUCCESSFULLY: "{app} has been installed successfully on {target}.",
+  INSTALL_ORG_APP_TO_STACK: "{app} is an organization app, it cannot be installed to a stack. Do you want to proceed",
+  MISSING_STACK_API_KEY: "As {app} is a stack app, it can only be installed on a stack. Please select a stack.",
+  INSTALLING_APP_NOTICE: "Installing {app} on {type} {target}"
 }
 
 const messages: typeof errors &
