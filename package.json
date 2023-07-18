@@ -36,12 +36,14 @@
     "@types/node": "^20.3.1",
     "@types/shelljs": "^0.8.12",
     "@types/tmp": "^0.2.3",
+    "axios": "^1.4.0",
     "chai": "^4.3.7",
     "dotenv": "^16.3.1",
     "eslint": "^8.43.0",
     "eslint-config-oclif": "^4.0.0",
     "eslint-config-oclif-typescript": "^1.0.3",
     "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
     "oclif": "^3.9.1",
     "shx": "^0.3.4",
     "ts-node": "^10.9.1",
@@ -72,7 +74,8 @@
     "prepack": "npm run build && oclif manifest && oclif readme",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif readme && git add README.md",
-    "clean": "rm -rf ./lib tsconfig.tsbuildinfo oclif.manifest.json"
+    "clean": "rm -rf ./lib tsconfig.tsbuildinfo oclif.manifest.json",
+    "test:unit:report": "nyc --extension .ts mocha --forbid-only \"test/unit/**/*.test.ts\""
   },
   "engines": {
     "node": ">=16"
@@ -83,6 +86,10 @@
   ],
   "types": "./lib/index.d.ts",
   "csdxConfig": {
-    "shortCommandName": {}
+    "shortCommandName": {
+      "app:get": "APGT",
+      "app:create": "APCRT",
+      "app:update": "APUPT"
+    }
   }
 }
