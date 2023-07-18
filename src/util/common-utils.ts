@@ -105,11 +105,18 @@ function deleteApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
 }
 
 function installApp(flags: FlagInput, orgUid: string, type: string, options: CommonOptions) {
-  const {managementSdk} = options;
+  const { managementSdk} = options;
   return managementSdk
   .organization(orgUid)
   .app(flags['app-uid'] as any)
   .install({targetUid: flags['stack-api-key'] as any || orgUid, targetType: type as any})
+}
+
+function fetchStack(flags: FlagInput, options: CommonOptions) {
+  const {managementSdk} = options;
+  return managementSdk
+  .stack({ api_key: flags['stack-api-key'] as any })
+  .fetch()
 }
 
 async function getStacks(
@@ -123,8 +130,9 @@ async function getStacks(
   .organization(orgUid)
   .stacks({include_count: true, limit: 100, asc: 'name', skip: skip})
   .catch((error) => {
+    cliux.loader("failed");
     log("Unable to fetch stacks.", "warn");
-    log(error, "error");
+    log(error?.errorMessage || error, "error");
     process.exit(1);
   })
 
@@ -146,5 +154,6 @@ export {
   fetchAppInstallations,
   deleteApp,
   installApp,
-  getStacks
+  getStacks,
+  fetchStack
 };
