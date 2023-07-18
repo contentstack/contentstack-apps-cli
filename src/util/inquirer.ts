@@ -9,7 +9,7 @@ import {
 
 import config from "../config";
 import messages, { $t, commonMsg, errors } from "../messages";
-import { CommonOptions, getOrganizations, fetchApps } from "./common-utils";
+import { CommonOptions, getOrganizations, fetchApps, getStacks } from "./common-utils";
 
 /**
  * @method getAppName
@@ -143,4 +143,33 @@ async function getDeveloperHubUrl(): Promise<string> {
   return developerHubBaseUrl;
 }
 
-export { getOrg, getAppName, getDirName, getDeveloperHubUrl, getApp };
+async function getStack(orgUid: string, options: CommonOptions): Promise<Record<string, any> | undefined> {
+  cliux.loader("Loading Stacks");
+  const stacks = (await getStacks(options, orgUid)) || [];
+  cliux.loader("");
+  
+  if (stacks.length === 0) {
+    // change this to stacks not found
+    throw new Error(messages.APPS_NOT_FOUND)
+  }
+  
+  const selectedStack = await cliux
+    .inquire({
+      type: "search-list",
+      name: "App",
+      choices: stacks,
+      message: messages.CHOOSE_A_STACK
+    })
+    .then((name) => stacks.find(stack => stack.name === name))
+
+  return selectedStack;
+}
+
+export { 
+  getOrg, 
+  getAppName, 
+  getDirName, 
+  getDeveloperHubUrl, 
+  getApp,
+  getStack
+};

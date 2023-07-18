@@ -104,11 +104,47 @@ function deleteApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
   .delete()
 }
 
+function installApp(flags: FlagInput, orgUid: string, type: string, options: CommonOptions) {
+  const {managementSdk} = options;
+  return managementSdk
+  .organization(orgUid)
+  .app(flags['app-uid'] as any)
+  .install({targetUid: flags['stack-api-key'] as any || orgUid, targetType: type as any})
+}
+
+async function getStacks(
+  options: CommonOptions,
+  orgUid: string,
+  skip: number= 0,
+  stacks: Record<string, any>[] = [],
+): Promise<Record<string, any>[]> {
+  const {log, managementSdk} = options;
+  const response = await managementSdk
+  .organization(orgUid)
+  .stacks({include_count: true, limit: 100, asc: 'name', skip: skip})
+  .catch((error) => {
+    log("Unable to fetch stacks.", "warn");
+    log(error, "error");
+    process.exit(1);
+  })
+
+  if (response) {
+    stacks = stacks.concat(response.items as any);
+    if (stacks.length < response.count) {
+      stacks = await getStacks(options, orgUid, skip + 100, stacks)
+    }
+  }
+
+  return stacks;
+}
+
 export { 
   getOrganizations, 
   getOrgAppUiLocation, 
   fetchApps, 
   fetchApp,
   fetchAppInstallations,
-  deleteApp
+  deleteApp,
+  installApp,
+  getStacks
 };

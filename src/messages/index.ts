@@ -30,7 +30,8 @@ const commonMsg = {
     "Enter the developer-hub base URL for the {name} region - ",
   APP_UID: "Provide the app UID",
   APP_TYPE_DESCRIPTION: "Type of App",
-  CONTACT_SUPPORT: "Please contact support team."
+  CONTACT_SUPPORT: "Please contact support team.",
+  STACK_API_KEY: "Please provide api-key for the stack"
 };
 
 const appCreate = {
@@ -76,18 +77,25 @@ const deleteAppMsg = {
   PLEASE_SELECT_APP_FROM_LIST: "Please select an app from the list",
 }
 
+const installAppMsg = {
+  CHOOSE_A_STACK: "Please select a stack",
+  INSTALL_IN_EXISTING_ORG: "Would you like to install the app in already selected org?"
+}
+
 const messages: typeof errors &
   typeof commonMsg &
   typeof appCreate &
   typeof appUpdate &
   typeof getApp &
-  typeof deleteAppMsg = {
+  typeof deleteAppMsg &
+  typeof installAppMsg = {
   ...errors,
   ...commonMsg,
   ...appCreate,
   ...appUpdate,
   ...getApp,
-  ...deleteAppMsg
+  ...deleteAppMsg,
+  ...installAppMsg
 };
 
 const $t = (msg: string, args: Record<string, string>): string => {
@@ -101,4 +109,4 @@ const $t = (msg: string, args: Record<string, string>): string => {
 };
 
 export default messages;
-export { $t, errors, commonMsg, appCreate, appUpdate, getApp, deleteAppMsg };
+export { $t, errors, commonMsg, appCreate, appUpdate, getApp, deleteAppMsg, installAppMsg };
