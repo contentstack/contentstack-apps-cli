@@ -33,7 +33,7 @@ export default class Delete extends BaseCommand<typeof Delete> {
           }
       } catch(error: any) {
           this.log(error.errorMessage, "error")
-          if (error.errorMessage[0] === deleteAppMsg.APP_UID_INVALID) {
+          if (error.status === 400) { // check for invalid app-uid
             this.log(deleteAppMsg.PLEASE_SELECT_APP_FROM_LIST)
             delete this.flags["app-uid"]
             await this.run()
