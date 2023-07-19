@@ -7,8 +7,9 @@ export default class App extends Command {
 
   static examples = [
     "$ <%= config.bin %> <%= command.id %>:create",
-    "$ <%= config.bin %> <%= command.id %>:update",
     "$ <%= config.bin %> <%= command.id %>:get",
+    "$ <%= config.bin %> <%= command.id %>:update",
+    "$ <%= config.bin %> <%= command.id %>:delete",
   ];
 
   async run(): Promise<void> {
