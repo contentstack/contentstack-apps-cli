@@ -5,11 +5,21 @@ import {
   cliux,
   FlagInput,
   configHandler,
+  Stack,
+  ContentstackClient
 } from "@contentstack/cli-utilities";
+import {Installation} from '@contentstack/management/types/app/installation'
+import {AppTarget} from '@contentstack/management/types/app/index'
 
 import config from "../config";
-import messages, { $t, commonMsg, errors } from "../messages";
-import { CommonOptions, getOrganizations, fetchApps, getStacks } from "./common-utils";
+import messages, { $t, commonMsg, errors, uninstallAppMsg } from "../messages";
+import { 
+  CommonOptions, 
+  getOrganizations, 
+  fetchApps, 
+  getStacks,
+  fetchAppInstallations
+} from "./common-utils";
 
 /**
  * @method getAppName
@@ -94,7 +104,7 @@ async function getOrg(flags: FlagInput, options: CommonOptions) {
 async function getApp(flags: FlagInput, orgUid: string, options: CommonOptions) : Promise<Record<string, any> | undefined> {
   cliux.loader("Loading Apps");
   const apps = (await fetchApps(flags, orgUid, options)) || [];
-  cliux.loader("");
+  cliux.loader("done");
   
   if (apps.length === 0) {
     throw new Error(messages.APPS_NOT_FOUND)
@@ -146,7 +156,7 @@ async function getDeveloperHubUrl(): Promise<string> {
 async function getStack(orgUid: string, options: CommonOptions): Promise<Record<string, any> | undefined> {
   cliux.loader("Loading Stacks");
   const stacks = (await getStacks(options, orgUid)) || [];
-  cliux.loader("");
+  cliux.loader("done");
   
   if (stacks.length === 0) {
     // change this to stacks not found
@@ -165,11 +175,74 @@ async function getStack(orgUid: string, options: CommonOptions): Promise<Record<
   return selectedStack;
 }
 
+async function getInstallation(
+  flags: FlagInput, 
+  orgUid: string, 
+  managementSdkForStacks: ContentstackClient,
+  appType: AppTarget,
+  options:CommonOptions
+) {
+  const {log} = options;
+  if (appType === 'stack') {
+    cliux.loader("Loading App Installations");
+  }
+  let {items: installations} = (await fetchAppInstallations(flags, orgUid, options)) || [];
+
+  // console.log(installations)
+  if (!installations?.length) {
+    if (appType === "stack") cliux.loader("done")
+    throw new Error(messages.NO_INSTALLATIONS_FOUND)
+  }
+
+  let selectedInstallation
+
+  if (appType === 'stack') {
+    // fetch stacks from where the app has to be uninstalled
+    cliux.loader("done");
+    const stacks: Stack[] = await getStacks({managementSdk: managementSdkForStacks, log: options.log}, orgUid);
+    installations = populateMissingDataInInstallations(installations, stacks)
+    selectedInstallation = await cliux
+    .inquire({
+      type: 'search-list',
+      name: 'appInstallation',
+      choices: installations,
+      message: messages.CHOOSE_AN_INSTALLATION
+    })
+  } else {
+    // as this is an organization app, and it is supposed to only be installed on the source organization
+    // it will be uninstalled from the selected organization
+    selectedInstallation = installations.pop()?.uid
+  }
+
+  log($t(uninstallAppMsg.UNINSTALLING_APP, {
+    type: appType
+  }), "info")
+
+  return selectedInstallation;
+}
+
+function populateMissingDataInInstallations(installations: [Installation], stacks: Stack[]): [Installation] {
+  let result = installations.map(installation => {
+    let stack = stacks.filter(stack => stack.api_key === installation.target.uid)?.pop()
+    installation.name = stack?.name || installation.target.uid;
+    installation.value = installation.uid;
+    return installation;
+  }) as [Installation];
+
+  if (result.length > 0) {
+    return result
+  }
+
+  return installations
+
+}
+
 export { 
   getOrg, 
   getAppName, 
   getDirName, 
   getDeveloperHubUrl, 
   getApp,
-  getStack
+  getStack,
+  getInstallation
 };

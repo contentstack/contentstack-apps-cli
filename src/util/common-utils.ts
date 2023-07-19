@@ -1,6 +1,6 @@
 import { ContentstackClient, FlagInput } from "@contentstack/cli-utilities";
 import { AppLocation, Extension, LogFn } from "../types";
-import { cliux } from "@contentstack/cli-utilities";
+import { cliux, Stack } from "@contentstack/cli-utilities";
 
 export type CommonOptions = {
   log: LogFn;
@@ -93,6 +93,13 @@ function fetchAppInstallations(flags: FlagInput, orgUid: string, options: Common
   .app(app as string)
   .installation()
   .findAll()
+  .catch(error => {
+    const {log} = options;
+    cliux.loader("failed");
+    log("Some error occurred while fetching app installations.", "warn");
+    log(error.errorMessage, "error");
+    process.exit(1);
+  })
 }
 
 function deleteApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
@@ -123,8 +130,8 @@ async function getStacks(
   options: CommonOptions,
   orgUid: string,
   skip: number= 0,
-  stacks: Record<string, any>[] = [],
-): Promise<Record<string, any>[]> {
+  stacks: Stack[] = [],
+): Promise<Stack[]> {
   const {log, managementSdk} = options;
   const response = await managementSdk
   .organization(orgUid)
@@ -146,6 +153,17 @@ async function getStacks(
   return stacks;
 }
 
+function uninstallApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
+  const {managementSdk} = options;
+  const app: unknown = flags['app-uid'];
+  const installationUid: unknown = flags['installation-uid'];
+  return managementSdk
+  .organization(orgUid)
+  .app(app as string)
+  .installation(installationUid as string)
+  .uninstall()
+}
+
 export { 
   getOrganizations, 
   getOrgAppUiLocation, 
@@ -155,5 +173,6 @@ export {
   deleteApp,
   installApp,
   getStacks,
-  fetchStack
+  fetchStack,
+  uninstallApp
 };
