@@ -86,7 +86,8 @@
     "shortCommandName": {
       "app:get": "APGT",
       "app:create": "APCRT",
-      "app:update": "APUPT"
+      "app:update": "APUPT",
+      "app:delete": "APDLT"
     }
   }
 }
