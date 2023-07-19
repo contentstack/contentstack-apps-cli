@@ -33,7 +33,8 @@ const commonMsg = {
   APP_UID: "Provide the app UID",
   APP_TYPE_DESCRIPTION: "Type of App",
   CONTACT_SUPPORT: "Please contact support team.",
-  STACK_API_KEY: "Please provide api-key for the stack"
+  STACK_API_KEY: "Please provide api-key for the stack",
+  USER_TERMINATION: "Process terminated by user."
 };
 
 const appCreate = {
