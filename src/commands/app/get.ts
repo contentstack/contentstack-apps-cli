@@ -4,21 +4,19 @@ import { flags } from "@contentstack/cli-utilities";
 import { commonMsg } from "../../messages";
 
 export default class Get extends BaseCommand<typeof Get> {
-  static description = "Get app from the marketplace";
+  static description = "Get details of an app in developer hub";
 
-  static examples = [
-    "$ <%= config.bin %> <%= command.id %>",
-  ];
+  static examples = ["$ <%= config.bin %> <%= command.id %>"];
 
   static flags = {
-    'app-uid': flags.string({
+    "app-uid": flags.string({
       description: commonMsg.APP_UID,
     }),
-    'app-type': flags.string({
+    "app-type": flags.string({
       default: "stack",
       options: ["stack", "organization"],
-      description: commonMsg.APP_TYPE_DESCRIPTION
-    })
+      description: commonMsg.APP_TYPE_DESCRIPTION,
+    }),
   };
 
   async run(): Promise<void> {
@@ -36,5 +34,4 @@ export default class Get extends BaseCommand<typeof Get> {
       this.exit()
     }
   }
-
 }
