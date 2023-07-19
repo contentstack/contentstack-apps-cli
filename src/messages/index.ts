@@ -32,6 +32,7 @@ const commonMsg = {
     "Enter the Developer Hub Base URL for the {name} region: ",
   APP_UID: "Provide the app UID",
   APP_TYPE_DESCRIPTION: "Type of App",
+  CONTACT_SUPPORT: "Please contact support team."
 };
 
 const appCreate = {
@@ -71,16 +72,25 @@ const appUpdate = {
     "App versions mismatch! Please download the latest file using the `csdx app:get` command and sync the file with the latest downloaded file.",
 };
 
+const deleteAppMsg = {
+  APP_IS_INSTALLED: "This app is installed in one of your stacks. Please uninstall to proceed with delete.",
+  APP_DELETED_SUCCESSFULLY: "{app} has been deleted successfully.",
+  APP_UID_INVALID: "app uid must be valid",
+  PLEASE_SELECT_APP_FROM_LIST: "Please select an app from the list",
+}
+
 const messages: typeof errors &
   typeof commonMsg &
   typeof appCreate &
   typeof appUpdate &
-  typeof getApp = {
+  typeof getApp &
+  typeof deleteAppMsg = {
   ...errors,
   ...commonMsg,
   ...appCreate,
   ...appUpdate,
-  ...getApp
+  ...getApp,
+  ...deleteAppMsg
 };
 
 const $t = (msg: string, args: Record<string, string>): string => {
@@ -94,4 +104,4 @@ const $t = (msg: string, args: Record<string, string>): string => {
 };
 
 export default messages;
-export { $t, errors, commonMsg, appCreate, appUpdate, getApp };
+export { $t, errors, commonMsg, appCreate, appUpdate, getApp, deleteAppMsg };
