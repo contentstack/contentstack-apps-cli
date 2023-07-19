@@ -49,7 +49,7 @@ export default class Install extends BaseCommand<typeof Install> {
             name: "confirmation"
           })
           if (!confirmation) {
-            this.exit();
+            throw new Error(commonMsg.USER_TERMINATION)
           }
         }
 
@@ -73,6 +73,7 @@ export default class Install extends BaseCommand<typeof Install> {
         }), "info");
       } catch(error: any) {
         this.log(error?.errorMessage || error?.message || error, "error")
+        this.exit()
       }
     }
 }
