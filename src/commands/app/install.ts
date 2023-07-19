@@ -8,6 +8,8 @@ export default class Install extends BaseCommand<typeof Install> {
 
     static examples = [
       "$ <%= config.bin %> <%= command.id %>",
+      "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1>",
+      "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>",
     ];
 
     static flags = {
