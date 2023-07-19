@@ -15,33 +15,51 @@ It allows you to interact and work with Contentstack Apps.
 ## How to install this plugin
 
 ```shell
-$ csdx plugins:install contentstack-apps-cli
+$ csdx plugins:install @contentstack/apps-cli
 ```
 
 ## How to use this plugin
 
 This plugin requires you to be authenticated using [csdx auth:login](https://www.contentstack.com/docs/developers/cli/authenticate-with-the-cli/).
 
+<!-- usage -->
+```sh-session
+$ npm install -g @contentstack/apps-cli
+$ csdx COMMAND
+running command...
+$ csdx (--version|-v)
+@contentstack/apps-cli/0.0.0-alpha-1 darwin-arm64 node-v16.19.0
+$ csdx --help [COMMAND]
+USAGE
+  $ csdx COMMAND
+...
+```
+<!-- usagestop -->
+
 # Commands
+<!-- commands -->
+* [`csdx app`](#csdx-app)
 
-<!-- add commands here -->
+## `csdx app`
 
-- [`csdx app:create`](#csdx-appcreate)
-
-## `csdx app:create`
-
-create an sample app in local using Contentstack App boilerplate and register it on Developer Hub.
+Apps CLI plugin
 
 ```
 USAGE
-  $ csdx app:create <app_name>
-OPTIONS
-  -t, --app-type      Type of the App (stack / organization)
-  -o, --org           Uid of the Organization on which app needs to be registered
-  -i --interactive    Run command in interactive mode (TBD)
+  $ csdx app
+
+DESCRIPTION
+  Apps CLI plugin
+
 EXAMPLES
-  $ csdx app:create "sample app" -o "xxxxxxxxxxxxxxxxxxx" -t "stack"
-  $ csdx app:create "sample app" -o "xxxxxxxxxxxxxxxxxxx" --app-type "organization"
+  $ csdx app:create
+
+  $ csdx app:get
+
+  $ csdx app:update
+
+  $ csdx app:delete
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/contentstack/contentstack-apps-cli/blob/main/src/commands/app/create.ts)_
+_See code: [src/commands/app/index.ts](https://github.com/contentstack/apps-cli/blob/v0.0.0-alpha-1/src/commands/app/index.ts)_
+<!-- commandsstop -->
