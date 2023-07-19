@@ -15,7 +15,12 @@ export default class Create extends BaseCommand<typeof Create> {
   private manifestData!: AppManifest & Record<string, any>;
   static description = "Update the existing app in developer hub";
 
-  static examples = ["$ <%= config.bin %> <%= command.id %>"];
+  static examples = [
+    "$ <%= config.bin %> <%= command.id %>",
+    "$ <%= config.bin %> <%= command.id %> --org <value> --app-uid <value> --app-manifest <value>",
+    "$ <%= config.bin %> <%= command.id %> --org <value> --app-uid <value> --app-manifest ./boilerplate/manifest.json",
+    "$ <%= config.bin %> <%= command.id %> --org <value> --app-uid <value> -d ./boilerplate -c ./external-config.json --yes",
+  ];
 
   static flags = {
     "app-uid": flags.string({

@@ -31,7 +31,12 @@ export default class Create extends BaseCommand<typeof Create> {
 
   static description = "Create new app in developer hub";
 
-  static examples = ["$ <%= config.bin %> <%= command.id %>"];
+  static examples = [
+    "$ <%= config.bin %> <%= command.id %>",
+    "$ <%= config.bin %> <%= command.id %> --name App-1 --app-type stack --yes",
+    "$ <%= config.bin %> <%= command.id %> --name App-2 --app-type stack -d ./boilerplate --yes",
+    "$ <%= config.bin %> <%= command.id %> --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json --yes",
+  ];
 
   static flags = {
     name: flags.string({
