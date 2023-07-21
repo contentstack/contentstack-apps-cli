@@ -1,10 +1,10 @@
 import * as tmp from "tmp";
-import { dirname, join } from "path";
 import AdmZip from "adm-zip";
 import pick from "lodash/pick";
 import * as shell from "shelljs";
 import merge from "lodash/merge";
 import isEmpty from "lodash/isEmpty";
+import { dirname, join } from "path";
 import { AppData } from "@contentstack/management/types/app";
 import {
   rmSync,
@@ -16,7 +16,7 @@ import {
 } from "fs";
 import { ux, cliux, flags, HttpClient } from "@contentstack/cli-utilities";
 
-import { appCreate } from "../../messages";
+import { appCreate, commonMsg } from "../../messages";
 import { BaseCommand } from "./base-command";
 import { AppManifest, AppType } from "../../types";
 import {
@@ -28,6 +28,7 @@ import {
 
 export default class Create extends BaseCommand<typeof Create> {
   private appData!: AppManifest;
+  static hidden: boolean = false;
 
   static description = "Create new app in developer hub";
 
@@ -47,6 +48,14 @@ export default class Create extends BaseCommand<typeof Create> {
       default: "stack",
       options: ["stack", "organization"],
       description: appCreate.APP_TYPE_DESCRIPTION,
+    }),
+    config: flags.string({
+      char: "c",
+      description: commonMsg.CONFIG,
+    }),
+    "data-dir": flags.string({
+      char: "d",
+      description: commonMsg.CURRENT_WORKING_DIR,
     }),
   };
 
