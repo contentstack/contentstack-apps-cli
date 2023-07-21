@@ -41,10 +41,6 @@ export default class Uninstall extends BaseCommand<typeof Uninstall> {
         await uninstallApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
         this.log(this.$t(uninstallAppMsg.APP_UNINSTALLED, { app: app?.name || this.flags["app-uid"] }), "info")
 
-        // const installations = await fetchAppInstallations(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
-        // console.log(installations)
-        // const installationData = await installations.items[0].fetch()
-        // console.log(installationData)
       } catch (error: any) {
         this.log(error?.errorMessage || error?.message || error, "error")
       }
