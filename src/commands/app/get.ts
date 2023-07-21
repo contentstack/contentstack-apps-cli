@@ -4,13 +4,15 @@ import { flags } from "@contentstack/cli-utilities";
 import { commonMsg } from "../../messages";
 
 export default class Get extends BaseCommand<typeof Get> {
+  static hidden: boolean = false;
+
   static description = "Get details of an app in developer hub";
 
   static examples = [
     "$ <%= config.bin %> <%= command.id %>",
     "$ <%= config.bin %> <%= command.id %> --org <value> --app-uid <value>",
     "$ <%= config.bin %> <%= command.id %> --org <value> --app-uid <value> --app-type stack",
-    "$ <%= config.bin %> <%= command.id %> --org <value> --app-uid <value> --app-type organization -c ./external-config.json --yes",
+    "$ <%= config.bin %> <%= command.id %> --org <value> --app-uid <value> --app-type organization",
   ];
 
   static flags = {
@@ -21,6 +23,10 @@ export default class Get extends BaseCommand<typeof Get> {
       default: "stack",
       options: ["stack", "organization"],
       description: commonMsg.APP_TYPE_DESCRIPTION,
+    }),
+    "data-dir": flags.string({
+      char: "d",
+      description: commonMsg.CURRENT_WORKING_DIR,
     }),
   };
 
