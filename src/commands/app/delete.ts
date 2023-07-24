@@ -4,12 +4,14 @@ import { $t, commonMsg, deleteAppMsg } from "../../messages";
 import { getOrg, fetchAppInstallations, deleteApp, getApp } from "../../util";
 
 export default class Delete extends BaseCommand<typeof Delete> {
+  static hidden: boolean = false;
+
   static description = "Delete app from marketplace";
 
   static examples = [
     "$ <%= config.bin %> <%= command.id %>",
     "$ <%= config.bin %> <%= command.id %> --app-uid <value>",
-    "$ <%= config.bin %> <%= command.id %> --app-uid <value> --org <value> -d ./boilerplate -c ./external-config.json",
+    "$ <%= config.bin %> <%= command.id %> --app-uid <value> --org <value> -d ./boilerplate",
   ];
 
   static flags = {
