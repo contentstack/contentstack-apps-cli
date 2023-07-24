@@ -181,7 +181,7 @@ async function getInstallation(
   managementSdkForStacks: ContentstackClient,
   appType: AppTarget,
   options:CommonOptions
-) {
+) : Promise<string> {
   const {log} = options;
   if (appType === 'stack') {
     cliux.loader("Loading App Installations");
@@ -194,7 +194,7 @@ async function getInstallation(
     throw new Error(messages.NO_INSTALLATIONS_FOUND)
   }
 
-  let selectedInstallation
+  let selectedInstallation: string;
 
   if (appType === 'stack') {
     // fetch stacks from where the app has to be uninstalled
@@ -207,11 +207,11 @@ async function getInstallation(
       name: 'appInstallation',
       choices: installations,
       message: messages.CHOOSE_AN_INSTALLATION
-    })
+    }) as string
   } else {
     // as this is an organization app, and it is supposed to only be installed on the source organization
     // it will be uninstalled from the selected organization
-    selectedInstallation = installations.pop()?.uid
+    selectedInstallation = installations.pop()?.uid || "";
   }
 
   log($t(uninstallAppMsg.UNINSTALLING_APP, {
