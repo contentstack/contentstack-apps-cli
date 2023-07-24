@@ -89,7 +89,7 @@ export default class Logger {
         transports: [new winston.transports.Console(consoleOptions)],
       })
       .error("Provided base path is not valid");
-    process.exit(1);
+    throw new Error("Provided base path is not valid");
   }
 
   /**
