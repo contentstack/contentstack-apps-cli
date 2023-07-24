@@ -46,16 +46,8 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 
   // NOTE define flags that can be inherited by any command that extends BaseCommand
   static baseFlags: FlagInput = {
-    config: Flags.string({
-      char: "c",
-      description: commonMsg.CONFIG,
-    }),
     org: Flags.string({
       description: commonMsg.PROVIDE_ORG_UID,
-    }),
-    "data-dir": Flags.string({
-      char: "d",
-      description: commonMsg.CURRENT_WORKING_DIR,
     }),
     yes: Flags.boolean({
       char: "y",

@@ -7,12 +7,15 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 import { getOrg } from "../../util";
 import { AppManifest } from "../../types";
 import { BaseCommand } from "./base-command";
-import { $t, appUpdate } from "../../messages";
+import { $t, appUpdate, commonMsg } from "../../messages";
 
-export default class Create extends BaseCommand<typeof Create> {
+export default class Update extends BaseCommand<typeof Update> {
   private appUidRetry: number = 0;
   private manifestPathRetry: number = 0;
   private manifestData!: AppManifest & Record<string, any>;
+
+  static hidden: boolean = false;
+
   static description = "Update the existing app in developer hub";
 
   static examples = [
@@ -28,6 +31,14 @@ export default class Create extends BaseCommand<typeof Create> {
     }),
     "app-manifest": flags.string({
       description: $t(appUpdate.FILE_PATH, { fileName: "app manifest.json" }),
+    }),
+    config: flags.string({
+      char: "c",
+      description: commonMsg.CONFIG,
+    }),
+    "data-dir": flags.string({
+      char: "d",
+      description: commonMsg.CURRENT_WORKING_DIR,
     }),
   };
 
