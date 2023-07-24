@@ -61,7 +61,11 @@
     "additionalVersionFlags": [
       "-v"
     ],
-    "topics": {}
+    "topics": {
+      "app": {
+        "description": "Perform developer-hub app related activities"
+      }
+    }
   },
   "scripts": {
     "build": "npm run clean && shx rm -rf lib && tsc -b",
