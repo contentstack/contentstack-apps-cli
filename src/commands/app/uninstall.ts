@@ -48,6 +48,7 @@ export default class Uninstall extends BaseCommand<typeof Uninstall> {
 
       } catch (error: any) {
         this.log(error?.errorMessage || error?.message || error, "error")
+        this.exit();
       }
     }
 
