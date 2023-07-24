@@ -89,20 +89,30 @@ const installAppMsg = {
   INSTALLING_APP_NOTICE: "Installing {app} on {type} {target}"
 }
 
+const uninstallAppMsg = {
+  CHOOSE_AN_INSTALLATION: "Please select where the app needs to be uninstalled",
+  INSTALLATION_UID: "Installation UID which needs to be uninstalled",
+  NO_INSTALLATIONS_FOUND: "No installations found for this app",
+  APP_UNINSTALLED: "{app} has been uninstalled successfully.",
+  UNINSTALLING_APP: "Uninstalling app from {type}"
+}
+
 const messages: typeof errors &
   typeof commonMsg &
   typeof appCreate &
   typeof appUpdate &
   typeof getApp &
   typeof deleteAppMsg &
-  typeof installAppMsg = {
+  typeof installAppMsg &
+  typeof uninstallAppMsg = {
   ...errors,
   ...commonMsg,
   ...appCreate,
   ...appUpdate,
   ...getApp,
   ...deleteAppMsg,
-  ...installAppMsg
+  ...installAppMsg,
+  ...uninstallAppMsg
 };
 
 const $t = (msg: string, args: Record<string, string>): string => {
@@ -116,4 +126,4 @@ const $t = (msg: string, args: Record<string, string>): string => {
 };
 
 export default messages;
-export { $t, errors, commonMsg, appCreate, appUpdate, getApp, deleteAppMsg, installAppMsg };
+export { $t, errors, commonMsg, appCreate, appUpdate, getApp, deleteAppMsg, installAppMsg, uninstallAppMsg };
