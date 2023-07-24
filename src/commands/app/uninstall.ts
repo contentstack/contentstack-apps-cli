@@ -1,7 +1,7 @@
 import { BaseCommand } from "./base-command";
-import { Stack, flags } from "@contentstack/cli-utilities";
+import { flags } from "@contentstack/cli-utilities";
 import { getOrg, getApp, fetchApp, getInstallation, uninstallApp } from "../../util";
-import { $t, commonMsg, uninstallAppMsg } from "../../messages";
+import { commonMsg, uninstallAppMsg } from "../../messages";
 
 export default class Uninstall extends BaseCommand<typeof Uninstall> {
     static description = "Uninstall an app";
