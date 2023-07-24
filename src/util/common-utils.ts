@@ -97,8 +97,7 @@ function fetchAppInstallations(flags: FlagInput, orgUid: string, options: Common
     const {log} = options;
     cliux.loader("failed");
     log("Some error occurred while fetching app installations.", "warn");
-    log(error.errorMessage, "error");
-    process.exit(1);
+    throw error // throwing error here instead of removing the catch block, as the loader needs to stopped in case there is an error.
   })
 }
 

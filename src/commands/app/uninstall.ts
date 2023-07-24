@@ -39,8 +39,7 @@ export default class Uninstall extends BaseCommand<typeof Uninstall> {
 
         // select installation uid to uninstall
         if (!this.flags['installation-uid']) {
-          const installation: unknown = await getInstallation(this.flags, this.sharedConfig.org, this.managementSdk, appType, {managementSdk: this.managementAppSdk, log: this.log})
-          this.flags['installation-uid'] = installation as string;
+          this.flags['installation-uid'] = await getInstallation(this.flags, this.sharedConfig.org, this.managementSdk, appType, {managementSdk: this.managementAppSdk, log: this.log})
         }
         
         // uninstall app
