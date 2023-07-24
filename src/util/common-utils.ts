@@ -19,7 +19,7 @@ async function getOrganizations(
     .catch((error) => {
       log("Unable to fetch organizations.", "warn");
       log(error, "error");
-      process.exit(1);
+      throw error;
     });
 
   if (response) {
@@ -54,92 +54,109 @@ async function fetchApps(
   apps: Record<string, any>[] = []
 ): Promise<Record<string, any>[]> {
   const { log, managementSdk } = options;
-    const response = await managementSdk
+  const response = await managementSdk
     .organization(orgUid)
     .app()
-    .findAll({ limit: 50, asc: "name", include_count: true, skip: skip, target_type: flags["app-type"]})
+    .findAll({
+      limit: 50,
+      asc: "name",
+      include_count: true,
+      skip: skip,
+      target_type: flags["app-type"],
+    })
     .catch((error) => {
       cliux.loader("failed");
       log("Some error occurred while fetching apps.", "warn");
       log(error.errorMessage, "error");
-      process.exit(1);
+      throw error;
     });
-  
-    if (response) {
-      apps = apps.concat(response.items as any);
-      if (apps.length < response.count) {
-        apps = await fetchApps(flags, orgUid, options, skip + 50, apps)
-      }
+
+  if (response) {
+    apps = apps.concat(response.items as any);
+    if (apps.length < response.count) {
+      apps = await fetchApps(flags, orgUid, options, skip + 50, apps);
     }
+  }
 
-
-    return apps;
+  return apps;
 }
 
 function fetchApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
   const { managementSdk } = options;
-  const app : any = flags["app-uid"]
+  const app: any = flags["app-uid"];
   return managementSdk
-  .organization(orgUid)
-  .app(app as string)
-  .fetch()
+    .organization(orgUid)
+    .app(app as string)
+    .fetch();
 }
 
-function fetchAppInstallations(flags: FlagInput, orgUid: string, options: CommonOptions) {
+function fetchAppInstallations(
+  flags: FlagInput,
+  orgUid: string,
+  options: CommonOptions
+) {
   const { managementSdk } = options;
-  const app : any = flags["app-uid"];
+  const app: any = flags["app-uid"];
   return managementSdk
-  .organization(orgUid)
-  .app(app as string)
-  .installation()
-  .findAll()
+    .organization(orgUid)
+    .app(app as string)
+    .installation()
+    .findAll();
 }
 
 function deleteApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
-  const {managementSdk} = options;
-  const app : any = flags["app-uid"];
+  const { managementSdk } = options;
+  const app: any = flags["app-uid"];
   return managementSdk
-  .organization(orgUid)
-  .app(app as string)
-  .delete()
+    .organization(orgUid)
+    .app(app as string)
+    .delete();
 }
 
-function installApp(flags: FlagInput, orgUid: string, type: string, options: CommonOptions) {
-  const { managementSdk} = options;
+function installApp(
+  flags: FlagInput,
+  orgUid: string,
+  type: string,
+  options: CommonOptions
+) {
+  const { managementSdk } = options;
   return managementSdk
-  .organization(orgUid)
-  .app(flags['app-uid'] as any)
-  .install({targetUid: flags['stack-api-key'] as any || orgUid, targetType: type as any})
+    .organization(orgUid)
+    .app(flags["app-uid"] as any)
+    .install({
+      targetUid: (flags["stack-api-key"] as any) || orgUid,
+      targetType: type as any,
+    });
 }
 
 function fetchStack(flags: FlagInput, options: CommonOptions) {
-  const {managementSdk} = options;
+  const { managementSdk } = options;
   return managementSdk
-  .stack({ api_key: flags['stack-api-key'] as any })
-  .fetch()
+    .stack({ api_key: flags["stack-api-key"] as any })
+    .fetch();
 }
 
 async function getStacks(
   options: CommonOptions,
   orgUid: string,
-  skip: number= 0,
-  stacks: Record<string, any>[] = [],
+  skip: number = 0,
+  stacks: Record<string, any>[] = []
 ): Promise<Record<string, any>[]> {
-  const {log, managementSdk} = options;
+  const { log, managementSdk } = options;
   const response = await managementSdk
-  .organization(orgUid)
-  .stacks({include_count: true, limit: 100, asc: 'name', skip: skip})
-  .catch((error) => {
-    cliux.loader("failed");
-    log("Unable to fetch stacks.", "warn");
-    log(error?.errorMessage || error, "error");
-    process.exit(1);
-  })
+    .organization(orgUid)
+    .stacks({ include_count: true, limit: 100, asc: "name", skip: skip })
+    .catch((error) => {
+      cliux.loader("failed");
+      log("Unable to fetch stacks.", "warn");
+      log(error?.errorMessage || error, "error");
+      throw error;
+    });
 
   if (response) {
     stacks = stacks.concat(response.items as any);
     if (stacks.length < response.count) {
-      stacks = await getStacks(options, orgUid, skip + 100, stacks)
+      stacks = await getStacks(options, orgUid, skip + 100, stacks);
     }
   }
 

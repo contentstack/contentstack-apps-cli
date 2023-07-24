@@ -146,11 +146,11 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
       },
     }
   ): Promise<string | boolean> {
-    const { message, validate } = options;
+    const { name = "getVal", message, validate } = options;
     return cliux.inquire({
       validate,
+      name,
       type: "input",
-      name: "getVal",
       default: options?.default,
       message: message as string,
     });

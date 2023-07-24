@@ -50,11 +50,16 @@ export default class Update extends BaseCommand<typeof Update> {
       );
     }
 
-    await this.flagsPromptQueue();
-    await this.validateManifest();
-    await this.validateAppUid();
-    await this.appVersionValidation();
-    await this.updateAppOnDeveloperHub();
+    try {
+      await this.flagsPromptQueue();
+      await this.validateManifest();
+      await this.validateAppUid();
+      await this.appVersionValidation();
+      await this.updateAppOnDeveloperHub();
+    } catch (error) {
+      this.log(error, "error");
+      this.exit(1);
+    }
   }
 
   /**
@@ -71,13 +76,17 @@ export default class Update extends BaseCommand<typeof Update> {
       };
     };
 
-    this.sharedConfig.org = await getOrg(this.flags, {
-      log: this.log,
-      managementSdk: this.managementSdk,
-    });
+    if (!this.sharedConfig.orgValidated) {
+      this.sharedConfig.org = await getOrg(this.flags, {
+        log: this.log,
+        managementSdk: this.managementSdk,
+      });
+      this.sharedConfig.orgValidated = true;
+    }
 
     if (!this.flags["app-uid"]) {
       this.flags["app-uid"] = (await this.getValPrompt({
+        name: "appUid",
         validate: validate("App UID"),
         message: this.messages.APP_UID,
       })) as string;
@@ -85,6 +94,7 @@ export default class Update extends BaseCommand<typeof Update> {
 
     if (!this.flags["app-manifest"]) {
       this.flags["app-manifest"] = (await this.getValPrompt({
+        name: "appManifest",
         validate: validate("App manifest path"),
         message: this.$t(this.messages.FILE_PATH, {
           fileName: "app manifest.json",
@@ -126,9 +136,10 @@ export default class Update extends BaseCommand<typeof Update> {
       if (this.manifestPathRetry < 3) {
         this.flags["app-manifest"] = "";
         await this.flagsPromptQueue();
+        await this.validateManifest();
       } else {
         this.log(this.messages.MAX_RETRY_LIMIT, "warn");
-        this.exit(1);
+        throw new Error(this.messages.MAX_RETRY_LIMIT);
       }
     }
   }
@@ -140,16 +151,17 @@ export default class Update extends BaseCommand<typeof Update> {
    * @memberof Create
    */
   async validateAppUid(): Promise<void> {
-    if (this.flags["app-uid"] !== this.manifestData.uid) {
+    if (this.flags["app-uid"] !== this.manifestData?.uid) {
       this.log(this.messages.APP_UID_NOT_MATCH, "error");
       this.appUidRetry++;
 
       if (this.appUidRetry < 3) {
         this.flags["app-uid"] = "";
         await this.flagsPromptQueue();
+        await this.validateAppUid();
       } else {
         this.log(this.messages.MAX_RETRY_LIMIT, "warn");
-        this.exit(1);
+        throw new Error(this.messages.MAX_RETRY_LIMIT);
       }
     }
   }
@@ -164,14 +176,11 @@ export default class Update extends BaseCommand<typeof Update> {
     const app = await this.managementAppSdk
       .organization(this.flags.org)
       .app(this.flags["app-uid"] as string)
-      .fetch()
-      .catch((er) => {
-        this.log(er, "error");
-      });
+      .fetch();
 
     if (this.manifestData.version !== app?.version) {
       this.log(this.messages.APP_VERSION_MISS_MATCH, "warn");
-      this.exit(1);
+      throw new Error(this.messages.APP_VERSION_MISS_MATCH);
     }
 
     return app;
@@ -241,8 +250,7 @@ export default class Update extends BaseCommand<typeof Update> {
             break;
         }
 
-        this.log(er, "error");
-        this.exit(1);
+        throw er;
       });
   }
 }
