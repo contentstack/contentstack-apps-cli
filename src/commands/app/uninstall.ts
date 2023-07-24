@@ -6,6 +6,12 @@ import { $t, commonMsg, uninstallAppMsg } from "../../messages";
 export default class Uninstall extends BaseCommand<typeof Uninstall> {
     static description = "Uninstall an app";
 
+    static examples = [
+      "$ <%= config.bin %> <%= command.id %>",
+      "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1>",
+      "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --installation-uid <INSTALLATION-UID-1>",
+    ];
+
     static flags = {
       'app-uid': flags.string({
         description: commonMsg.APP_UID,
