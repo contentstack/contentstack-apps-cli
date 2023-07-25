@@ -1,8 +1,8 @@
 import { fancy } from "fancy-test";
 import { expect } from "@oclif/test";
 import {
-  ContentstackClient,
   configHandler,
+  ContentstackClient,
   managementSDKClient,
 } from "@contentstack/cli-utilities";
 
@@ -35,6 +35,30 @@ describe("common utils", () => {
         )
         .it("Returns list of org", async () => {
           const [org1, org2] = await getOrganizations({ log, managementSdk });
+          expect(org1.uid).to.equal(mock.organizations[0].uid);
+          expect(org2.uid).to.equal(mock.organizations[1].uid);
+        });
+    });
+
+    describe("Get list of organizations using pagination", () => {
+      fancy
+        .nock(region.cma, (api) =>
+          api
+            .get(
+              "/v3/organizations?limit=100&asc=name&include_count=true&skip=0"
+            )
+            .reply(200, { organizations: mock.organizations, count: 110 })
+        )
+        .nock(region.cma, (api) =>
+          api
+            .get(
+              "/v3/organizations?limit=100&asc=name&include_count=true&skip=100"
+            )
+            .reply(200, { organizations: mock.organizations, count: 0 })
+        )
+        .it("returns list of organizations", async () => {
+          const organizations = await getOrganizations({ log, managementSdk });
+          const [org1, org2] = organizations;
           expect(org1.uid).to.equal(mock.organizations[0].uid);
           expect(org2.uid).to.equal(mock.organizations[1].uid);
         });
