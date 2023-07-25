@@ -8,10 +8,10 @@ import { PassThrough } from "stream";
 import { expect, test } from "@oclif/test";
 import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
 
-import config from "../../../src/config";
-import messages from "../../../src/messages";
-import * as mock from "../mock/create.mock.json";
-import manifestData from "../../../src/config/manifest.json";
+import config from "../../../../src/config";
+import messages from "../../../../src/messages";
+import * as mock from "../../mock/common.mock.json";
+import manifestData from "../../../../src/config/manifest.json";
 
 const gitHubHost = "https://github.com";
 const zipPath = join(process.cwd(), "test", "unit", "mock", "boilerplate.zip");
