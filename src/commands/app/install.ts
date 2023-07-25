@@ -5,6 +5,7 @@ import { getOrg, getApp, getStack, installApp, fetchApp, fetchStack} from "../..
 
 export default class Install extends BaseCommand<typeof Install> {
     static description: string | undefined = "Install an app from the marketplace";
+    static hidden: boolean = false;
 
     static examples = [
       "$ <%= config.bin %> <%= command.id %>",
@@ -67,7 +68,7 @@ export default class Install extends BaseCommand<typeof Install> {
           app: app?.name || app?.uid,
           type: appType,
           target: this.flags['stack-api-key'] || this.sharedConfig.org
-        }), "warn")
+        }), "info")
         await installApp(this.flags, this.sharedConfig.org, appType, {managementSdk: this.managementAppSdk, log: this.log})
         this.log($t(installAppMsg.APP_INSTALLED_SUCCESSFULLY, {
           app: app?.name || this.flags['app-uid'] as string,

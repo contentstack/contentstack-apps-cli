@@ -5,6 +5,7 @@ import { commonMsg, uninstallAppMsg } from "../../messages";
 
 export default class Uninstall extends BaseCommand<typeof Uninstall> {
     static description = "Uninstall an app";
+    static hidden: boolean = false;
 
     static examples = [
       "$ <%= config.bin %> <%= command.id %>",
