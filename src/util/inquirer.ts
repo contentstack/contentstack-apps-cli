@@ -64,7 +64,7 @@ async function getDirName(path: string): Promise<string> {
         }
 
         if (existsSync(join(basePath, name))) {
-          return $t(errors.INVALID_NAME, { min: "3", max: "50" });
+          return messages.DIR_EXIST;
         }
 
         return true;
