@@ -121,6 +121,7 @@ describe("app:update", () => {
           .reply(200, { organizations: mock.organizations })
       )
       .command(["app:update"])
+      .exit(1)
       .do(({ stdout }) => expect(stdout).to.contain(messages.MAX_RETRY_LIMIT))
       .it("should fail with manifest max retry message");
   });
@@ -150,6 +151,7 @@ describe("app:update", () => {
         "--app-manifest",
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
       ])
+      .exit(1)
       .do(({ stdout }) => expect(stdout).to.contain(messages.MAX_RETRY_LIMIT))
       .it("should fail with max retry message");
   });
@@ -184,6 +186,7 @@ describe("app:update", () => {
         "--app-manifest",
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
       ])
+      .exit(1)
       .do(({ stdout }) =>
         expect(stdout).to.contain(messages.APP_VERSION_MISS_MATCH)
       )
@@ -225,6 +228,7 @@ describe("app:update", () => {
         "--app-manifest",
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
       ])
+      .exit(1)
       .do(({ stdout }) => expect(stdout).to.contain(messages.INVALID_APP_ID))
       .it("update app should fail with 400 status code");
   });
@@ -264,6 +268,7 @@ describe("app:update", () => {
         "--app-manifest",
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
       ])
+      .exit(1)
       .do(({ stdout }) => expect(stdout).to.contain(messages.APP_INVALID_ORG))
       .it("update app should fail with 403 status code");
   });
