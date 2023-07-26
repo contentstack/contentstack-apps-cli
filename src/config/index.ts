@@ -17,7 +17,7 @@ const config = {
   },
   appBoilerplateGithubUrl:
     "https://github.com/contentstack/marketplace-app-boilerplate/archive/refs/tags/1.2.3.zip",
-  defaultAppFileName: "app-manifest",
+  defaultAppFileName: "manifest",
 };
 
 export default config;
