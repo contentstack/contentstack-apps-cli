@@ -91,7 +91,9 @@
       "app:get": "APGT",
       "app:create": "APCRT",
       "app:update": "APUPT",
-      "app:delete": "APDLT"
+      "app:delete": "APDLT",
+      "app:install": "API",
+      "app:uninstall": "APUI"
     }
   }
 }
