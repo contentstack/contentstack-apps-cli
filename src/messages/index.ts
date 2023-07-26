@@ -32,9 +32,9 @@ const commonMsg = {
     "Enter the Developer Hub Base URL for the {name} region: ",
   APP_UID: "Provide the app UID",
   APP_TYPE_DESCRIPTION: "Type of App",
-  CONTACT_SUPPORT: "Please contact support team.",
-  STACK_API_KEY: "Please provide api-key for the stack",
-  USER_TERMINATION: "Process terminated by user."
+  CONTACT_SUPPORT: "Please contact the support team.",
+  STACK_API_KEY: "API key of the stack where the app is to be installed.",
+  USER_TERMINATION: "Process terminated by the user."
 };
 
 const appCreate = {
@@ -75,26 +75,26 @@ const appUpdate = {
 };
 
 const deleteAppMsg = {
-  APP_IS_INSTALLED: "This app is installed in one of your stacks. Please uninstall to proceed with delete.",
-  APP_DELETED_SUCCESSFULLY: "{app} has been deleted successfully.",
-  APP_UID_INVALID: "app uid must be valid",
+  APP_IS_INSTALLED: "This app is installed in one of your stacks. Please uninstall the app from your stack to proceed with the delete operation.",
+  APP_DELETED_SUCCESSFULLY: "{app} deleted successfully.",
+  APP_UID_INVALID: "App UID must be valid.",
   PLEASE_SELECT_APP_FROM_LIST: "Please select an app from the list",
 }
 
 const installAppMsg = {
   CHOOSE_A_STACK: "Please select a stack",
-  APP_INSTALLED_SUCCESSFULLY: "{app} has been installed successfully on {target}.",
-  INSTALL_ORG_APP_TO_STACK: "{app} is an organization app, it cannot be installed to a stack. Do you want to proceed",
-  MISSING_STACK_API_KEY: "As {app} is a stack app, it can only be installed on a stack. Please select a stack.",
-  INSTALLING_APP_NOTICE: "Installing {app} on {type} {target}"
+  APP_INSTALLED_SUCCESSFULLY: "{app} installed successfully in {target}.",
+  INSTALL_ORG_APP_TO_STACK: "{app} is an organization app. It cannot be installed to a stack. Do you want to proceed?",
+  MISSING_STACK_API_KEY: "As {app} is a stack app, it can only be installed in a stack. Please select a stack.",
+  INSTALLING_APP_NOTICE: "Installing {app} on {type} {target}."
 }
 
 const uninstallAppMsg = {
-  CHOOSE_AN_INSTALLATION: "Please select where the app needs to be uninstalled",
-  INSTALLATION_UID: "Installation UID which needs to be uninstalled",
-  NO_INSTALLATIONS_FOUND: "No installations found for this app",
-  APP_UNINSTALLED: "{app} has been uninstalled successfully.",
-  UNINSTALLING_APP: "Uninstalling app from {type}"
+  CHOOSE_AN_INSTALLATION: "Please select the stack from where the app must be uninstalled",
+  INSTALLATION_UID: "Provide the installation ID of the app that needs to be uninstalled.",
+  NO_INSTALLATIONS_FOUND: "Cannot find any installations for this app.",
+  APP_UNINSTALLED: "{app} uninstalled successfully.",
+  UNINSTALLING_APP: "Uninstalling app from {type}..."
 }
 
 const messages: typeof errors &
