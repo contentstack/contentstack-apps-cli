@@ -28,7 +28,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/0.0.0-alpha-1 darwin-arm64 node-v16.19.0
+@contentstack/apps-cli/0.0.0-alpha-1 darwin-arm64 node-v20.3.1
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -41,6 +41,8 @@ USAGE
 * [`csdx app:create`](#csdx-appcreate)
 * [`csdx app:delete`](#csdx-appdelete)
 * [`csdx app:get`](#csdx-appget)
+* [`csdx app:install`](#csdx-appinstall)
+* [`csdx app:uninstall`](#csdx-appuninstall)
 * [`csdx app:update`](#csdx-appupdate)
 
 ## `csdx app:create`
@@ -131,6 +133,60 @@ EXAMPLES
 ```
 
 _See code: [src/commands/app/get.ts](https://github.com/contentstack/apps-cli/blob/v0.0.0-alpha-1/src/commands/app/get.ts)_
+
+## `csdx app:install`
+
+Install an app from the marketplace
+
+```
+USAGE
+  $ csdx app:install [--org <value>] [-y] [--app-uid <value>] [--stack-api-key <value>]
+
+FLAGS
+  -y, --yes                Use this flag to skip the confirmation.
+  --app-uid=<value>        Provide the app UID
+  --org=<value>            Provide the organization UID
+  --stack-api-key=<value>  API key of the stack where the app is to be installed.
+
+DESCRIPTION
+  Install an app from the marketplace
+
+EXAMPLES
+  $ csdx app:install
+
+  $ csdx app:install --org <UID> --app-uid <APP-UID-1>
+
+  $ csdx app:install --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>
+```
+
+_See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v0.0.0-alpha-1/src/commands/app/install.ts)_
+
+## `csdx app:uninstall`
+
+Uninstall an app
+
+```
+USAGE
+  $ csdx app:uninstall [--org <value>] [-y] [--app-uid <value>] [--installation-uid <value>]
+
+FLAGS
+  -y, --yes                   Use this flag to skip the confirmation.
+  --app-uid=<value>           Provide the app UID
+  --installation-uid=<value>  Provide the installation ID of the app that needs to be uninstalled.
+  --org=<value>               Provide the organization UID
+
+DESCRIPTION
+  Uninstall an app
+
+EXAMPLES
+  $ csdx app:uninstall
+
+  $ csdx app:uninstall --org <UID> --app-uid <APP-UID-1>
+
+  $ csdx app:uninstall --org <UID> --app-uid <APP-UID-1> --installation-uid <INSTALLATION-UID-1>
+```
+
+_See code: [src/commands/app/uninstall.ts](https://github.com/contentstack/apps-cli/blob/v0.0.0-alpha-1/src/commands/app/uninstall.ts)_
 
 ## `csdx app:update`
 
