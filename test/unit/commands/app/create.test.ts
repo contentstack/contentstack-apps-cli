@@ -8,10 +8,10 @@ import { PassThrough } from "stream";
 import { expect, test } from "@oclif/test";
 import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
 
-import config from "../../../src/config";
-import messages from "../../../src/messages";
-import * as mock from "../mock/create.mock.json";
-import manifestData from "../../../src/config/manifest.json";
+import config from "../../../../src/config";
+import messages from "../../../../src/messages";
+import * as mock from "../../mock/common.mock.json";
+import manifestData from "../../../../src/config/manifest.json";
 
 const gitHubHost = "https://github.com";
 const zipPath = join(process.cwd(), "test", "unit", "mock", "boilerplate.zip");
@@ -206,9 +206,10 @@ describe("app:create", () => {
           .reply(200, { organizations: mock.organizations })
       )
       .command(["app:create", "--data-dir", process.cwd()])
-      .do(({ stdout }) =>
-        expect(stdout).to.contain(messages.FILE_GENERATION_FAILURE)
-      )
+      .exit(1)
+      .do(({ stdout }) => {
+        expect(stdout).to.includes(messages.FILE_GENERATION_FAILURE);
+      })
       .it("Boilerplate clone exits with status code 1");
   });
 
@@ -236,6 +237,7 @@ describe("app:create", () => {
         api.post("/manifests", { ...manifestData, name: "test-app" }).reply(400)
       )
       .command(["app:create", "--data-dir", process.cwd()])
+      .exit(1)
       .do(({ stdout }) =>
         expect(stdout).to.contain(messages.APP_CREATION_CONSTRAINT_FAILURE)
       )
@@ -272,6 +274,7 @@ describe("app:create", () => {
         "--config",
         resolve(process.cwd(), "test", "unit", "mock", "config.json"),
       ])
+      .exit(1)
       .do(({ stdout }) =>
         expect(stdout).to.contain(messages.APP_CREATION_CONSTRAINT_FAILURE)
       )
@@ -320,6 +323,7 @@ describe("app:create", () => {
           })
       )
       .command(["app:create", "--data-dir", process.cwd()])
+      .exit(1)
       .do(({ stdout }) =>
         expect(stdout).to.contain("Dependency installation failed.!")
       )
