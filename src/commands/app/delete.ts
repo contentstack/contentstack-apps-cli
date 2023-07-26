@@ -53,7 +53,7 @@ export default class Delete extends BaseCommand<typeof Delete> {
         this.log(deleteAppMsg.APP_IS_INSTALLED, "error");
       }
     } catch (error: any) {
-      this.log(error.errorMessage, "error");
+      this.log(error?.errorMessage || error?.message || error, "error");
       if (error.status === 400) {
         // check for invalid app-uid
         this.log(deleteAppMsg.PLEASE_SELECT_APP_FROM_LIST);
