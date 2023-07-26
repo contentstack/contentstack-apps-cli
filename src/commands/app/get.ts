@@ -55,8 +55,8 @@ export default class Get extends BaseCommand<typeof Get> {
         this.log
       );
     } catch (error: any) {
-      this.log(error.errorMessage, "error");
-      this.exit();
+      this.log(error?.errorMessage || error?.message || error, "error");
+      this.exit(1);
     }
   }
 }
