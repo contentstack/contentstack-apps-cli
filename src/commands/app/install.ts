@@ -76,7 +76,7 @@ export default class Install extends BaseCommand<typeof Install> {
         }), "info");
       } catch(error: any) {
         this.log(error?.errorMessage || error?.message || error, "error")
-        this.exit()
+        this.exit(1)
       }
     }
 }
