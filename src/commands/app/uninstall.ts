@@ -18,7 +18,7 @@ export default class Uninstall extends BaseCommand<typeof Uninstall> {
         description: commonMsg.APP_UID,
       }),
       'installation-uid': flags.string({
-        description: uninstallAppMsg.CHOOSE_AN_INSTALLATION
+        description: uninstallAppMsg.INSTALLATION_UID
       })
     }
 
