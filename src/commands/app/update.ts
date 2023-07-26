@@ -2,11 +2,12 @@ import pick from "lodash/pick";
 import { resolve } from "path";
 import merge from "lodash/merge";
 import { flags } from "@contentstack/cli-utilities";
+import { App } from "@contentstack/management/types/app";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
-import { getOrg } from "../../util";
 import { AppManifest } from "../../types";
 import { BaseCommand } from "./base-command";
+import { fetchApp, getApp, getOrg } from "../../util";
 import { $t, appUpdate, commonMsg } from "../../messages";
 
 export default class Update extends BaseCommand<typeof Update> {
@@ -51,7 +52,10 @@ export default class Update extends BaseCommand<typeof Update> {
     }
 
     try {
-      await this.flagsPromptQueue();
+      this.sharedConfig.org = await getOrg(this.flags, {
+        log: this.log,
+        managementSdk: this.managementSdk,
+      });
       await this.validateManifest();
       await this.validateAppUid();
       await this.appVersionValidation();
@@ -63,54 +67,29 @@ export default class Update extends BaseCommand<typeof Update> {
   }
 
   /**
-   * @method flagsPromptQueue
-   *
-   * @return {*}  {Promise<void>}
-   * @memberof Create
-   */
-  async flagsPromptQueue(): Promise<void> {
-    const validate = (value: string) => {
-      return (val: string) => {
-        if (!val) return this.$t(this.messages.NOT_EMPTY, { value });
-        return true;
-      };
-    };
-
-    if (!this.sharedConfig.orgValidated) {
-      this.sharedConfig.org = await getOrg(this.flags, {
-        log: this.log,
-        managementSdk: this.managementSdk,
-      });
-      this.sharedConfig.orgValidated = true;
-    }
-
-    if (!this.flags["app-uid"]) {
-      this.flags["app-uid"] = (await this.getValPrompt({
-        name: "appUid",
-        validate: validate("App UID"),
-        message: this.messages.APP_UID,
-      })) as string;
-    }
-
-    if (!this.flags["app-manifest"]) {
-      this.flags["app-manifest"] = (await this.getValPrompt({
-        name: "appManifest",
-        validate: validate("App manifest path"),
-        message: this.$t(this.messages.FILE_PATH, {
-          fileName: "app manifest.json",
-        }),
-      })) as string;
-    }
-  }
-
-  /**
    * @method validateManifest
    *
    * @return {*}  {Promise<void>}
    * @memberof Create
    */
   async validateManifest(): Promise<void> {
-    const manifestPath = this.flags["app-manifest"] as string;
+    if (!this.flags["app-manifest"]) {
+      this.flags["app-manifest"] = (await this.getValPrompt({
+        name: "appManifest",
+        validate: (val: string) => {
+          if (!val)
+            return this.$t(this.messages.NOT_EMPTY, {
+              value: "App manifest path",
+            });
+          return true;
+        },
+        message: this.$t(this.messages.FILE_PATH, {
+          fileName: "app manifest.json",
+        }),
+      })) as string;
+    }
+
+    const manifestPath = this.flags["app-manifest"];
     let hasError = false;
     if (existsSync(manifestPath)) {
       try {
@@ -135,7 +114,6 @@ export default class Update extends BaseCommand<typeof Update> {
 
       if (this.manifestPathRetry < 3) {
         this.flags["app-manifest"] = "";
-        await this.flagsPromptQueue();
         await this.validateManifest();
       } else {
         this.log(this.messages.MAX_RETRY_LIMIT, "warn");
@@ -151,13 +129,28 @@ export default class Update extends BaseCommand<typeof Update> {
    * @memberof Create
    */
   async validateAppUid(): Promise<void> {
+    let appData;
+
+    if (!this.flags["app-uid"]) {
+      appData = (await getApp(this.flags, this.sharedConfig.org, {
+        managementSdk: this.managementAppSdk,
+        log: this.log,
+      })) as App;
+    } else {
+      appData = await fetchApp(this.flags, this.sharedConfig.org, {
+        managementSdk: this.managementAppSdk,
+        log: this.log,
+      });
+    }
+
+    this.flags["app-uid"] = appData.uid;
+
     if (this.flags["app-uid"] !== this.manifestData?.uid) {
       this.log(this.messages.APP_UID_NOT_MATCH, "error");
       this.appUidRetry++;
 
       if (this.appUidRetry < 3) {
         this.flags["app-uid"] = "";
-        await this.flagsPromptQueue();
         await this.validateAppUid();
       } else {
         this.log(this.messages.MAX_RETRY_LIMIT, "warn");
