@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "test-app",
+  "uid": "app-uid-1",
+  "target_type": "stack",
+  "visibility": "private",
+  "description": "test app",
+  "organization_uid": "test-uid-1"
+}
