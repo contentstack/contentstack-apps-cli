@@ -1,7 +1,7 @@
 {
   "name": "@contentstack/apps-cli",
-  "version": "0.0.0-alpha-1",
-  "description": "App Cli",
+  "version": "1.0.0",
+  "description": "App ClI",
   "author": "Contentstack CLI",
   "homepage": "https://github.com/contentstack/contentstack-apps-cli",
   "license": "MIT",
