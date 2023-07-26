@@ -26,7 +26,7 @@ describe("app:update", () => {
       .stub(cliux, "inquire", async (...args: any) => {
         const [prompt]: any = args;
         const cases = {
-          appUid: "app-uid-1",
+          App: "App 1",
           Organization: "test org 1",
           appManifest: "test-manifest",
         };
@@ -37,6 +37,13 @@ describe("app:update", () => {
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+          .reply(200, {
+            data: mock.apps,
+          })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.get("/manifests/app-uid-1").reply(200, {
@@ -58,6 +65,7 @@ describe("app:update", () => {
       )
       .it("should update a app");
   });
+
   describe("Update app with `--data-dir` flag", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
@@ -67,7 +75,7 @@ describe("app:update", () => {
       .stub(cliux, "inquire", async (...args: any) => {
         const [prompt]: any = args;
         const cases = {
-          appUid: "app-uid-1",
+          App: "App 1",
           Organization: "test org 1",
           appManifest: "test-manifest",
         };
@@ -78,6 +86,13 @@ describe("app:update", () => {
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+          .reply(200, {
+            data: mock.apps,
+          })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.get("/manifests/app-uid-1").reply(200, {
@@ -99,6 +114,7 @@ describe("app:update", () => {
       )
       .it("should update a app");
   });
+
   describe("Update app with wrong `manifest.json` path", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
@@ -125,6 +141,7 @@ describe("app:update", () => {
       .do(({ stdout }) => expect(stdout).to.contain(messages.MAX_RETRY_LIMIT))
       .it("should fail with manifest max retry message");
   });
+
   describe("Update app with wrong `app-uid`", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
@@ -134,7 +151,7 @@ describe("app:update", () => {
       .stub(cliux, "inquire", async (...args: any) => {
         const [prompt]: any = args;
         const cases = {
-          appUid: "app-uid-2",
+          App: "App 2",
           Organization: "test org 1",
           appManifest: "test-manifest",
         };
@@ -146,6 +163,27 @@ describe("app:update", () => {
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
       )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+          .reply(200, {
+            data: mock.apps,
+          })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+          .reply(200, {
+            data: mock.apps,
+          })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+          .reply(200, {
+            data: mock.apps,
+          })
+      )
       .command([
         "app:update",
         "--app-manifest",
@@ -155,6 +193,7 @@ describe("app:update", () => {
       .do(({ stdout }) => expect(stdout).to.contain(messages.MAX_RETRY_LIMIT))
       .it("should fail with max retry message");
   });
+
   describe("Update app with wrong `app version`", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
@@ -164,7 +203,7 @@ describe("app:update", () => {
       .stub(cliux, "inquire", async (...args: any) => {
         const [prompt]: any = args;
         const cases = {
-          appUid: "app-uid-1",
+          App: "App 1",
           Organization: "test org 1",
           appManifest: "test-manifest",
         };
@@ -175,6 +214,13 @@ describe("app:update", () => {
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+          .reply(200, {
+            data: mock.apps,
+          })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.get("/manifests/app-uid-1").reply(200, {
@@ -192,6 +238,7 @@ describe("app:update", () => {
       )
       .it("should fail with version miss match error message");
   });
+
   describe("Update app wrong app-uid API failure", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
@@ -201,7 +248,7 @@ describe("app:update", () => {
       .stub(cliux, "inquire", async (...args: any) => {
         const [prompt]: any = args;
         const cases = {
-          appUid: "app-uid-1",
+          App: "App 1",
           Organization: "test org 1",
           appManifest: "test-manifest",
         };
@@ -212,6 +259,13 @@ describe("app:update", () => {
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+          .reply(200, {
+            data: mock.apps,
+          })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.get("/manifests/app-uid-1").reply(200, {
@@ -232,6 +286,7 @@ describe("app:update", () => {
       .do(({ stdout }) => expect(stdout).to.contain(messages.INVALID_APP_ID))
       .it("update app should fail with 400 status code");
   });
+
   describe("Update app wrong org-uid API failure", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
@@ -241,7 +296,7 @@ describe("app:update", () => {
       .stub(cliux, "inquire", async (...args: any) => {
         const [prompt]: any = args;
         const cases = {
-          appUid: "app-uid-1",
+          App: "App 1",
           Organization: "test org 1",
           appManifest: "test-manifest",
         };
@@ -252,6 +307,13 @@ describe("app:update", () => {
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+          .reply(200, {
+            data: mock.apps,
+          })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.get("/manifests/app-uid-1").reply(200, {
