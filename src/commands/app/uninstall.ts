@@ -5,6 +5,7 @@ import { commonMsg, uninstallAppMsg } from "../../messages";
 
 export default class Uninstall extends BaseCommand<typeof Uninstall> {
     static description = "Uninstall an app";
+    static hidden: boolean = false;
 
     static examples = [
       "$ <%= config.bin %> <%= command.id %>",
@@ -17,7 +18,7 @@ export default class Uninstall extends BaseCommand<typeof Uninstall> {
         description: commonMsg.APP_UID,
       }),
       'installation-uid': flags.string({
-        description: uninstallAppMsg.CHOOSE_AN_INSTALLATION
+        description: uninstallAppMsg.INSTALLATION_UID
       })
     }
 
@@ -48,7 +49,7 @@ export default class Uninstall extends BaseCommand<typeof Uninstall> {
 
       } catch (error: any) {
         this.log(error?.errorMessage || error?.message || error, "error")
-        this.exit();
+        this.exit(1);
       }
     }
 
