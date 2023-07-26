@@ -28,7 +28,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/0.0.0-alpha-1 darwin-arm64 node-v20.3.1
+@contentstack/apps-cli/1.0.0 darwin-arm64 node-v20.3.1
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -75,7 +75,7 @@ EXAMPLES
   $ csdx app:create --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json --yes
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v0.0.0-alpha-1/src/commands/app/create.ts)_
+_See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.0.0/src/commands/app/create.ts)_
 
 ## `csdx app:delete`
 
@@ -101,7 +101,7 @@ EXAMPLES
   $ csdx app:delete --app-uid <value> --org <value> -d ./boilerplate
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/contentstack/apps-cli/blob/v0.0.0-alpha-1/src/commands/app/delete.ts)_
+_See code: [src/commands/app/delete.ts](https://github.com/contentstack/apps-cli/blob/v1.0.0/src/commands/app/delete.ts)_
 
 ## `csdx app:get`
 
@@ -132,7 +132,7 @@ EXAMPLES
   $ csdx app:get --org <value> --app-uid <value> --app-type organization
 ```
 
-_See code: [src/commands/app/get.ts](https://github.com/contentstack/apps-cli/blob/v0.0.0-alpha-1/src/commands/app/get.ts)_
+_See code: [src/commands/app/get.ts](https://github.com/contentstack/apps-cli/blob/v1.0.0/src/commands/app/get.ts)_
 
 ## `csdx app:install`
 
@@ -159,7 +159,7 @@ EXAMPLES
   $ csdx app:install --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>
 ```
 
-_See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v0.0.0-alpha-1/src/commands/app/install.ts)_
+_See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v1.0.0/src/commands/app/install.ts)_
 
 ## `csdx app:uninstall`
 
@@ -186,7 +186,7 @@ EXAMPLES
   $ csdx app:uninstall --org <UID> --app-uid <APP-UID-1> --installation-uid <INSTALLATION-UID-1>
 ```
 
-_See code: [src/commands/app/uninstall.ts](https://github.com/contentstack/apps-cli/blob/v0.0.0-alpha-1/src/commands/app/uninstall.ts)_
+_See code: [src/commands/app/uninstall.ts](https://github.com/contentstack/apps-cli/blob/v1.0.0/src/commands/app/uninstall.ts)_
 
 ## `csdx app:update`
 
@@ -217,5 +217,5 @@ EXAMPLES
   $ csdx app:update --org <value> --app-uid <value> -d ./boilerplate -c ./external-config.json --yes
 ```
 
-_See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v0.0.0-alpha-1/src/commands/app/update.ts)_
+_See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v1.0.0/src/commands/app/update.ts)_
 <!-- commandsstop -->
