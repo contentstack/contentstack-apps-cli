@@ -8,5 +8,15 @@
       "uid": "test-uid-2",
       "name": "test org 2"
     }
+  ],
+  "apps": [
+    {
+      "uid": "app-uid-1",
+      "name": "App 1"
+    },
+    {
+      "uid": "app-uid-2",
+      "name": "App 2"
+    }
   ]
 }
