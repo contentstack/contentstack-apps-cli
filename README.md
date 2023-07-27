@@ -2,15 +2,7 @@
 <!-- Insert Apps CLI version here -->
 
 # @contentstack/apps-cli
-
-## Description
-
-This is a plugin for [Contentstack's](https://www.contentstack.com/) CLI.
-It allows you to interact and work with Contentstack Apps.
-
-## Why use this plugin
-
-1. The `csdx app:create` command allows you to get started with a sample Contentstack application. It spawns a copy of the [Contentstack App boilerplate](https://github.com/contentstack/marketplace-app-boilerplate) on your system and registers a sample app in the organization whose uid is provided.
+Contentstack lets you develop apps in your organization using the Developer Hub portal. With the Apps CLI plugin, Contentstack CLI allows you to perform the CRUD operations on your app in Developer Hub and then use the app in your organization or stack by installing or uninstalling your app as required.
 
 ## How to install this plugin
 
@@ -28,7 +20,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.0.0 darwin-arm64 node-v20.3.1
+@contentstack/apps-cli/1.0.0 darwin-arm64 node-v16.19.0
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
