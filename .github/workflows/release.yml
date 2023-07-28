@@ -53,6 +53,7 @@ jobs:
         uses: JS-DevTools/npm-publish@v2.2.0
         with:
           token: ${{ secrets.NPM_TOKEN }}
+          access: public
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.1
