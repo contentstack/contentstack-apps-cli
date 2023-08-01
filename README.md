@@ -39,32 +39,31 @@ USAGE
 
 ## `csdx app:create`
 
-Create new app in developer hub
+Create a new app in Developer Hub and optionally clone a boilerplate locally.
 
 ```
 USAGE
-  $ csdx app:create [--org <value>] [-y] [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>]
+  $ csdx app:create [--org <value>] [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>]
 
 FLAGS
   -c, --config=<value>    Path of the external config
   -d, --data-dir=<value>  Current working directory.
   -n, --name=<value>      Name of the app to be created
-  -y, --yes               Use this flag to skip the confirmation.
   --app-type=<option>     [default: stack] Type of App
                           <options: stack|organization>
   --org=<value>           Provide the organization UID
 
 DESCRIPTION
-  Create new app in developer hub
+  Create a new app in Developer Hub and optionally clone a boilerplate locally.
 
 EXAMPLES
   $ csdx app:create
 
-  $ csdx app:create --name App-1 --app-type stack --yes
+  $ csdx app:create --name App-1 --app-type stack
 
-  $ csdx app:create --name App-2 --app-type stack -d ./boilerplate --yes
+  $ csdx app:create --name App-2 --app-type stack -d ./boilerplate
 
-  $ csdx app:create --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json --yes
+  $ csdx app:create --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json
 ```
 
 _See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.0.0/src/commands/app/create.ts)_
@@ -75,10 +74,9 @@ Delete app from marketplace
 
 ```
 USAGE
-  $ csdx app:delete [--org <value>] [-y] [--app-uid <value>]
+  $ csdx app:delete [--org <value>] [--app-uid <value>]
 
 FLAGS
-  -y, --yes          Use this flag to skip the confirmation.
   --app-uid=<value>  Provide the app UID
   --org=<value>      Provide the organization UID
 
@@ -101,11 +99,10 @@ Get details of an app in developer hub
 
 ```
 USAGE
-  $ csdx app:get [--org <value>] [-y] [--app-uid <value>] [--app-type stack|organization] [-d <value>]
+  $ csdx app:get [--org <value>] [--app-uid <value>] [--app-type stack|organization] [-d <value>]
 
 FLAGS
   -d, --data-dir=<value>  Current working directory.
-  -y, --yes               Use this flag to skip the confirmation.
   --app-type=<option>     [default: stack] Type of App
                           <options: stack|organization>
   --app-uid=<value>       Provide the app UID
@@ -132,10 +129,9 @@ Install an app from the marketplace
 
 ```
 USAGE
-  $ csdx app:install [--org <value>] [-y] [--app-uid <value>] [--stack-api-key <value>]
+  $ csdx app:install [--org <value>] [--app-uid <value>] [--stack-api-key <value>]
 
 FLAGS
-  -y, --yes                Use this flag to skip the confirmation.
   --app-uid=<value>        Provide the app UID
   --org=<value>            Provide the organization UID
   --stack-api-key=<value>  API key of the stack where the app is to be installed.
@@ -159,10 +155,9 @@ Uninstall an app
 
 ```
 USAGE
-  $ csdx app:uninstall [--org <value>] [-y] [--app-uid <value>] [--installation-uid <value>]
+  $ csdx app:uninstall [--org <value>] [--app-uid <value>] [--installation-uid <value>]
 
 FLAGS
-  -y, --yes                   Use this flag to skip the confirmation.
   --app-uid=<value>           Provide the app UID
   --installation-uid=<value>  Provide the installation ID of the app that needs to be uninstalled.
   --org=<value>               Provide the organization UID
@@ -186,11 +181,9 @@ Update the existing app in developer hub
 
 ```
 USAGE
-  $ csdx app:update [--org <value>] [-y] [--app-manifest <value>] [-c <value>]
+  $ csdx app:update [--org <value>] [--app-manifest <value>]
 
 FLAGS
-  -c, --config=<value>    Path of the external config
-  -y, --yes               Use this flag to skip the confirmation.
   --app-manifest=<value>  Path to the app manifest.json file:
   --org=<value>           Provide the organization UID
 

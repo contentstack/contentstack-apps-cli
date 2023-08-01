@@ -7,8 +7,8 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 
 import { AppManifest } from "../../types";
 import { BaseCommand } from "./base-command";
+import { $t, appUpdate } from "../../messages";
 import { fetchApp, getApp, getOrg } from "../../util";
-import { $t, appUpdate, commonMsg } from "../../messages";
 
 export default class Update extends BaseCommand<typeof Update> {
   private orgUid!: string;
@@ -27,10 +27,6 @@ export default class Update extends BaseCommand<typeof Update> {
   static flags = {
     "app-manifest": flags.string({
       description: $t(appUpdate.FILE_PATH, { fileName: "app manifest.json" }),
-    }),
-    config: flags.string({
-      char: "c",
-      description: commonMsg.CONFIG,
     }),
   };
 
