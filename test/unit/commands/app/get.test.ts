@@ -103,7 +103,7 @@ describe("app:get", () => {
       .it("should return manifest for specific uid passed");
   });
 
-  describe("Ask confirmation if `manifest.json` exists", () => {
+  describe("Ask confirmation if `manifest.json` exists and go with `Yes` option", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
@@ -153,6 +153,58 @@ describe("app:get", () => {
         )
       )
       .it("Should create config file with the +1 mechanism");
+  });
+
+  describe("Ask confirmation if `manifest.json` exists and go with `No` option", () => {
+    test
+      .stdout({ print: process.env.PRINT === "true" || false })
+      .stub(ux.action, "stop", () => {})
+      .stub(ux.action, "start", () => {})
+      .stub(fs, "readdirSync", () => ["manifest.json"])
+      .stub(fs, "writeFileSync", () => new PassThrough())
+      .stub(cliux, "inquire", async (...args: any) => {
+        const [prompt]: any = args;
+        const cases = {
+          App: "App 1",
+          Organization: "test org 1",
+        };
+
+        return (cases as Record<string, any>)[prompt.name];
+      })
+      .stub(cliux, "confirm", async () => false)
+      .nock(region.cma, (api) =>
+        api
+          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+          .reply(200, { organizations: mock.organizations })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+          .get(
+            "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
+          )
+          .reply(200, {
+            data: mock.apps,
+          })
+      )
+      .command([
+        "app:get",
+        "--data-dir",
+        join(process.cwd(), "test", "unit", "config"),
+      ])
+      .do(({ stdout }) =>
+        expect(stdout).to.contain(
+          $t(messages.FILE_WRITTEN_SUCCESS, {
+            file: join(
+              process.cwd(),
+              "test",
+              "unit",
+              "config",
+              `${config.defaultAppFileName}.json`
+            ),
+          })
+        )
+      )
+      .it("Should overwrite config file with");
   });
 
   describe("Pass wrong org uid through flag", () => {
