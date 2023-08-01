@@ -51,6 +51,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
     }),
     yes: Flags.boolean({
       char: "y",
+      hidden: true,
       description: commonMsg.SKIP_CONFIRMATION,
     }),
   };
@@ -139,9 +140,9 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
    */
   getValPrompt(
     options: Partial<InquirePayload> & Record<string, any> = {
-      message: 'Enter value',
+      message: "Enter value",
       validate: (val) => {
-        if (!val) return this.$t(this.messages.NOT_EMPTY, { value: 'Value' });
+        if (!val) return this.$t(this.messages.NOT_EMPTY, { value: "Value" });
         return true;
       },
     }
