@@ -186,14 +186,12 @@ Update the existing app in developer hub
 
 ```
 USAGE
-  $ csdx app:update [--org <value>] [-y] [--app-uid <value>] [--app-manifest <value>] [-c <value>] [-d <value>]
+  $ csdx app:update [--org <value>] [-y] [--app-manifest <value>] [-c <value>]
 
 FLAGS
   -c, --config=<value>    Path of the external config
-  -d, --data-dir=<value>  Current working directory.
   -y, --yes               Use this flag to skip the confirmation.
   --app-manifest=<value>  Path to the app manifest.json file:
-  --app-uid=<value>       Provide the app UID
   --org=<value>           Provide the organization UID
 
 DESCRIPTION
@@ -202,11 +200,7 @@ DESCRIPTION
 EXAMPLES
   $ csdx app:update
 
-  $ csdx app:update --org <value> --app-uid <value> --app-manifest <value>
-
-  $ csdx app:update --org <value> --app-uid <value> --app-manifest ./boilerplate/manifest.json
-
-  $ csdx app:update --org <value> --app-uid <value> -d ./boilerplate -c ./external-config.json --yes
+  $ csdx app:update --app-manifest ./boilerplate/manifest.json
 ```
 
 _See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v1.0.0/src/commands/app/update.ts)_
