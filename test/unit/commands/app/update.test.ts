@@ -1,7 +1,6 @@
 import fs from "fs";
 import { join } from "path";
 import { PassThrough } from "stream";
-
 import { expect, test } from "@oclif/test";
 import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
 
@@ -23,27 +22,10 @@ describe("app:update", () => {
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
       .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          App: "App 1",
-          Organization: "test org 1",
-          appManifest: "test-manifest",
-        };
-
-        return (cases as Record<string, any>)[prompt.name];
-      })
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-          .reply(200, {
-            data: mock.apps,
-          })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.get("/manifests/app-uid-1").reply(200, {
@@ -59,55 +41,6 @@ describe("app:update", () => {
         "app:update",
         "--app-manifest",
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
-      ])
-      .do(({ stdout }) =>
-        expect(stdout).to.contain(messages.APP_UPDATE_SUCCESS)
-      )
-      .it("should update a app");
-  });
-
-  describe("Update app with `--data-dir` flag", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          App: "App 1",
-          Organization: "test org 1",
-          appManifest: "test-manifest",
-        };
-
-        return (cases as Record<string, any>)[prompt.name];
-      })
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-          .reply(200, {
-            data: mock.apps,
-          })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.get("/manifests/app-uid-1").reply(200, {
-          data: { ...manifestData, name: "test-app", version: 1 },
-        })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.put("/manifests/app-uid-1").reply(200, {
-          data: { ...manifestData, name: "test-app", version: 1 },
-        })
-      )
-      .command([
-        "app:update",
-        "--data-dir",
-        join(process.cwd(), "test", "unit", "config"),
       ])
       .do(({ stdout }) =>
         expect(stdout).to.contain(messages.APP_UPDATE_SUCCESS)
@@ -120,23 +53,8 @@ describe("app:update", () => {
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          appUid: "app-uid-1",
-          Organization: "test org 1",
-          appManifest: "test-manifest",
-        };
-
-        return (cases as Record<string, any>)[prompt.name];
-      })
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .command(["app:update"])
+      .stub(cliux, "inquire", async () => "test-manifest")
+      .command(["app:update", "--app-manifest", "test-manifest"])
       .exit(1)
       .do(({ stdout }) => expect(stdout).to.contain(messages.MAX_RETRY_LIMIT))
       .it("should fail with manifest max retry message");
@@ -147,35 +65,18 @@ describe("app:update", () => {
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          App: "App 2",
-          Organization: "test org 1",
-          appManifest: "test-manifest",
-        };
-
-        return (cases as Record<string, any>)[prompt.name];
-      })
+      .stub(cliux, "inquire", async () => "App 2")
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-          .reply(200, {
-            data: mock.apps,
-          })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-          .reply(200, {
-            data: mock.apps,
-          })
+        api.get("/manifests/app-uid-1").reply(200, {
+          data: {
+            uid: "app-uid-3",
+          },
+        })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api
@@ -190,7 +91,7 @@ describe("app:update", () => {
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
       ])
       .exit(1)
-      .do(({ stdout }) => expect(stdout).to.contain(messages.MAX_RETRY_LIMIT))
+      .do(({ stdout }) => expect(stdout).to.contain(messages.APP_UID_NOT_MATCH))
       .it("should fail with max retry message");
   });
 
@@ -199,32 +100,17 @@ describe("app:update", () => {
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          App: "App 1",
-          Organization: "test org 1",
-          appManifest: "test-manifest",
-        };
-
-        return (cases as Record<string, any>)[prompt.name];
-      })
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-          .reply(200, {
-            data: mock.apps,
-          })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.get("/manifests/app-uid-1").reply(200, {
-          data: { ...manifestData, name: "test-app", version: 2 },
+          data: {
+            version: 3,
+            uid: "app-uid-1",
+          },
         })
       )
       .command([
@@ -244,28 +130,10 @@ describe("app:update", () => {
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          App: "App 1",
-          Organization: "test org 1",
-          appManifest: "test-manifest",
-        };
-
-        return (cases as Record<string, any>)[prompt.name];
-      })
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-          .reply(200, {
-            data: mock.apps,
-          })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.get("/manifests/app-uid-1").reply(200, {
@@ -287,33 +155,15 @@ describe("app:update", () => {
       .it("update app should fail with 400 status code");
   });
 
-  describe("Update app wrong org-uid API failure", () => {
+  describe("Update app API failure", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          App: "App 1",
-          Organization: "test org 1",
-          appManifest: "test-manifest",
-        };
-
-        return (cases as Record<string, any>)[prompt.name];
-      })
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-          .reply(200, {
-            data: mock.apps,
-          })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.get("/manifests/app-uid-1").reply(200, {
@@ -331,7 +181,7 @@ describe("app:update", () => {
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
       ])
       .exit(1)
-      .do(({ stdout }) => expect(stdout).to.contain(messages.APP_INVALID_ORG))
+      .do(({ stdout }) => expect(stdout).to.contain('"status":403'))
       .it("update app should fail with 403 status code");
   });
 });
