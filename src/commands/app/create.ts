@@ -4,7 +4,7 @@ import pick from "lodash/pick";
 import * as shell from "shelljs";
 import merge from "lodash/merge";
 import isEmpty from "lodash/isEmpty";
-import { dirname, join } from "path";
+import { dirname, resolve } from "path";
 import { AppData } from "@contentstack/management/types/app";
 import {
   rmSync,
@@ -174,9 +174,9 @@ export default class Create extends BaseCommand<typeof Create> {
    */
   async unZipBoilerplate(filepath: string) {
     const zip = new AdmZip(filepath);
-    const dataDir = this.flags["data-dir"] || process.cwd();
-    let targetPath = join(dataDir, this.sharedConfig.appName);
-    const sourcePath = join(dataDir, this.sharedConfig.boilerplateName);
+    const dataDir = this.flags["data-dir"] ?? process.cwd();
+    let targetPath = resolve(dataDir, this.sharedConfig.appName);
+    const sourcePath = resolve(dataDir, this.sharedConfig.boilerplateName);
 
     if (this.flags["data-dir"] && !existsSync(this.flags["data-dir"])) {
       mkdirSync(this.flags["data-dir"], { recursive: true });
@@ -251,7 +251,7 @@ export default class Create extends BaseCommand<typeof Create> {
         this.appData = merge(this.appData, pick(response, validKeys));
         if (saveManifest) {
           writeFileSync(
-            join(this.sharedConfig.folderPath, "manifest.json"),
+            resolve(this.sharedConfig.folderPath, "manifest.json"),
             JSON.stringify(this.appData),
             {
               encoding: "utf8",
@@ -336,7 +336,7 @@ export default class Create extends BaseCommand<typeof Create> {
       this.sharedConfig.oldFolderPath = this.sharedConfig.folderPath;
     }
 
-    this.sharedConfig.folderPath = join(
+    this.sharedConfig.folderPath = resolve(
       dirname(this.sharedConfig.folderPath),
       this.appData.name
     );
