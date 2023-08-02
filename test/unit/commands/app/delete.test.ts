@@ -84,4 +84,49 @@ describe("app:delete", () => {
         })
         .it("should delete the app")
     });
+    describe("app:delete error handling", () => {
+        test
+        .stdout({ print: process.env.PRINT === "true" || false })
+        .stub(ux.action, "stop", () => {})
+        .stub(ux.action, "start", () => {})
+        .stub(cliux, "inquire", async (...args: any) => {
+            const [prompt]: any = args;
+            const cases = {
+                Organization: 'test org 1',
+                App: 'App 1'
+            }
+            return (cases as Record<string, any>)[prompt.name];
+        })
+        .nock(region.cma, (api) =>
+            api
+            .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+            .reply(200, { organizations: mock.organizations })
+        )
+        .nock(`https://${developerHubBaseUrl}`, (api) =>
+            api
+            .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+            .reply(200, {
+                data: mock.apps,
+            })
+        )
+        .nock(`https://${developerHubBaseUrl}`, (api) =>
+            api
+            .get("/manifests/app-uid-1/installations")
+            .replyWithError({
+                "status": 409,
+                "message": [
+                    "(1) installations found for this app"
+                ],
+                "error": "Bad Request",
+                "statusText": "Conflict"
+            })
+        )
+        .command([
+            "app:delete"
+        ])
+        .do(({ stdout }) => {
+            expect(stdout).to.contain(messages.CONTACT_SUPPORT)
+        })
+        .it("should throw an error while deleting the app")
+    });
 })
