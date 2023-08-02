@@ -18,5 +18,10 @@
       "uid": "app-uid-2",
       "name": "App 2"
     }
+  ],
+  "installations": [
+      {
+        "uid": "test-installation-uid-1"
+      }
   ]
 }
