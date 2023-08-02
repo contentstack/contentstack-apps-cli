@@ -98,7 +98,6 @@ export default class Update extends BaseCommand<typeof Update> {
         this.flags["app-manifest"] = "";
         await this.validateManifest();
       } else {
-        this.log(this.messages.MAX_RETRY_LIMIT, "warn");
         throw new Error(this.messages.MAX_RETRY_LIMIT);
       }
     }
