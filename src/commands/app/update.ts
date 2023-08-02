@@ -1,6 +1,5 @@
 import pick from "lodash/pick";
 import merge from "lodash/merge";
-import isEmpty from "lodash/isEmpty";
 import { flags } from "@contentstack/cli-utilities";
 import { App } from "@contentstack/management/types/app";
 import { existsSync, readFileSync, writeFileSync } from "fs";
@@ -43,8 +42,8 @@ export default class Update extends BaseCommand<typeof Update> {
       );
       await this.validateAppUidAndVersion();
       await this.updateAppOnDeveloperHub();
-    } catch (error) {
-      if (!isEmpty(error)) this.log(error, "error");
+    } catch (error: Error | any) {
+      this.log(error?.errorMessage || error?.message || error, "error");
       this.exit(1);
     }
   }

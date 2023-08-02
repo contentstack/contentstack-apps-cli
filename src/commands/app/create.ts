@@ -87,8 +87,8 @@ export default class Create extends BaseCommand<typeof Create> {
       } else {
         await this.registerTheAppOnDeveloperHub(false);
       }
-    } catch (error) {
-      this.log(error, "error");
+    } catch (error: Error | any) {
+      this.log(error?.errorMessage || error?.message || error, "error");
       this.exit(1);
     }
   }
