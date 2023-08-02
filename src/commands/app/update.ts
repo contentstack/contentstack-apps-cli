@@ -43,7 +43,10 @@ export default class Update extends BaseCommand<typeof Update> {
       await this.validateAppUidAndVersion();
       await this.updateAppOnDeveloperHub();
     } catch (error: Error | any) {
-      this.log(error?.errorMessage || error?.message || error, "error");
+      if (error?.errorMessage || error?.message) {
+        this.log(error?.errorMessage || error?.message || error, "error");
+      }
+
       this.exit(1);
     }
   }
@@ -98,7 +101,8 @@ export default class Update extends BaseCommand<typeof Update> {
         this.flags["app-manifest"] = "";
         await this.validateManifest();
       } else {
-        throw new Error(this.messages.MAX_RETRY_LIMIT);
+        this.log(this.messages.MAX_RETRY_LIMIT, "warn");
+        throw new Error();
       }
     }
   }
@@ -137,7 +141,7 @@ export default class Update extends BaseCommand<typeof Update> {
 
     if (appData?.version !== this.manifestData.version) {
       this.log(this.messages.APP_VERSION_MISS_MATCH, "warn");
-      throw new Error(this.messages.APP_VERSION_MISS_MATCH);
+      throw new Error();
     }
   }
 
