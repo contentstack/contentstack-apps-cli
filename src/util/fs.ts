@@ -13,9 +13,9 @@ export async function writeFile(dir: string=process.cwd(), force: boolean=false,
   if (existsSync(target)) {
     const userConfirmation: boolean = force || (await cliux.confirm($t(messages.FILE_ALREADY_EXISTS, { file: `${config.defaultAppFileName}.json` })))
     if (userConfirmation) {
-      target = resolve(dir, `${incrementName(latestFileName)}.json`);
-    } else {
       target = resolve(dir, `${config.defaultAppFileName}.json`);
+    } else {
+      target = resolve(dir, `${incrementName(latestFileName)}.json`);
     }
   }
   await writeFileSync(target, JSON.stringify(data))
