@@ -16,9 +16,9 @@ import {
 } from "fs";
 import { ux, cliux, flags, HttpClient } from "@contentstack/cli-utilities";
 
-import { appCreate, commonMsg } from "../../messages";
 import { BaseCommand } from "./base-command";
 import { AppManifest, AppType } from "../../types";
+import { appCreate, commonMsg } from "../../messages";
 import {
   getOrg,
   getAppName,
