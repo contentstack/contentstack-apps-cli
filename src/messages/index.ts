@@ -63,7 +63,7 @@ const getApp = {
   FILE_WRITTEN_SUCCESS: "App data has been written to {file} successfully.",
   APPS_NOT_FOUND: "No apps found!",
   FILE_ALREADY_EXISTS:
-    "{file} already exists. Would you like to overwrite {file}? (y/n)",
+    "{file} already exists. Do you want to overwrite this file? (y/n) (Selecting 'n' creates a new file)",
 };
 
 const appUpdate = {

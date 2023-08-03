@@ -40,7 +40,7 @@ export default class Delete extends BaseCommand<typeof Delete> {
         { managementSdk: this.managementAppSdk, log: this.log }
       );
       if (appInstallations.length === 0) {
-        const userConfirmation = this.flags['yes'] || cliux.inquire({
+        const userConfirmation = this.flags['yes'] || await cliux.inquire({
           type: "confirm",
           message: deleteAppMsg.DELETE_CONFIRMATION,
           name: "confirmation"
@@ -58,6 +58,7 @@ export default class Delete extends BaseCommand<typeof Delete> {
           );
         } else {
           this.log(commonMsg.USER_TERMINATION, "error")
+          this.exit(1);
         }
       } else {
         this.log(deleteAppMsg.APP_IS_INSTALLED, "error");
