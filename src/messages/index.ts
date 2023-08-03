@@ -63,7 +63,7 @@ const getApp = {
   FILE_WRITTEN_SUCCESS: "App data has been written to {file} successfully.",
   APPS_NOT_FOUND: "No apps found!",
   FILE_ALREADY_EXISTS:
-    "{file} already exists. Would you like to save the app to a new file? (Selecting No will over-write {file}) (y/n)",
+    "{file} already exists. Do you want to overwrite this file? (y/n) (Selecting 'n' creates a new file)",
 };
 
 const appUpdate = {
@@ -79,6 +79,7 @@ const deleteAppMsg = {
   APP_DELETED_SUCCESSFULLY: "{app} deleted successfully.",
   APP_UID_INVALID: "App UID must be valid.",
   PLEASE_SELECT_APP_FROM_LIST: "Please select an app from the list",
+  DELETE_CONFIRMATION: "Are you sure you want to delete this app?"
 }
 
 const installAppMsg = {

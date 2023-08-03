@@ -1,5 +1,5 @@
 import { BaseCommand } from "./base-command";
-import { flags } from "@contentstack/cli-utilities";
+import { cliux, flags } from "@contentstack/cli-utilities";
 import { $t, commonMsg, deleteAppMsg } from "../../messages";
 import { getOrg, fetchAppInstallations, deleteApp, getApp } from "../../util";
 
@@ -40,15 +40,25 @@ export default class Delete extends BaseCommand<typeof Delete> {
         { managementSdk: this.managementAppSdk, log: this.log }
       );
       if (appInstallations.length === 0) {
-        await deleteApp(this.flags, this.sharedConfig.org, {
-          managementSdk: this.managementAppSdk,
-          log: this.log,
-        });
-        this.log(
-          $t(deleteAppMsg.APP_DELETED_SUCCESSFULLY, {
-            app: app?.name || (this.flags["app-uid"] as string),
-          })
-        );
+        const userConfirmation = this.flags['yes'] || await cliux.inquire({
+          type: "confirm",
+          message: deleteAppMsg.DELETE_CONFIRMATION,
+          name: "confirmation"
+        })
+        
+        if (userConfirmation) {
+          await deleteApp(this.flags, this.sharedConfig.org, {
+            managementSdk: this.managementAppSdk,
+            log: this.log,
+          });
+          this.log(
+            $t(deleteAppMsg.APP_DELETED_SUCCESSFULLY, {
+              app: app?.name || (this.flags["app-uid"] as string),
+            }), "info"
+          );
+        } else {
+          this.log(commonMsg.USER_TERMINATION, "error")
+        }
       } else {
         this.log(deleteAppMsg.APP_IS_INSTALLED, "error");
       }

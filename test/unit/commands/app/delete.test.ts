@@ -17,6 +17,14 @@ describe("app:delete", () => {
         .stdout({ print: process.env.PRINT === "true" || false })
         .stub(ux.action, "stop", () => {})
         .stub(ux.action, "start", () => {})
+        .stub(cliux, "inquire", async (...args: any) => {
+            const [prompt]: any = args;
+            const cases = {
+                confirmation: true,
+            };
+
+            return (cases as Record<string, any>)[prompt.name];
+        })
         .nock(region.cma, (api) =>
             api
             .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -46,7 +54,8 @@ describe("app:delete", () => {
             const [prompt]: any = args;
             const cases = {
                 Organization: 'test org 1',
-                App: 'App 1'
+                App: 'App 1',
+                confirmation: true
             }
             return (cases as Record<string, any>)[prompt.name];
         })
@@ -93,7 +102,8 @@ describe("app:delete", () => {
             const [prompt]: any = args;
             const cases = {
                 Organization: 'test org 1',
-                App: 'App 1'
+                App: 'App 1',
+                confirmation: true
             }
             return (cases as Record<string, any>)[prompt.name];
         })
