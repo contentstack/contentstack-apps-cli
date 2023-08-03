@@ -4,7 +4,7 @@ import pick from "lodash/pick";
 import * as shell from "shelljs";
 import merge from "lodash/merge";
 import isEmpty from "lodash/isEmpty";
-import { dirname, join } from "path";
+import { dirname, resolve } from "path";
 import { AppData } from "@contentstack/management/types/app";
 import {
   rmSync,
@@ -16,9 +16,9 @@ import {
 } from "fs";
 import { ux, cliux, flags, HttpClient } from "@contentstack/cli-utilities";
 
-import { appCreate, commonMsg } from "../../messages";
 import { BaseCommand } from "./base-command";
 import { AppManifest, AppType } from "../../types";
+import { appCreate, commonMsg } from "../../messages";
 import {
   getOrg,
   getAppName,
@@ -30,13 +30,14 @@ export default class Create extends BaseCommand<typeof Create> {
   private appData!: AppManifest;
   static hidden: boolean = false;
 
-  static description = "Create new app in developer hub";
+  static description =
+    "Create a new app in Developer Hub and optionally clone a boilerplate locally.";
 
   static examples = [
     "$ <%= config.bin %> <%= command.id %>",
-    "$ <%= config.bin %> <%= command.id %> --name App-1 --app-type stack --yes",
-    "$ <%= config.bin %> <%= command.id %> --name App-2 --app-type stack -d ./boilerplate --yes",
-    "$ <%= config.bin %> <%= command.id %> --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json --yes",
+    "$ <%= config.bin %> <%= command.id %> --name App-1 --app-type stack",
+    "$ <%= config.bin %> <%= command.id %> --name App-2 --app-type stack -d ./boilerplate",
+    "$ <%= config.bin %> <%= command.id %> --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json",
   ];
 
   static flags = {
@@ -86,8 +87,11 @@ export default class Create extends BaseCommand<typeof Create> {
       } else {
         await this.registerTheAppOnDeveloperHub(false);
       }
-    } catch (error) {
-      this.log(error, "error");
+    } catch (error: Error | any) {
+      if (error?.errorMessage || error?.message || !isEmpty(error)) {
+        this.log(error?.errorMessage || error?.message || error, "error");
+      }
+
       this.exit(1);
     }
   }
@@ -173,9 +177,9 @@ export default class Create extends BaseCommand<typeof Create> {
    */
   async unZipBoilerplate(filepath: string) {
     const zip = new AdmZip(filepath);
-    const dataDir = this.flags["data-dir"] || process.cwd();
-    let targetPath = join(dataDir, this.sharedConfig.appName);
-    const sourcePath = join(dataDir, this.sharedConfig.boilerplateName);
+    const dataDir = this.flags["data-dir"] ?? process.cwd();
+    let targetPath = resolve(dataDir, this.sharedConfig.appName);
+    const sourcePath = resolve(dataDir, this.sharedConfig.boilerplateName);
 
     if (this.flags["data-dir"] && !existsSync(this.flags["data-dir"])) {
       mkdirSync(this.flags["data-dir"], { recursive: true });
@@ -250,7 +254,7 @@ export default class Create extends BaseCommand<typeof Create> {
         this.appData = merge(this.appData, pick(response, validKeys));
         if (saveManifest) {
           writeFileSync(
-            join(this.sharedConfig.folderPath, "manifest.json"),
+            resolve(this.sharedConfig.folderPath, "manifest.json"),
             JSON.stringify(this.appData),
             {
               encoding: "utf8",
@@ -335,7 +339,7 @@ export default class Create extends BaseCommand<typeof Create> {
       this.sharedConfig.oldFolderPath = this.sharedConfig.folderPath;
     }
 
-    this.sharedConfig.folderPath = join(
+    this.sharedConfig.folderPath = resolve(
       dirname(this.sharedConfig.folderPath),
       this.appData.name
     );
