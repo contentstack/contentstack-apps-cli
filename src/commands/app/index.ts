@@ -1,8 +1,8 @@
+import { resolve } from "path";
+import { exec } from "child_process";
 import { Command } from "@contentstack/cli-utilities";
 
 import { print } from "../../util/log";
-import { exec } from "child_process";
-import { join } from "path";
 
 export default class App extends Command {
   static description = "Apps CLI plugin";
@@ -20,7 +20,7 @@ export default class App extends Command {
 
   async run(): Promise<void> {
     exec(
-      `${join(process.cwd(), "bin", "run")} app --help`,
+      `${resolve(process.cwd(), "bin", "run")} app --help`,
       (_er, stdout, _stderr) => {
         if (stdout) {
           this.log(`\n${stdout}`);
