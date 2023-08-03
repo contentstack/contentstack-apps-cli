@@ -1,8 +1,8 @@
-import { join } from "path";
+import { resolve } from "path";
 
 const config = {
   defaultAppName: "app-boilerplate",
-  manifestPath: join(__dirname, "manifest.json"),
+  manifestPath: resolve(__dirname, "manifest.json"),
   boilerplateName: "marketplace-app-boilerplate-1.2.3",
   developerHubBaseUrl: "",
   developerHubUrls: {
