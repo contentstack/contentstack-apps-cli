@@ -119,7 +119,7 @@ describe("app:get", () => {
 
         return (cases as Record<string, any>)[prompt.name];
       })
-      .stub(cliux, "confirm", async () => true)
+      .stub(cliux, "confirm", async () => false)
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -171,7 +171,7 @@ describe("app:get", () => {
 
         return (cases as Record<string, any>)[prompt.name];
       })
-      .stub(cliux, "confirm", async () => false)
+      .stub(cliux, "confirm", async () => true)
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
