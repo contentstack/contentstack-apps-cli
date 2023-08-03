@@ -58,7 +58,6 @@ export default class Delete extends BaseCommand<typeof Delete> {
           );
         } else {
           this.log(commonMsg.USER_TERMINATION, "error")
-          this.exit(1);
         }
       } else {
         this.log(deleteAppMsg.APP_IS_INSTALLED, "error");
