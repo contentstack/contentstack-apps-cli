@@ -166,7 +166,7 @@ async function getStack(orgUid: string, options: CommonOptions): Promise<Record<
   const selectedStack = await cliux
     .inquire({
       type: "search-list",
-      name: "App",
+      name: "Stack",
       choices: stacks,
       message: messages.CHOOSE_A_STACK
     })
