@@ -1,17 +1,17 @@
 import pick from "lodash/pick";
-import { resolve } from "path";
 import merge from "lodash/merge";
+import isEmpty from "lodash/isEmpty";
 import { flags } from "@contentstack/cli-utilities";
 import { App } from "@contentstack/management/types/app";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
 import { AppManifest } from "../../types";
 import { BaseCommand } from "./base-command";
+import { $t, appUpdate } from "../../messages";
 import { fetchApp, getApp, getOrg } from "../../util";
-import { $t, appUpdate, commonMsg } from "../../messages";
 
 export default class Update extends BaseCommand<typeof Update> {
-  private appUidRetry: number = 0;
+  private orgUid!: string;
   private manifestPathRetry: number = 0;
   private manifestData!: AppManifest & Record<string, any>;
 
@@ -21,47 +21,33 @@ export default class Update extends BaseCommand<typeof Update> {
 
   static examples = [
     "$ <%= config.bin %> <%= command.id %>",
-    "$ <%= config.bin %> <%= command.id %> --org <value> --app-uid <value> --app-manifest <value>",
-    "$ <%= config.bin %> <%= command.id %> --org <value> --app-uid <value> --app-manifest ./boilerplate/manifest.json",
-    "$ <%= config.bin %> <%= command.id %> --org <value> --app-uid <value> -d ./boilerplate -c ./external-config.json --yes",
+    "$ <%= config.bin %> <%= command.id %> --app-manifest ./boilerplate/manifest.json",
   ];
 
   static flags = {
-    "app-uid": flags.string({
-      description: appUpdate.APP_UID,
-    }),
     "app-manifest": flags.string({
       description: $t(appUpdate.FILE_PATH, { fileName: "app manifest.json" }),
-    }),
-    config: flags.string({
-      char: "c",
-      description: commonMsg.CONFIG,
-    }),
-    "data-dir": flags.string({
-      char: "d",
-      description: commonMsg.CURRENT_WORKING_DIR,
     }),
   };
 
   async run(): Promise<void> {
-    if (this.flags["data-dir"] && !this.flags["app-manifest"]) {
-      this.flags["app-manifest"] = resolve(
-        this.flags["data-dir"],
-        "manifest.json"
-      );
-    }
-
     try {
-      this.sharedConfig.org = await getOrg(this.flags, {
-        log: this.log,
-        managementSdk: this.managementSdk,
-      });
       await this.validateManifest();
-      await this.validateAppUid();
-      await this.appVersionValidation();
+      this.orgUid = this.flags.org || this.manifestData.organization_uid;
+      this.sharedConfig.org = await getOrg(
+        { org: this.orgUid as any },
+        {
+          log: this.log,
+          managementSdk: this.managementSdk,
+        }
+      );
+      await this.validateAppUidAndVersion();
       await this.updateAppOnDeveloperHub();
-    } catch (error) {
-      this.log(error, "error");
+    } catch (error: Error | any) {
+      if (error?.errorMessage || error?.message || !isEmpty(error)) {
+        this.log(error?.errorMessage || error?.message || error, "error");
+      }
+
       this.exit(1);
     }
   }
@@ -117,66 +103,47 @@ export default class Update extends BaseCommand<typeof Update> {
         await this.validateManifest();
       } else {
         this.log(this.messages.MAX_RETRY_LIMIT, "warn");
-        throw new Error(this.messages.MAX_RETRY_LIMIT);
+        throw new Error();
       }
     }
   }
 
   /**
-   * @method validateAppUid
+   * @method validateAppUidAndVersion
    *
    * @return {*}  {Promise<void>}
    * @memberof Create
    */
-  async validateAppUid(): Promise<void> {
+  async validateAppUidAndVersion(): Promise<void> {
     let appData;
 
-    if (!this.flags["app-uid"]) {
-      appData = (await getApp(this.flags, this.sharedConfig.org, {
+    if (!this.manifestData.uid) {
+      appData = (await getApp(this.flags, this.orgUid, {
         managementSdk: this.managementAppSdk,
         log: this.log,
       })) as App;
+      this.manifestData.uid = appData.uid;
     } else {
-      appData = await fetchApp(this.flags, this.sharedConfig.org, {
-        managementSdk: this.managementAppSdk,
-        log: this.log,
-      });
+      appData = await fetchApp(
+        { "app-uid": this.manifestData.uid as any },
+        this.orgUid,
+        {
+          managementSdk: this.managementAppSdk,
+          log: this.log,
+        }
+      );
     }
 
-    this.flags["app-uid"] = appData.uid;
-
-    if (this.flags["app-uid"] !== this.manifestData?.uid) {
+    if (appData.uid !== this.manifestData?.uid) {
       this.log(this.messages.APP_UID_NOT_MATCH, "error");
-      this.appUidRetry++;
-
-      if (this.appUidRetry < 3) {
-        this.flags["app-uid"] = "";
-        await this.validateAppUid();
-      } else {
-        this.log(this.messages.MAX_RETRY_LIMIT, "warn");
-        throw new Error(this.messages.MAX_RETRY_LIMIT);
-      }
+      this.manifestData.uid = "";
+      return await this.validateAppUidAndVersion();
     }
-  }
 
-  /**
-   * @method appVersionValidation
-   *
-   * @return {*}  {(Promise<Record<string, any> | void>)}
-   * @memberof Create
-   */
-  async appVersionValidation(): Promise<Record<string, any> | void> {
-    const app = await this.managementAppSdk
-      .organization(this.flags.org)
-      .app(this.flags["app-uid"] as string)
-      .fetch();
-
-    if (this.manifestData.version !== app?.version) {
+    if (appData?.version !== this.manifestData.version) {
       this.log(this.messages.APP_VERSION_MISS_MATCH, "warn");
-      throw new Error(this.messages.APP_VERSION_MISS_MATCH);
+      throw new Error();
     }
-
-    return app;
   }
 
   /**
@@ -187,8 +154,8 @@ export default class Update extends BaseCommand<typeof Update> {
    */
   async updateAppOnDeveloperHub(): Promise<void> {
     let app = this.managementAppSdk
-      .organization(this.flags.org)
-      .app(this.flags["app-uid"] as string);
+      .organization(this.orgUid)
+      .app(this.manifestData.uid);
 
     app = Object.assign(app, this.manifestData);
     await app

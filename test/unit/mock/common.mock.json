@@ -12,16 +12,33 @@
   "apps": [
     {
       "uid": "app-uid-1",
-      "name": "App 1"
+      "name": "App 1",
+      "target_type": "stack"
     },
     {
       "uid": "app-uid-2",
-      "name": "App 2"
+      "name": "App 2",
+      "target_type": "organization"
+    }
+  ],
+  "stacks": [
+    {
+      "name": "Stack 1",
+      "uid": "stack-uid-1",
+      "api_key": "stack_api_key_1"
+    },
+    {
+      "name": "Stack 2",
+      "uid": "stack-uid-2",
+      "api_key": "stack_api_key_2"
     }
   ],
   "installations": [
       {
         "uid": "test-installation-uid-1"
+      },
+      {
+        "uid": "test-installation-uid-2"
       }
   ]
 }
