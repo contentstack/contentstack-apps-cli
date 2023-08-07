@@ -203,7 +203,7 @@ async function getInstallation(
     installations = populateMissingDataInInstallations(installations, stacks)
     selectedInstallation = await cliux
     .inquire({
-      type: 'search-list',
+      type: 'checkbox',
       name: 'appInstallation',
       choices: installations,
       message: messages.CHOOSE_AN_INSTALLATION
@@ -217,7 +217,7 @@ async function getInstallation(
   log($t(uninstallAppMsg.UNINSTALLING_APP, {
     type: appType
   }), "info")
-
+  
   return selectedInstallation;
 }
 
