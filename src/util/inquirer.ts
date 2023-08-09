@@ -204,7 +204,7 @@ async function getInstallation(
     installations = populateMissingDataInInstallations(installations, stacks)
     // To support uninstall all flag
     if (uninstallAll) {
-      return installations.join(',')
+      return installations.map(installation => installation.uid).join(',')
     }
     let _selectedInstallation = await cliux
     .inquire({
