@@ -180,7 +180,8 @@ async function getInstallation(
   orgUid: string, 
   managementSdkForStacks: ContentstackClient,
   appType: AppTarget,
-  options:CommonOptions
+  options:CommonOptions,
+  uninstallAll?: boolean,
 ) : Promise<string> {
   const {log} = options;
   if (appType === 'stack') {
@@ -201,24 +202,29 @@ async function getInstallation(
     cliux.loader("done");
     const stacks: Stack[] = await getStacks({managementSdk: managementSdkForStacks, log: options.log}, orgUid);
     installations = populateMissingDataInInstallations(installations, stacks)
-    selectedInstallation = await cliux
+    // To support uninstall all flag
+    if (uninstallAll) {
+      return installations.join(',')
+    }
+    let _selectedInstallation = await cliux
     .inquire({
       type: 'checkbox',
       name: 'appInstallation',
       choices: installations,
       message: messages.CHOOSE_AN_INSTALLATION
-    }) as string
+    }) as string[]
+    selectedInstallation = _selectedInstallation.join(',')
   } else {
     // as this is an organization app, and it is supposed to only be installed on the source organization
     // it will be uninstalled from the selected organization
-    selectedInstallation = installations.pop()?.uid || "";
+    selectedInstallation = installations.pop()?.uid || ""
   }
 
   log($t(uninstallAppMsg.UNINSTALLING_APP, {
     type: appType
   }), "info")
   
-  return selectedInstallation;
+  return selectedInstallation
 }
 
 function populateMissingDataInInstallations(installations: [Installation], stacks: Stack[]): [Installation] {

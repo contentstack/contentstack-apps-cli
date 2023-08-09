@@ -155,12 +155,13 @@ Uninstall an app
 
 ```
 USAGE
-  $ csdx app:uninstall [--org <value>] [--app-uid <value>] [--installation-uid <value>]
+  $ csdx app:uninstall [--org <value>] [--app-uid <value>] [--installation-uid <value>] [--uninstall-all]
 
 FLAGS
   --app-uid=<value>           Provide the app UID
   --installation-uid=<value>  Provide the installation ID of the app that needs to be uninstalled.
   --org=<value>               Provide the organization UID
+  --uninstall-all             Please select stacks from where the app must be uninstalled.
 
 DESCRIPTION
   Uninstall an app
