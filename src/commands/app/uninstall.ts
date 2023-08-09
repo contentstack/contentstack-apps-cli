@@ -44,7 +44,7 @@ export default class Uninstall extends BaseCommand<typeof Uninstall> {
 
         const factory = new UninstallAppFactory()
         const strategy = factory.getStrategyInstance(this.flags['uninstall-all'])
-        await strategy.run(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log}, appType)
+        await strategy.run(this.flags, this.sharedConfig.org, this.managementSdk, {managementSdk: this.managementAppSdk, log: this.log}, appType)
 
         this.log(this.$t(uninstallAppMsg.APP_UNINSTALLED, { app: app?.name || this.flags["app-uid"] }), "info")
 
