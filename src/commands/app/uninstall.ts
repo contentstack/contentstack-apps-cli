@@ -1,7 +1,8 @@
 import { BaseCommand } from "./base-command";
 import { flags } from "@contentstack/cli-utilities";
-import { getOrg, getApp, fetchApp, getInstallation, uninstallApp } from "../../util";
+import { getOrg, getApp, fetchApp } from "../../util";
 import { commonMsg, uninstallAppMsg } from "../../messages";
+import { UninstallAppFactory } from "../../factories/uninstall-app-factory";
 
 export default class Uninstall extends BaseCommand<typeof Uninstall> {
     static description = "Uninstall an app";
@@ -19,6 +20,9 @@ export default class Uninstall extends BaseCommand<typeof Uninstall> {
       }),
       'installation-uid': flags.string({
         description: uninstallAppMsg.INSTALLATION_UID
+      }),
+      'uninstall-all': flags.boolean({
+        description: uninstallAppMsg.UNINSTALL_ALL,
       })
     }
 
@@ -34,19 +38,14 @@ export default class Uninstall extends BaseCommand<typeof Uninstall> {
         } else {
           app = await fetchApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
         }
-        
+
         this.flags['app-uid'] = app?.uid;
         appType = app?.['target_type']
 
-        // select installation uid to uninstall
-        if (!this.flags['installation-uid']) {
-          this.flags['installation-uid'] = await getInstallation(this.flags, this.sharedConfig.org, this.managementSdk, appType, {managementSdk: this.managementAppSdk, log: this.log})
-        }
-        
-        // uninstall app
-        for (const installationUid of this.flags['installation-uid']) {
-          await uninstallApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log}, installationUid)
-        }
+        const factory = new UninstallAppFactory()
+        const strategy = factory.getStrategyInstance(this.flags['uninstall-all'])
+        await strategy.run(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log}, appType)
+
         this.log(this.$t(uninstallAppMsg.APP_UNINSTALLED, { app: app?.name || this.flags["app-uid"] }), "info")
 
       } catch (error: any) {
