@@ -3,12 +3,21 @@
     "declaration": true,
     "importHelpers": true,
     "module": "commonjs",
-    "outDir": "dist",
+    "outDir": "lib",
     "rootDir": "src",
-    "strict": false,
-    "target": "es2019",
-    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2017",
+    "esModuleInterop": true,
+    // The composite option enforces certain constraints which make it possible for build tools
+    // (including TypeScript itself, under --build mode) to quickly determine if a project has been built
+    "composite": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*",
+    "src/**/*.json"
+  ]
 }
