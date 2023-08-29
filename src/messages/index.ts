@@ -95,7 +95,8 @@ const uninstallAppMsg = {
   INSTALLATION_UID: "Provide the installation ID of the app that needs to be uninstalled.",
   NO_INSTALLATIONS_FOUND: "Cannot find any installations for this app.",
   APP_UNINSTALLED: "{app} uninstalled successfully.",
-  UNINSTALLING_APP: "Uninstalling app from {type}..."
+  UNINSTALLING_APP: "Uninstalling app from {type}...",
+  UNINSTALL_ALL: "Please select stacks from where the app must be uninstalled.",
 }
 
 const messages: typeof errors &
