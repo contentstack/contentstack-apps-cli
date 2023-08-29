@@ -18,3 +18,4 @@ dependabot.yml
 .editorconfig
 oclif.manifest.json
 *.env
+.vscode/
