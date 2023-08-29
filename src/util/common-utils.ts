@@ -169,10 +169,9 @@ async function getStacks(
   return stacks;
 }
 
-function uninstallApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
+function uninstallApp(flags: FlagInput, orgUid: string, options: CommonOptions, installationUid: string) {
   const {managementSdk} = options;
   const app: unknown = flags['app-uid'];
-  const installationUid: unknown = flags['installation-uid'];
   return managementSdk
   .organization(orgUid)
   .app(app as string)
