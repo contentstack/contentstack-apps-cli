@@ -19,3 +19,7 @@ dependabot.yml
 oclif.manifest.json
 *.env
 .vscode/
+coverage
+.DS_Store
+app-manifest.json
+oclif.json
