@@ -1,172 +1,367 @@
-import { CliUx } from '@oclif/core'
-import * as path from 'path'
+import * as tmp from "tmp";
+import AdmZip from "adm-zip";
+import pick from "lodash/pick";
+import * as shell from "shelljs";
+import merge from "lodash/merge";
+import isEmpty from "lodash/isEmpty";
+import { dirname, resolve } from "path";
+import { AppData } from "@contentstack/management/types/app";
+import {
+  rmSync,
+  mkdirSync,
+  renameSync,
+  existsSync,
+  writeFileSync,
+  createWriteStream,
+} from "fs";
+import { ux, cliux, flags, HttpClient } from "@contentstack/cli-utilities";
 
-import { Command, flags } from '@contentstack/cli-command'
-import { configHandler, cliux } from '@contentstack/cli-utilities'
-import { ContentstackClient } from '@contentstack/management'
-
-import DeveloperHubClient from '../../core/contentstack/client'
+import { BaseCommand } from "./base-command";
+import { AppManifest, AppType } from "../../types";
+import { appCreate, commonMsg } from "../../messages";
 import {
-  downloadProject,
-  installDependencies,
-} from '../../core/apps/project-utils'
-import {
-  changeDirectory,
-  createFile,
-  makeDirectory,
-  unzipFileToDirectory,
-} from '../../core/apps/fs-utils'
-import { APP_TEMPLATE_GITHUB_URL, AUTHTOKEN } from '../../constants'
-import { AppManifest, AppManifestWithUiLocation, AppType } from '../../typings'
-import {
-  deriveAppManifestFromSDKResponse,
-  getErrorMessage,
+  getOrg,
+  getAppName,
+  getDirName,
   getOrgAppUiLocation,
-  validateAppName,
-  validateOrgUid,
-} from '../../core/apps/app-utils'
-import * as manifestData from '../../core/apps/manifest.json'
-import {
-  askAppName,
-  askAppType,
-  getOrganizationChoice,
-} from '../../core/apps/command-utils'
+} from "../../util";
 
-type CreateCommandFlags = {
-  'app-type': string
-  org?: string
-  name?: string
-  interactive?: boolean
-}
+export default class Create extends BaseCommand<typeof Create> {
+  private appData!: AppManifest;
+  static hidden: boolean = false;
 
-export default class Create extends Command {
-  private client: DeveloperHubClient
+  static description =
+    "Create a new app in Developer Hub and optionally clone a boilerplate locally.";
 
-  static description: string | undefined = 'create and register an app.'
-
-  static examples: string[] | undefined = [
-    '$ csdx app:create',
-    '$ csdx app:create -n "sample app"',
-    '$ csdx app:create --name="app_name" --org "xxxxxxxxxxxxxxxxxxx" --app-type [stack/organization>]',
-  ]
+  static examples = [
+    "$ <%= config.bin %> <%= command.id %>",
+    "$ <%= config.bin %> <%= command.id %> --name App-1 --app-type stack",
+    "$ <%= config.bin %> <%= command.id %> --name App-2 --app-type stack -d ./boilerplate",
+    "$ <%= config.bin %> <%= command.id %> --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json",
+  ];
 
   static flags = {
     name: flags.string({
-      char: 'n',
-      description: 'Name of the app to be created',
-      required: false,
+      char: "n",
+      description: appCreate.NAME_DESCRIPTION,
     }),
-    org: flags.string({
-      description: 'Organization UID',
-      required: false,
+    "app-type": flags.string({
+      default: "stack",
+      options: ["stack", "organization"],
+      description: appCreate.APP_TYPE_DESCRIPTION,
     }),
-    'app-type': flags.string({
-      description: 'Type of App',
-      options: ['stack', 'organization'],
-      default: 'stack',
-      required: false,
+    config: flags.string({
+      char: "c",
+      description: commonMsg.CONFIG,
     }),
-    interactive: flags.boolean({
-      description: 'Run command in interactive mode',
-      default: false,
-      required: false,
+    "data-dir": flags.string({
+      char: "d",
+      description: commonMsg.CURRENT_WORKING_DIR,
     }),
-  }
+  };
 
-  setup(authtoken: string, orgUid: string) {
-    if (!this.authToken) {
-      this.error(getErrorMessage('authentication_error'), {
-        exit: 2,
-        ref: 'https://www.contentstack.com/docs/developers/cli/authentication/',
-      })
+  async run(): Promise<void> {
+    this.sharedConfig.org = this.flags.org;
+    this.sharedConfig.appName = this.flags.name;
+    this.appData = require(this.sharedConfig.manifestPath);
+
+    await this.flagsPromptQueue();
+
+    this.appData.name = this.sharedConfig.appName;
+    this.appData.target_type = this.flags["app-type"] as AppType;
+
+    if (this.flags["app-type"] === AppType.ORGANIZATION) {
+      this.appData.ui_location.locations = getOrgAppUiLocation();
     }
 
-    this.client = new DeveloperHubClient(authtoken, orgUid)
-  }
-
-  async run(): Promise<any> {
     try {
-      const { flags }: { flags: CreateCommandFlags } = this.parse(Create)
-      const _authToken: string = configHandler.get(AUTHTOKEN)
-      if (!_authToken) {
-        this.error(getErrorMessage('authentication_error'), {
-          exit: 2,
-          ref: 'https://www.contentstack.com/docs/developers/cli/authentication/',
-        })
-      }
-      this.managementAPIClient = {
-        authtoken: _authToken,
-      }
-      let appName = flags.name
-      let orgUid = flags.org
-      let appType: AppType | undefined =
-        (!appName || !orgUid) && flags['app-type'] !== AppType.ORGANIZATION
-          ? undefined
-          : (flags['app-type'] as AppType)
-      const isInteractiveMode = !!flags.interactive
-
-      //? All values to be disregarded if interactive flag present
-      if (isInteractiveMode) {
-        appName = await askAppName()
-        orgUid = await getOrganizationChoice(
-          this.managementAPIClient as ContentstackClient
-        )
-        appType = await askAppType()
+      if (
+        this.flags.yes ||
+        (await cliux.inquire({
+          type: "confirm",
+          name: "cloneBoilerplate",
+          message: this.messages.CONFIRM_CLONE_BOILERPLATE,
+        }))
+      ) {
+        await this.boilerplateFlow();
       } else {
-        // ? Ask for app name if it does not pass the constraints
-        if (!validateAppName(appName)) {
-          appName = await askAppName()
-        }
-        // ? Ask for org uid if it does not pass the constraints
-        if (!validateOrgUid(orgUid)) {
-          orgUid = await getOrganizationChoice(
-            this.managementAPIClient as ContentstackClient
-          )
-        }
-        // ? Explicilty ask for app type when app type is not present
-        if (
-          !appType ||
-          (appType !== AppType.STACK && appType !== AppType.ORGANIZATION)
-        ) {
-          appType = await askAppType()
-        }
+        await this.registerTheAppOnDeveloperHub(false);
       }
-      this.setup(_authToken, orgUid)
-      CliUx.ux.action.start('Fetching the app template')
-      const targetPath = path.join(process.cwd(), appName)
-      const filePath = await downloadProject(APP_TEMPLATE_GITHUB_URL)
-      await makeDirectory(appName)
-      unzipFileToDirectory(filePath, targetPath, 'template_fetch_failure')
-      const manifestObject: AppManifestWithUiLocation = JSON.parse(
-        JSON.stringify(manifestData)
-      )
-      manifestObject.name = appName
-      manifestObject.target_type = appType
-      if (appType === AppType.ORGANIZATION) {
-        manifestObject.ui_location.locations = getOrgAppUiLocation()
+    } catch (error: Error | any) {
+      if (error?.errorMessage || error?.message || !isEmpty(error)) {
+        this.log(error?.errorMessage || error?.message || error, "error");
       }
-      CliUx.ux.action.stop()
-      CliUx.ux.action.start(
-        `Registering the app with name ${appName} on Developer Hub`
-      )
-      const clientResponse: any = await this.client.createApp(
-        manifestObject as AppManifest
-      )
-      const appManifest = deriveAppManifestFromSDKResponse(clientResponse)
-      await createFile(
-        path.join(targetPath, 'app-manifest.json'),
-        JSON.stringify(appManifest),
-        'manifest_generation_failure'
-      )
-      CliUx.ux.action.stop()
-      CliUx.ux.action.start('Installing dependencies')
-      await installDependencies(targetPath)
-      CliUx.ux.action.stop()
-      changeDirectory(targetPath)
-      cliux.success('App creation successful!!')
-    } catch (error: any) {
-      CliUx.ux.action.stop('Failed')
-      this.error(error.message)
+
+      this.exit(1);
     }
+  }
+
+  /**
+   * @method boilerplateFlow
+   *
+   * @memberof Create
+   */
+  async boilerplateFlow() {
+    // NOTE Step 1: download the boilerplate app from GitHub
+    await this.unZipBoilerplate(await this.cloneBoilerplate());
+    tmp.setGracefulCleanup(); // NOTE If graceful cleanup is set, tmp will remove all controlled temporary objects on process exit
+
+    // NOTE Step 2: Registering the app
+    await this.registerTheAppOnDeveloperHub();
+
+    // NOTE Step 3: Install dependencies
+    ux.action.start(this.messages.INSTALL_DEPENDENCIES);
+    await this.installDependencies();
+    ux.action.stop();
+    this.log(
+      this.$t(this.messages.START_APP_COMMAND, {
+        command: `cd ${this.sharedConfig.folderPath} && npm run start`,
+      }),
+      "info"
+    );
+  }
+
+  /**
+   * @method promptQueue
+   *
+   * @memberof Create
+   */
+  async flagsPromptQueue() {
+    if (isEmpty(this.sharedConfig.appName)) {
+      this.sharedConfig.appName = await getAppName(
+        this.sharedConfig.defaultAppName
+      );
+    }
+
+    this.sharedConfig.org = await getOrg(this.flags, {
+      log: this.log,
+      managementSdk: this.managementSdk,
+    });
+  }
+
+  /**
+   * @method cloneBoilerplate
+   *
+   * @return {*}  {Promise<string>}
+   * @memberof Create
+   */
+  async cloneBoilerplate(): Promise<string> {
+    ux.action.start(this.messages.CLONE_BOILERPLATE);
+    const tmpObj = tmp.fileSync();
+    const filePath = tmpObj.name;
+
+    const writer = createWriteStream(filePath);
+    const response = await new HttpClient({ responseType: "stream" }).get(
+      this.sharedConfig.appBoilerplateGithubUrl
+    );
+
+    response?.data.pipe(writer);
+
+    return new Promise((resolve, reject) => {
+      writer
+        .on("finish", function () {
+          resolve(filePath);
+          ux.action.stop();
+        })
+        .on("error", () => {
+          reject(this.messages.FILE_GENERATION_FAILURE);
+        });
+    });
+  }
+
+  /**
+   * @method unZipBoilerplate
+   *
+   * @param {string} filepath
+   * @memberof Create
+   */
+  async unZipBoilerplate(filepath: string) {
+    const zip = new AdmZip(filepath);
+    const dataDir = this.flags["data-dir"] ?? process.cwd();
+    let targetPath = resolve(dataDir, this.sharedConfig.appName);
+    const sourcePath = resolve(dataDir, this.sharedConfig.boilerplateName);
+
+    if (this.flags["data-dir"] && !existsSync(this.flags["data-dir"])) {
+      mkdirSync(this.flags["data-dir"], { recursive: true });
+    }
+
+    if (existsSync(targetPath)) {
+      this.log(this.messages.DIR_EXIST, "warn");
+      targetPath = await getDirName(targetPath);
+    }
+
+    this.sharedConfig.folderPath = targetPath;
+
+    await new Promise<void>((resolve, reject) => {
+      ux.action.start(this.messages.UNZIP);
+      zip.extractAllToAsync(dataDir, true, false, (error) => {
+        ux.action.stop();
+
+        if (!error) {
+          renameSync(sourcePath, targetPath);
+          // NOTE write manifest into Boilerplate location
+          return resolve();
+        }
+
+        reject(error);
+      });
+    });
+  }
+
+  /**
+   * @method registerTheAppOnDeveloperHub
+   *
+   * @param {boolean} [saveManifest=true]
+   * @memberof Create
+   */
+  async registerTheAppOnDeveloperHub(saveManifest: boolean = true, retry = 0) {
+    ux.action.start(
+      this.$t(this.messages.REGISTER_THE_APP_ON_DEVELOPER_HUB, {
+        appName: this.sharedConfig.appName,
+      })
+    );
+    await this.managementAppSdk
+      .organization(this.sharedConfig.org)
+      .app()
+      .create(this.appData as AppData)
+      .then((response) => {
+        ux.action.stop();
+
+        if (this.sharedConfig.nameChanged) {
+          renameSync(
+            this.sharedConfig.oldFolderPath,
+            this.sharedConfig.folderPath
+          );
+        }
+
+        const validKeys = [
+          "uid",
+          "name",
+          "icon",
+          "oauth",
+          "version",
+          "visibility",
+          "created_by",
+          "created_at",
+          "updated_by",
+          "updated_at",
+          "target_type",
+          "description",
+          "ui_location",
+          "organization_uid",
+          "framework_version",
+        ];
+        this.appData = merge(this.appData, pick(response, validKeys));
+        if (saveManifest) {
+          writeFileSync(
+            resolve(this.sharedConfig.folderPath, "manifest.json"),
+            JSON.stringify(this.appData),
+            {
+              encoding: "utf8",
+              flag: "w",
+            }
+          );
+        }
+        this.log(this.messages.APP_CREATION_SUCCESS, "info");
+      })
+      .catch(async (error) => {
+        ux.action.stop("Failed");
+        switch (error.status) {
+          case 400:
+            this.log(this.messages.APP_CREATION_CONSTRAINT_FAILURE, "error");
+            break;
+          case 403:
+            this.log(this.messages.APP_INVALID_ORG, "error");
+            break;
+          case 409:
+            this.log(
+              this.$t(this.messages.DUPLICATE_APP_NAME, {
+                appName: this.appData.name,
+              }),
+              "warn"
+            );
+            return await this.manageNameConflict(saveManifest, retry);
+          default:
+            this.log(
+              this.$t(this.messages.APP_CREATION_FAILURE, {
+                appName: this.appData.name,
+              }),
+              "error"
+            );
+            break;
+        }
+
+        this.rollbackBoilerplate();
+
+        if (error.errorMessage) {
+          this.log(error.errorMessage, "error");
+        }
+
+        throw error;
+      });
+  }
+
+  /**
+   * @method rollbackBoilerplate
+   *
+   * @memberof Create
+   */
+  rollbackBoilerplate() {
+    if (existsSync(this.sharedConfig.folderPath)) {
+      ux.action.start(this.messages.ROLLBACK_BOILERPLATE);
+      rmSync(this.sharedConfig.folderPath, {
+        force: true,
+        recursive: true,
+        maxRetries: 3,
+      });
+      ux.action.stop();
+    }
+  }
+
+  /**
+   * @method manageNameConflict
+   *
+   * @param {boolean} saveManifest
+   * @param {number} retry
+   * @return {*}  {Promise<void>}
+   * @memberof Create
+   */
+  async manageNameConflict(
+    saveManifest: boolean,
+    retry: number
+  ): Promise<void> {
+    this.sharedConfig.appName = await getAppName(
+      `${this.sharedConfig.appName}+${retry + 1}`
+    );
+    this.appData.name = this.sharedConfig.appName;
+
+    if (!this.sharedConfig.oldFolderPath) {
+      this.sharedConfig.oldFolderPath = this.sharedConfig.folderPath;
+    }
+
+    this.sharedConfig.folderPath = resolve(
+      dirname(this.sharedConfig.folderPath),
+      this.appData.name
+    );
+    this.sharedConfig.nameChanged = true;
+
+    return await this.registerTheAppOnDeveloperHub(saveManifest, retry);
+  }
+
+  /**
+   * @method installDependencies
+   *
+   * @memberof Create
+   */
+  async installDependencies() {
+    shell.cd(this.sharedConfig.folderPath);
+    await new Promise<void>((resolve, reject) => {
+      shell.exec("npm install", { silent: true }, (error) => {
+        if (error !== 0) {
+          return reject(error);
+        }
+        resolve();
+      });
+    });
   }
 }

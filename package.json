@@ -1,89 +1,99 @@
 {
-  "name": "contentstack-apps-cli",
-  "version": "0.0.0",
-  "description": "Perform Contentstack App related operations via cli",
-  "author": "Kaushik Shetty",
-  "bin": {
-    "csdx": "./bin/run"
-  },
+  "name": "@contentstack/apps-cli",
+  "version": "1.0.1",
+  "description": "App ClI",
+  "author": "Contentstack CLI",
   "homepage": "https://github.com/contentstack/contentstack-apps-cli",
   "license": "MIT",
-  "main": "dist/index.js",
-  "repository": "contentstack/contentstack-apps-cli",
+  "main": "./lib/index.js",
+  "bin": {
+    "app": "./bin/run"
+  },
+  "repository": "contentstack/apps-cli",
   "files": [
     "/bin",
-    "/dist",
+    "/lib",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
   "dependencies": {
-    "@contentstack/cli-command": "^1.0.4",
-    "@contentstack/cli-utilities": "^1.0.5",
-    "@contentstack/management": "^1.6.1",
-    "@oclif/core": "^1.23.2",
-    "@oclif/errors": "^1.3.6",
-    "@oclif/plugin-help": "^5.1.23",
-    "@oclif/plugin-plugins": "^2.2.2",
+    "@contentstack/cli-command": "^1.2.9",
+    "@contentstack/cli-utilities": "^1.4.5",
     "adm-zip": "^0.5.10",
-    "axios": "^1.2.3",
-    "ora": "^5.4.1",
+    "chalk": "^4.1.2",
+    "lodash": "^4.17.21",
+    "open": "^9.1.0",
     "shelljs": "^0.8.5",
-    "sinon": "^15.0.1",
-    "tmp": "^0.2.1"
+    "tmp": "^0.2.1",
+    "winston": "^3.9.0"
   },
   "devDependencies": {
-    "@oclif/test": "^2.2.17",
+    "@oclif/test": "^2.0.3",
     "@types/adm-zip": "^0.5.0",
-    "@types/chai": "^4",
-    "@types/mocha": "^9.0.0",
-    "@types/node": "^16.18.11",
-    "@types/shelljs": "^0.8.11",
-    "@types/sinon": "^10.0.13",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.3.1",
+    "@types/shelljs": "^0.8.12",
     "@types/tmp": "^0.2.3",
-    "@typescript-eslint/eslint-plugin": "^5.48.1",
-    "@typescript-eslint/parser": "^5.48.1",
-    "babel-eslint": "^10.1.0",
-    "chai": "^4",
-    "eslint": "^7.32.0",
-    "eslint-config-oclif": "^4",
+    "axios": "^1.4.0",
+    "chai": "^4.3.7",
+    "dotenv": "^16.3.1",
+    "eslint": "^8.43.0",
+    "eslint-config-oclif": "^4.0.0",
     "eslint-config-oclif-typescript": "^1.0.3",
-    "mocha": "^9",
-    "oclif": "^3",
-    "shx": "^0.3.3",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "oclif": "^3.10.0",
+    "shx": "^0.3.4",
     "ts-node": "^10.9.1",
-    "tslib": "^2.4.1",
-    "typescript": "4.7.4"
+    "tslib": "^2.5.3",
+    "typescript": "^5.1.3"
   },
   "oclif": {
     "bin": "csdx",
-    "dirname": "csdx",
-    "commands": "./dist/commands",
-    "plugins": [
-      "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
+    "dirname": "apps-cli",
+    "commands": "./lib/commands",
+    "plugins": [],
+    "topicSeparator": ":",
+    "additionalHelpFlags": [
+      "-h"
     ],
-    "topicSeparator": " ",
+    "additionalVersionFlags": [
+      "-v"
+    ],
     "topics": {
-      "hello": {
-        "description": "Say hello to the world and others"
+      "app": {
+        "description": "Perform developer-hub app related activities"
       }
     }
   },
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b",
+    "build": "npm run clean && shx rm -rf lib && tsc -b",
     "lint": "eslint . --ext .ts --config .eslintrc",
     "postpack": "shx rm -f oclif.manifest.json",
-    "posttest": "yarn lint",
-    "prepack": "yarn build && oclif manifest && oclif readme",
+    "posttest": "npm run lint",
+    "prepack": "npm run build && oclif manifest && oclif readme",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
-    "version": "oclif readme && git add README.md"
+    "version": "oclif readme && git add README.md",
+    "clean": "rm -rf ./lib tsconfig.tsbuildinfo oclif.manifest.json",
+    "test:unit:report": "nyc --extension .ts mocha --forbid-only \"test/unit/**/*.test.ts\""
   },
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=16"
   },
   "bugs": "https://github.com/contentstack/contentstack-apps-cli/issues",
   "keywords": [
     "oclif"
   ],
-  "types": "dist/index.d.ts"
+  "types": "./lib/index.d.ts",
+  "csdxConfig": {
+    "shortCommandName": {
+      "app:get": "APGT",
+      "app:create": "APCRT",
+      "app:update": "APUPT",
+      "app:delete": "APDLT",
+      "app:install": "API",
+      "app:uninstall": "APUI"
+    }
+  }
 }
