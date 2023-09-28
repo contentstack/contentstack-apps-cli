@@ -1,7 +1,6 @@
 import map from "lodash/map";
 import winston from "winston";
 import { existsSync } from "fs";
-import chalk, { Chalk } from "chalk";
 import replace from "lodash/replace";
 import { join, normalize } from "path";
 import isObject from "lodash/isObject";
@@ -174,8 +173,8 @@ export default class Logger {
  * @param {Array<PrintType>} printInput
  */
 export function print(printInput: Array<PrintType>): void {
-  const str = map(printInput, ({ message, bold, color }: PrintType) => {
-    let chalkFn: Chalk = chalk;
+  const str = map(printInput, async ({ message, bold, color }: PrintType) => {
+    let chalkFn: any = new (await import('chalk')).Chalk();
     if (color) chalkFn = chalkFn[color];
     if (bold) chalkFn = chalkFn.bold;
 
