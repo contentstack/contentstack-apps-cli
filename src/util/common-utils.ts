@@ -180,7 +180,7 @@ function uninstallApp(flags: FlagInput, orgUid: string, options: CommonOptions, 
 }
 
 async function fetchInstalledApps(flags: FlagInput, orgUid: string, options: CommonOptions) {
-  const { log } = options;
+  const { managementSdk, log } = options;
   const apps = (await fetchApps(flags, orgUid, options)) || [];
   let batchRequests = [];
   // Make calls in batch. 10 requests per batch allowed.
@@ -191,7 +191,11 @@ async function fetchInstalledApps(flags: FlagInput, orgUid: string, options: Com
   for (const batch of batchRequests) {
     const promises = batch.map(async (app) => {
       try {
-        const installations = await app.listInstallations();
+        const installations = await managementSdk
+          .organization(orgUid)
+          .app(app.uid)
+          .installation()
+          .findAll();
         return installations.items.length ? installations.items : null;
       }
       catch (error) {
