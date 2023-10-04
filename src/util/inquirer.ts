@@ -201,7 +201,7 @@ async function getInstallation(
     // fetch stacks from where the app has to be uninstalled
     cliux.loader("done");
     const stacks: Stack[] = await getStacks({managementSdk: managementSdkForStacks, log: options.log}, orgUid);
-    installations = populateMissingDataInInstallations(installations, stacks)
+    installations = populateMissingDataInInstallations(installations as [Installation], stacks)
     // To support uninstall all flag
     if (uninstallAll) {
       return installations.map(installation => installation.uid).join(',')
