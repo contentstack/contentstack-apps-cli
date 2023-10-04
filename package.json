@@ -18,7 +18,7 @@
   ],
   "dependencies": {
     "@contentstack/cli-command": "^1.2.9",
-    "@contentstack/cli-utilities": "^1.4.5",
+    "@contentstack/cli-utilities": "^1.5.2",
     "adm-zip": "^0.5.10",
     "chalk": "^4.1.2",
     "lodash": "^4.17.21",
