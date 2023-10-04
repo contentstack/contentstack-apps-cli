@@ -17,7 +17,7 @@
     "/oclif.manifest.json"
   ],
   "dependencies": {
-    "@contentstack/cli-command": "^1.2.9",
+    "@contentstack/cli-command": "^1.2.11",
     "@contentstack/cli-utilities": "^1.5.1",
     "adm-zip": "^0.5.10",
     "chalk": "^4.1.2",
@@ -25,7 +25,7 @@
     "open": "^9.1.0",
     "shelljs": "^0.8.5",
     "tmp": "^0.2.1",
-    "winston": "^3.9.0"
+    "winston": "^3.10.0"
   },
   "devDependencies": {
     "@oclif/test": "^2.0.3",
