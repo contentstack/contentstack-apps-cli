@@ -1,6 +1,6 @@
 import { BaseCommand } from "./base-command";
 import { flags } from "@contentstack/cli-utilities";
-import { getOrg, getApp, fetchApp } from "../../util";
+import { getOrg, fetchApp, getInstalledApps } from "../../util";
 import { commonMsg, uninstallAppMsg } from "../../messages";
 import { UninstallAppFactory } from "../../factories/uninstall-app-factory";
 
@@ -34,7 +34,7 @@ export default class Uninstall extends BaseCommand<typeof Uninstall> {
 
         // fetch app details
         if (!this.flags['app-uid']) {
-          app = await getApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
+          app = await getInstalledApps(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
         } else {
           app = await fetchApp(this.flags, this.sharedConfig.org, {managementSdk: this.managementAppSdk, log: this.log})
         }
