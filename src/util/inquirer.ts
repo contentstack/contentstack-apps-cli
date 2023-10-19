@@ -16,9 +16,10 @@ import messages, { $t, commonMsg, errors, uninstallAppMsg } from "../messages";
 import { 
   CommonOptions, 
   getOrganizations, 
-  fetchApps, 
   getStacks,
-  fetchAppInstallations
+  fetchAppInstallations,
+  fetchInstalledApps,
+  fetchApps
 } from "./common-utils";
 
 /**
@@ -103,7 +104,28 @@ async function getOrg(flags: FlagInput, options: CommonOptions) {
 
 async function getApp(flags: FlagInput, orgUid: string, options: CommonOptions) : Promise<Record<string, any> | undefined> {
   cliux.loader("Loading Apps");
-  const apps = (await fetchApps(flags, orgUid, options)) || [];
+  const apps = (await fetchApps(flags, orgUid, options));
+  cliux.loader("done");
+  
+  if (apps.length === 0) {
+    throw new Error(messages.APPS_NOT_FOUND)
+  }
+  
+  flags.app = await cliux
+    .inquire({
+      type: "search-list",
+      name: "App",
+      choices: apps,
+      message: messages.CHOOSE_APP
+    })
+    .then((name) => apps.find(app => app.name === name)?.uid)
+
+  return apps.find(app => app.uid === flags.app);
+}
+
+async function getInstalledApps(flags: FlagInput, orgUid: string, options: CommonOptions) : Promise<Record<string, any> | undefined> {
+  cliux.loader("Loading Apps");
+  const apps = (await fetchInstalledApps(flags, orgUid, options));
   cliux.loader("done");
   
   if (apps.length === 0) {
@@ -249,6 +271,7 @@ export {
   getDirName, 
   getDeveloperHubUrl, 
   getApp,
+  getInstalledApps,
   getStack,
-  getInstallation
+  getInstallation,
 };
