@@ -179,6 +179,45 @@ function uninstallApp(flags: FlagInput, orgUid: string, options: CommonOptions, 
   .uninstall()
 }
 
+async function fetchInstalledApps(flags: FlagInput, orgUid: string, options: CommonOptions) {
+  const { managementSdk, log } = options;
+  const apps = (await fetchApps(flags, orgUid, options)) || [];
+  let batchRequests = [];
+  // Make calls in batch. 10 requests per batch allowed.
+  while (apps.length) {
+    batchRequests.push(apps.splice(0, 10));
+  }
+  const results = [];
+  for (const batch of batchRequests) {
+    const promises = batch.map(async (app) => {
+      try {
+        const installations = await managementSdk
+          .organization(orgUid)
+          .app(app.uid)
+          .installation()
+          .findAll();
+        return installations.items.length ? installations.items : null;
+      }
+      catch (error) {
+        log("Unable to fetch installations.", "warn");
+        log(error, "error");
+        throw error;
+      }
+    });
+    results.push(await Promise.all(promises));
+  }
+  for (let i = batchRequests.length - 1; i >= 0; i--) {
+    const batchLength = batchRequests[i].length;
+    for (let j = batchLength - 1; j >= 0; j--) {
+      if (!results[i][j]) {
+        batchRequests[i].splice(j, 1);
+        results[i].splice(j, 1);
+      }
+    }
+  }
+  return batchRequests.flat();
+}
+
 export { 
   getOrganizations, 
   getOrgAppUiLocation, 
@@ -189,5 +228,6 @@ export {
   installApp,
   getStacks,
   fetchStack,
-  uninstallApp
+  uninstallApp,
+  fetchInstalledApps,
 };
