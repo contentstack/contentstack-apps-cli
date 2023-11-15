@@ -17,7 +17,7 @@
     "/oclif.manifest.json"
   ],
   "dependencies": {
-    "@contentstack/cli-command": "^1.2.11",
+    "@contentstack/cli-command": "^1.2.14",
     "@contentstack/cli-utilities": "^1.5.1",
     "adm-zip": "^0.5.10",
     "chalk": "^4.1.2",
