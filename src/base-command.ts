@@ -14,10 +14,10 @@ import {
   cliux,
 } from "@contentstack/cli-utilities";
 
-import config from "../../config";
-import { ConfigType, LogFn } from "../../types";
-import { Logger, getDeveloperHubUrl } from "../../util";
-import messages, { $t, commonMsg } from "../../messages";
+import config from "./config";
+import { ConfigType, LogFn } from "./types";
+import { Logger, getDeveloperHubUrl } from "./util";
+import messages, { $t, commonMsg } from "./messages";
 
 export type Flags<T extends typeof Command> = Interfaces.InferredFlags<
   (typeof BaseCommand)["baseFlags"] & T["flags"]
@@ -41,8 +41,6 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 
   protected flags!: Flags<T>;
   protected args!: Args<T>;
-
-  static hidden = true;
 
   // NOTE define flags that can be inherited by any command that extends BaseCommand
   static baseFlags: FlagInput = {

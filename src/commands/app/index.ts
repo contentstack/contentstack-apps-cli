@@ -7,8 +7,6 @@ import { print } from "../../util/log";
 export default class App extends Command {
   static description = "Apps CLI plugin";
 
-  static hidden: boolean = true;
-
   static examples = [
     "$ <%= config.bin %> <%= command.id %>:create",
     "$ <%= config.bin %> <%= command.id %>:get",
