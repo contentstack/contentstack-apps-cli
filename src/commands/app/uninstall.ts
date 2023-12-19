@@ -1,4 +1,4 @@
-import { BaseCommand } from "./base-command";
+import { BaseCommand } from "../../base-command";
 import { flags } from "@contentstack/cli-utilities";
 import { getOrg, fetchApp, getInstalledApps } from "../../util";
 import { commonMsg, uninstallAppMsg } from "../../messages";
@@ -6,7 +6,6 @@ import { UninstallAppFactory } from "../../factories/uninstall-app-factory";
 
 export default class Uninstall extends BaseCommand<typeof Uninstall> {
     static description = "Uninstall an app";
-    static hidden: boolean = false;
 
     static examples = [
       "$ <%= config.bin %> <%= command.id %>",
