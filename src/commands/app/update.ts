@@ -6,7 +6,7 @@ import { App } from "@contentstack/management/types/app";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
 import { AppManifest } from "../../types";
-import { BaseCommand } from "./base-command";
+import { BaseCommand } from "../../base-command";
 import { $t, appUpdate } from "../../messages";
 import { fetchApp, getApp, getOrg } from "../../util";
 
@@ -14,8 +14,6 @@ export default class Update extends BaseCommand<typeof Update> {
   private orgUid!: string;
   private manifestPathRetry: number = 0;
   private manifestData!: AppManifest & Record<string, any>;
-
-  static hidden: boolean = false;
 
   static description = "Update the existing app in developer hub";
 
