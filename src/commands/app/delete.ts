@@ -1,11 +1,9 @@
-import { BaseCommand } from "./base-command";
+import { BaseCommand } from "../../base-command";
 import { cliux, flags } from "@contentstack/cli-utilities";
 import { $t, commonMsg, deleteAppMsg } from "../../messages";
 import { getOrg, fetchAppInstallations, deleteApp, getApp } from "../../util";
 
 export default class Delete extends BaseCommand<typeof Delete> {
-  static hidden: boolean = false;
-
   static description = "Delete app from marketplace";
 
   static examples = [

@@ -1,11 +1,9 @@
-import { BaseCommand } from "./base-command";
+import { BaseCommand } from "../../base-command";
 import { getOrg, getApp, writeFile, fetchApp } from "../../util";
 import { flags } from "@contentstack/cli-utilities";
 import { commonMsg } from "../../messages";
 
 export default class Get extends BaseCommand<typeof Get> {
-  static hidden: boolean = false;
-
   static description = "Get details of an app in developer hub";
 
   static examples = [
