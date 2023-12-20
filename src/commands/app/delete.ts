@@ -22,7 +22,6 @@ export default class Delete extends AppCLIBaseCommand {
   async run(): Promise<void> {
     try {
       let app;
-      this.start();
       this.sharedConfig.org = this.manifestData?.organization_uid ?? (await getOrg(this.flags, {
         managementSdk: this.managementSdk,
         log: this.log,

@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "fs";
 
 import config from "./config";
 import { AppManifest } from "./types";
-import { BaseCommand } from "./commands/app/base-command";
+import { BaseCommand } from "./base-command";
 
 export abstract class AppCLIBaseCommand extends BaseCommand<
   typeof AppCLIBaseCommand
@@ -11,14 +11,11 @@ export abstract class AppCLIBaseCommand extends BaseCommand<
   protected manifestPath!: string;
   protected manifestData!: AppManifest & Record<string, any>;
 
-  /**
-   * The `start` function call getManifestData which reads manifest file is current working directory is app directory
-   */
-  start() {
+  public async init(): Promise<void> {
+    await super.init();
     this.getManifestData();
   }
 
-  //move this into abstract command
   getManifestData() {
     this.manifestPath = resolve(process.cwd(), `${config.defaultAppFileName}.json`);
     if (existsSync(this.manifestPath)) {

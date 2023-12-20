@@ -29,7 +29,6 @@ export default class Uninstall extends AppCLIBaseCommand {
     async run(): Promise<void> {
       try {
         let app, appType
-        this.start();
         this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
         
         // get organization to be used
