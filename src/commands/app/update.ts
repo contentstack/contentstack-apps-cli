@@ -5,15 +5,13 @@ import { flags } from "@contentstack/cli-utilities";
 import { App } from "@contentstack/management/types/app";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
-import { AppManifest } from "../../types";
-import { BaseCommand } from "../../base-command";
 import { $t, appUpdate } from "../../messages";
 import { fetchApp, getApp, getOrg } from "../../util";
+import {AppCLIBaseCommand} from "../../app-cli-base-coomand";
 
-export default class Update extends BaseCommand<typeof Update> {
+export default class Update extends AppCLIBaseCommand {
   private orgUid!: string;
   private manifestPathRetry: number = 0;
-  private manifestData!: AppManifest & Record<string, any>;
 
   static description = "Update the existing app in developer hub";
 
@@ -30,8 +28,12 @@ export default class Update extends BaseCommand<typeof Update> {
 
   async run(): Promise<void> {
     try {
-      await this.validateManifest();
-      this.orgUid = this.flags.org || this.manifestData.organization_uid;
+      //if working directory isn't app directory 
+      if(!this.manifestData){
+        await this.validateManifest();
+      }
+      this.flags["app-manifest"] = this.manifestPath ?? this.flags["app-manifest"];
+      this.orgUid =  this.flags.org ?? this.manifestData?.organization_uid;
       this.sharedConfig.org = await getOrg(
         { org: this.orgUid as any },
         {
