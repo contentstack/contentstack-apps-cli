@@ -1,10 +1,11 @@
-import { BaseCommand } from "../../base-command";
 import { flags } from "@contentstack/cli-utilities";
-import { getOrg, fetchApp, getInstalledApps } from "../../util";
+
 import { commonMsg, uninstallAppMsg } from "../../messages";
+import {AppCLIBaseCommand} from "../../app-cli-base-coomand";
+import { getOrg, fetchApp, getInstalledApps } from "../../util";
 import { UninstallAppFactory } from "../../factories/uninstall-app-factory";
 
-export default class Uninstall extends BaseCommand<typeof Uninstall> {
+export default class Uninstall extends AppCLIBaseCommand {
     static description = "Uninstall an app";
 
     static examples = [
@@ -28,8 +29,11 @@ export default class Uninstall extends BaseCommand<typeof Uninstall> {
     async run(): Promise<void> {
       try {
         let app, appType
+        this.start();
+        this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
+        
         // get organization to be used
-        this.sharedConfig.org = await getOrg(this.flags, {managementSdk: this.managementSdk, log: this.log});
+        this.sharedConfig.org = this.manifestData?.organization_uid ?? (await getOrg(this.flags, {managementSdk: this.managementSdk, log: this.log}));
 
         // fetch app details
         if (!this.flags['app-uid']) {
