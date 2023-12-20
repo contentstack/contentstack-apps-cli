@@ -1,5 +1,6 @@
-import { BaseCommand } from "../../base-command";
 import { cliux, flags } from "@contentstack/cli-utilities";
+
+import { AppCLIBaseCommand } from "../../app-cli-base-coomand";
 import { $t, commonMsg, installAppMsg } from "../../messages";
 import {
   getOrg,
@@ -10,7 +11,7 @@ import {
   fetchStack,
 } from "../../util";
 
-export default class Install extends BaseCommand<typeof Install> {
+export default class Install extends AppCLIBaseCommand {
   static description: string | undefined =
     "Install an app from the marketplace";
 
@@ -32,6 +33,7 @@ export default class Install extends BaseCommand<typeof Install> {
   async run(): Promise<void> {
     try {
       let app, stack, appType;
+      this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"]; //manifest file first preference
 
       // validating user given stack, as installation API doesn't return appropriate errors if stack-api-key is invalid
       // validating this first, as orgUid is not required for fetching stack
@@ -43,10 +45,12 @@ export default class Install extends BaseCommand<typeof Install> {
       }
 
       // get organization to be used
-      this.sharedConfig.org = await getOrg(this.flags, {
-        managementSdk: this.managementSdk,
-        log: this.log,
-      });
+      this.sharedConfig.org =
+        this.manifestData?.organization_uid ??
+        (await getOrg(this.flags, {
+          managementSdk: this.managementSdk,
+          log: this.log,
+        }));
 
       // fetch app details
       if (!this.flags["app-uid"]) {
@@ -114,9 +118,22 @@ export default class Install extends BaseCommand<typeof Install> {
         }),
         "info"
       );
+
+      this.displayStackUrl();
     } catch (error: any) {
       this.log(error?.errorMessage || error?.message || error, "error");
       this.exit(1);
     }
+  }
+
+  /**
+   * @method displayStackUrl - show guid to stack after installing app successfully in the stack
+   */
+  displayStackUrl(): void {
+    const stackPath = `${this.uiHost}/#!/stack/${this.flags["stack-api-key"]}/dashboard`;
+    this.log(
+      `Start using the stack using the following url: ${stackPath}`,
+      "info"
+    );
   }
 }

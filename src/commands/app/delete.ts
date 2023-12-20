@@ -1,9 +1,10 @@
-import { BaseCommand } from "../../base-command";
 import { cliux, flags } from "@contentstack/cli-utilities";
+
+import {AppCLIBaseCommand} from "../../app-cli-base-coomand";
 import { $t, commonMsg, deleteAppMsg } from "../../messages";
 import { getOrg, fetchAppInstallations, deleteApp, getApp } from "../../util";
 
-export default class Delete extends BaseCommand<typeof Delete> {
+export default class Delete extends AppCLIBaseCommand {
   static description = "Delete app from marketplace";
 
   static examples = [
@@ -21,10 +22,12 @@ export default class Delete extends BaseCommand<typeof Delete> {
   async run(): Promise<void> {
     try {
       let app;
-      this.sharedConfig.org = await getOrg(this.flags, {
+      this.sharedConfig.org = this.manifestData?.organization_uid ?? (await getOrg(this.flags, {
         managementSdk: this.managementSdk,
         log: this.log,
-      });
+      }));
+      this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
+
       if (!this.flags["app-uid"]) {
         app = await getApp(this.flags, this.sharedConfig.org, {
           managementSdk: this.managementAppSdk,
