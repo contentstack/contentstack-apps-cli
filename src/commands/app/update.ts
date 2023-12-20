@@ -28,7 +28,6 @@ export default class Update extends AppCLIBaseCommand {
 
   async run(): Promise<void> {
     try {
-      this.start();
       //if working directory isn't app directory 
       if(!this.manifestData){
         await this.validateManifest();

@@ -32,7 +32,6 @@ export default class Get extends AppCLIBaseCommand {
   async run(): Promise<void> {
     try {
       let appData;
-      this.start();
       this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
       
       this.sharedConfig.org = this.manifestData?.organization_uid ?? (await getOrg(this.flags, {
