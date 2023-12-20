@@ -12,6 +12,7 @@ import {
   managementSDKInitiator,
   InquirePayload,
   cliux,
+  isAuthenticated,
 } from "@contentstack/cli-utilities";
 
 import config from "./config";
@@ -67,6 +68,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 
     ux.registerSearchPlugin();
     this.registerConfig();
+    this.validateRegionAndAuth();
 
     this.developerHubBaseUrl =
       this.sharedConfig.developerHubBaseUrl || (await getDeveloperHubUrl());
@@ -153,5 +155,18 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
       default: options?.default,
       message: message as string,
     });
+  }
+
+  /**
+   * The `validateRegionAndAuth` function verify whether region is set and user is logged in or not
+   */
+  validateRegionAndAuth() {
+    //Step1: check region
+    if (this.region) {
+      //Step2: user logged in or not
+      if (!isAuthenticated()) {
+        throw new Error(this.messages.CLI_APP_CLI_LOGIN_FAILED);
+      }
+    }
   }
 }
