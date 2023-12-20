@@ -33,7 +33,6 @@ export default class Install extends AppCLIBaseCommand {
   async run(): Promise<void> {
     try {
       let app, stack, appType;
-      this.start();
       this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"]; //manifest file first preference
 
       // validating user given stack, as installation API doesn't return appropriate errors if stack-api-key is invalid
