@@ -68,15 +68,16 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 
     ux.registerSearchPlugin();
     this.registerConfig();
-    this.validateRegionAndAuth();
-
+    
     this.developerHubBaseUrl =
-      this.sharedConfig.developerHubBaseUrl || (await getDeveloperHubUrl());
+    this.sharedConfig.developerHubBaseUrl || (await getDeveloperHubUrl());
     await this.initCmaSDK();
-
+    
     // Init logger
     const logger = new Logger(this.sharedConfig);
     this.log = logger.log.bind(logger);
+    
+    this.validateRegionAndAuth();
   }
 
   protected async catch(err: Error & { exitCode?: number }): Promise<any> {
@@ -161,12 +162,11 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
    * The `validateRegionAndAuth` function verify whether region is set and user is logged in or not
    */
   validateRegionAndAuth() {
-    //Step1: check region
     if (this.region) {
-      //Step2: user logged in or not
       if (!isAuthenticated()) {
-        throw new Error(this.messages.CLI_APP_CLI_LOGIN_FAILED);
-      }
+          this.log(this.messages.CLI_APP_CLI_LOGIN_FAILED, "error");
+          this.exit(1);
+        }
     }
   }
 }
