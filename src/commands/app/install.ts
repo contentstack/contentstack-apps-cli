@@ -132,7 +132,7 @@ export default class Install extends AppCLIBaseCommand {
   displayStackUrl(): void {
     const stackPath = `${this.uiHost}/#!/stack/${this.flags["stack-api-key"]}/dashboard`;
     this.log(
-      `Start using the stack using the following url: ${stackPath}`,
+      `Please use the following URL to start using the stack: ${stackPath}`,
       "info"
     );
   }
