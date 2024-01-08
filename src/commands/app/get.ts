@@ -1,11 +1,10 @@
-import { BaseCommand } from "./base-command";
-import { getOrg, getApp, writeFile, fetchApp } from "../../util";
 import { flags } from "@contentstack/cli-utilities";
+
 import { commonMsg } from "../../messages";
+import {AppCLIBaseCommand} from "../../app-cli-base-coomand";
+import { getOrg, getApp, writeFile, fetchApp } from "../../util";
 
-export default class Get extends BaseCommand<typeof Get> {
-  static hidden: boolean = false;
-
+export default class Get extends AppCLIBaseCommand {
   static description = "Get details of an app in developer hub";
 
   static examples = [
@@ -33,10 +32,13 @@ export default class Get extends BaseCommand<typeof Get> {
   async run(): Promise<void> {
     try {
       let appData;
-      this.sharedConfig.org = await getOrg(this.flags, {
+      this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
+      
+      this.sharedConfig.org = this.manifestData?.organization_uid ?? (await getOrg(this.flags, {
         managementSdk: this.managementSdk,
         log: this.log,
-      });
+      }));
+
       if (!this.flags["app-uid"]) {
         appData = await getApp(this.flags, this.sharedConfig.org, {
           managementSdk: this.managementAppSdk,
