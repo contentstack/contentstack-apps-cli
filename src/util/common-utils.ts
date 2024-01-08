@@ -67,7 +67,6 @@ async function fetchApps(
     .catch((error) => {
       cliux.loader("failed");
       log("Some error occurred while fetching apps.", "warn");
-      log(error.errorMessage, "error");
       throw error;
     });
 
