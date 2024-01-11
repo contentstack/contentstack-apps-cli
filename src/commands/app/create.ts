@@ -14,9 +14,9 @@ import {
   writeFileSync,
   createWriteStream,
 } from "fs";
-import { ux, cliux, flags, HttpClient } from "@contentstack/cli-utilities";
+import { ux, cliux, flags, HttpClient, configHandler } from "@contentstack/cli-utilities";
 
-import { BaseCommand } from "./base-command";
+import { BaseCommand } from "../../base-command";
 import { AppManifest, AppType } from "../../types";
 import { appCreate, commonMsg } from "../../messages";
 import {
@@ -28,7 +28,6 @@ import {
 
 export default class Create extends BaseCommand<typeof Create> {
   private appData!: AppManifest;
-  static hidden: boolean = false;
 
   static description =
     "Create a new app in Developer Hub and optionally clone a boilerplate locally.";
@@ -133,10 +132,11 @@ export default class Create extends BaseCommand<typeof Create> {
       );
     }
 
-    this.sharedConfig.org = await getOrg(this.flags, {
+    //Auto select org in case of oauth
+    this.sharedConfig.org = configHandler.get('oauthOrgUid') ?? (await getOrg(this.flags, {
       log: this.log,
       managementSdk: this.managementSdk,
-    });
+    }));
   }
 
   /**

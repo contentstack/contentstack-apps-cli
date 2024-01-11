@@ -34,7 +34,8 @@ const commonMsg = {
   APP_TYPE_DESCRIPTION: "Type of App",
   CONTACT_SUPPORT: "Please contact the support team.",
   STACK_API_KEY: "API key of the stack where the app is to be installed.",
-  USER_TERMINATION: "Process terminated by the user."
+  USER_TERMINATION: "Process terminated by the user.",
+  CLI_APP_CLI_LOGIN_FAILED: 'You are not logged in. Please login with command $ csdx auth:login' 
 };
 
 const appCreate = {
@@ -121,7 +122,8 @@ const $t = (msg: string, args: Record<string, string>): string => {
   if (!msg) return "";
 
   for (const key of Object.keys(args)) {
-    msg = msg.replace(new RegExp(`{${key}}`, 'g'), args[key]);
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    msg = msg.replace(new RegExp(`{${escapedKey}}`, "g"), args[key]);
   }
 
   return msg;
