@@ -12,12 +12,13 @@ import {
   managementSDKInitiator,
   InquirePayload,
   cliux,
+  isAuthenticated,
 } from "@contentstack/cli-utilities";
 
-import config from "../../config";
-import { ConfigType, LogFn } from "../../types";
-import { Logger, getDeveloperHubUrl } from "../../util";
-import messages, { $t, commonMsg } from "../../messages";
+import config from "./config";
+import { ConfigType, LogFn } from "./types";
+import { Logger, getDeveloperHubUrl } from "./util";
+import messages, { $t, commonMsg } from "./messages";
 
 export type Flags<T extends typeof Command> = Interfaces.InferredFlags<
   (typeof BaseCommand)["baseFlags"] & T["flags"]
@@ -41,8 +42,6 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 
   protected flags!: Flags<T>;
   protected args!: Args<T>;
-
-  static hidden = true;
 
   // NOTE define flags that can be inherited by any command that extends BaseCommand
   static baseFlags: FlagInput = {
@@ -69,14 +68,16 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 
     ux.registerSearchPlugin();
     this.registerConfig();
-
+    
     this.developerHubBaseUrl =
-      this.sharedConfig.developerHubBaseUrl || (await getDeveloperHubUrl());
+    this.sharedConfig.developerHubBaseUrl || (await getDeveloperHubUrl());
     await this.initCmaSDK();
-
+    
     // Init logger
     const logger = new Logger(this.sharedConfig);
     this.log = logger.log.bind(logger);
+    
+    this.validateRegionAndAuth();
   }
 
   protected async catch(err: Error & { exitCode?: number }): Promise<any> {
@@ -155,5 +156,17 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
       default: options?.default,
       message: message as string,
     });
+  }
+
+  /**
+   * The `validateRegionAndAuth` function verify whether region is set and user is logged in or not
+   */
+  validateRegionAndAuth() {
+    if (this.region) {
+      if (!isAuthenticated()) {
+          this.log(this.messages.CLI_APP_CLI_LOGIN_FAILED, "error");
+          this.exit(1);
+        }
+    }
   }
 }

@@ -1,4 +1,5 @@
 import find from "lodash/find";
+import isEmpty from "lodash/isEmpty";
 import { existsSync } from "fs";
 import { basename, dirname, join } from "path";
 import {
@@ -228,13 +229,19 @@ async function getInstallation(
     if (uninstallAll) {
       return installations.map(installation => installation.uid).join(',')
     }
-    let _selectedInstallation = await cliux
+    let _selectedInstallation: string[] = await cliux
     .inquire({
       type: 'checkbox',
       name: 'appInstallation',
       choices: installations,
-      message: messages.CHOOSE_AN_INSTALLATION
-    }) as string[]
+      message: messages.CHOOSE_AN_INSTALLATION,
+      validate: (input) => {
+        if (isEmpty(input)) {
+          return $t(errors.NOT_EMPTY, { value: "stack value"});
+        }
+        return true;
+      }
+    }) 
     selectedInstallation = _selectedInstallation.join(',')
   } else {
     // as this is an organization app, and it is supposed to only be installed on the source organization
