@@ -3,7 +3,7 @@ import { resolve } from "path";
 const config = {
   defaultAppName: "app-boilerplate",
   manifestPath: resolve(__dirname, "manifest.json"),
-  boilerplateName: "marketplace-app-boilerplate-1.2.3",
+  boilerplateName: "marketplace-app-boilerplate-main",
   developerHubBaseUrl: "",
   developerHubUrls: {
     // NOTE CDA url used as developer-hub url mapper to avoid conflict if user used any custom name
@@ -16,7 +16,7 @@ const config = {
     "https://stag-api.csnonprod.com": "stag-developerhub-api.csnonprod.com",
   },
   appBoilerplateGithubUrl:
-    "https://github.com/contentstack/marketplace-app-boilerplate/archive/refs/tags/1.2.3.zip",
+    "https://codeload.github.com/contentstack/marketplace-app-boilerplate/zip/refs/heads/main",
   defaultAppFileName: "manifest",
 };
 
