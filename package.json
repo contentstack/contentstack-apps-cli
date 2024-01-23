@@ -1,15 +1,18 @@
 {
   "name": "@contentstack/apps-cli",
-  "version": "1.0.6",
+  "version": "1.0.5",
   "description": "App ClI",
   "author": "Contentstack CLI",
   "homepage": "https://github.com/contentstack/contentstack-apps-cli",
   "license": "MIT",
   "main": "./lib/index.js",
   "bin": {
-    "app": "./bin/run"
+    "app": "bin/run"
   },
-  "repository": "contentstack/apps-cli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/contentstack/apps-cli.git"
+  },
   "files": [
     "/bin",
     "/lib",
