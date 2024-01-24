@@ -1,10 +1,11 @@
 {
-  "icon": "",
   "description": "",
-  "target_type": "stack",
+  "icon": "",
   "name": "",
-  "visibility": "private",
   "organization_uid": "",
+  "target_type": "stack",
+  "visibility": "private",
+  "uid": "",
   "ui_location": {
     "signed": false,
     "base_url": "http://localhost:3000",
@@ -13,20 +14,22 @@
         "type": "cs.cm.stack.custom_field",
         "meta": [
           {
-            "path": "/custom-field",
-            "signed": true,
+            "multiple": false,
+            "path": "/#/custom-field",
+            "signed": false,
             "enabled": true,
-            "data_type": "number"
+            "data_type": "json"
           }
         ]
       },
       {
-        "type": "cs.cm.stack.config",
+        "type": "cs.cm.stack.dashboard",
         "meta": [
           {
-            "path": "/app-configuration",
-            "signed": true,
-            "enabled": true
+            "path": "/#/stack-dashboard",
+            "signed": false,
+            "enabled": true,
+            "default_width": "half"
           }
         ]
       },
@@ -35,21 +38,10 @@
         "meta": [
           {
             "blur": false,
-            "path": "/asset-sidebar",
-            "signed": true,
+            "path": "/#/asset-sidebar",
+            "signed": false,
             "enabled": true,
             "width": 500
-          }
-        ]
-      },
-      {
-        "type": "cs.cm.stack.dashboard",
-        "meta": [
-          {
-            "path": "/stack-dashboard",
-            "signed": true,
-            "enabled": true,
-            "default_width": "half"
           }
         ]
       },
@@ -57,13 +49,57 @@
         "type": "cs.cm.stack.sidebar",
         "meta": [
           {
-            "path": "/entry-sidebar",
-            "signed": true,
+            "path": "/#/entry-sidebar",
+            "signed": false,
+            "enabled": true
+          }
+        ]
+      },
+      {
+        "type": "cs.cm.stack.full_page",
+        "meta": [
+          {
+            "path": "/#/full-page",
+            "signed": false,
+            "enabled": true
+          }
+        ]
+      },
+      {
+        "type": "cs.cm.stack.field_modifier",
+        "meta": [
+          {
+            "path": "/#/field-modifier",
+            "signed": false,
+            "enabled": true,
+            "allowed_types": ["$all"]
+          }
+        ]
+      },
+      {
+        "type": "cs.cm.stack.config",
+        "meta": [
+          {
+            "path": "/#/app-configuration",
+            "signed": false,
+            "enabled": true
+          }
+        ]
+      },
+      {
+        "type": "cs.cm.stack.rte",
+        "meta": [
+          {
+            "path": "/json-rte.js",
+            "signed": false,
             "enabled": true
           }
         ]
       }
     ]
   },
-  "uid": ""
+  "hosting": {
+    "provider": "external",
+    "deployment_url": "http://localhost:3000"
+  }
 }
