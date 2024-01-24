@@ -97,16 +97,16 @@ function fetchAppInstallations(
   const { managementSdk } = options;
   const app: any = flags["app-uid"];
   return managementSdk
-  .organization(orgUid)
-  .app(app as string)
-  .installation()
-  .findAll()
-  .catch(error => {
-    const {log} = options;
-    cliux.loader("failed");
-    log("Some error occurred while fetching app installations.", "warn");
-    throw error // throwing error here instead of removing the catch block, as the loader needs to stopped in case there is an error.
-  })
+    .organization(orgUid)
+    .app(app as string)
+    .installation()
+    .findAll()
+    .catch((error) => {
+      const { log } = options;
+      cliux.loader("failed");
+      log("Some error occurred while fetching app installations.", "warn");
+      throw error; // throwing error here instead of removing the catch block, as the loader needs to stopped in case there is an error.
+    });
 }
 
 function deleteApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
@@ -144,10 +144,10 @@ function fetchStack(flags: FlagInput, options: CommonOptions) {
 async function getStacks(
   options: CommonOptions,
   orgUid: string,
-  skip: number= 0,
-  stacks: Stack[] = [],
+  skip: number = 0,
+  stacks: Stack[] = []
 ): Promise<Stack[]> {
-  const {log, managementSdk} = options;
+  const { log, managementSdk } = options;
   const response = await managementSdk
     .organization(orgUid)
     .stacks({ include_count: true, limit: 100, asc: "name", skip: skip })
@@ -168,17 +168,26 @@ async function getStacks(
   return stacks;
 }
 
-function uninstallApp(flags: FlagInput, orgUid: string, options: CommonOptions, installationUid: string) {
-  const {managementSdk} = options;
-  const app: unknown = flags['app-uid'];
+function uninstallApp(
+  flags: FlagInput,
+  orgUid: string,
+  options: CommonOptions,
+  installationUid: string
+) {
+  const { managementSdk } = options;
+  const app: unknown = flags["app-uid"];
   return managementSdk
-  .organization(orgUid)
-  .app(app as string)
-  .installation(installationUid as string)
-  .uninstall()
+    .organization(orgUid)
+    .app(app as string)
+    .installation(installationUid as string)
+    .uninstall();
 }
 
-async function fetchInstalledApps(flags: FlagInput, orgUid: string, options: CommonOptions) {
+async function fetchInstalledApps(
+  flags: FlagInput,
+  orgUid: string,
+  options: CommonOptions
+) {
   const { managementSdk, log } = options;
   const apps = (await fetchApps(flags, orgUid, options)) || [];
   let batchRequests = [];
@@ -196,8 +205,7 @@ async function fetchInstalledApps(flags: FlagInput, orgUid: string, options: Com
           .installation()
           .findAll();
         return installations.items.length ? installations.items : null;
-      }
-      catch (error) {
+      } catch (error) {
         log("Unable to fetch installations.", "warn");
         log(error, "error");
         throw error;
@@ -217,10 +225,10 @@ async function fetchInstalledApps(flags: FlagInput, orgUid: string, options: Com
   return batchRequests.flat();
 }
 
-export { 
-  getOrganizations, 
-  getOrgAppUiLocation, 
-  fetchApps, 
+export {
+  getOrganizations,
+  getOrgAppUiLocation,
+  fetchApps,
   fetchApp,
   fetchAppInstallations,
   deleteApp,
