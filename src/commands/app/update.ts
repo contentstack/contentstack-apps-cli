@@ -7,7 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 
 import { $t, appUpdate } from "../../messages";
 import { fetchApp, getApp, getOrg } from "../../util";
-import {AppCLIBaseCommand} from "../../app-cli-base-coomand";
+import { AppCLIBaseCommand } from "../../app-cli-base-coomand";
 
 export default class Update extends AppCLIBaseCommand {
   private orgUid!: string;
@@ -28,12 +28,14 @@ export default class Update extends AppCLIBaseCommand {
 
   async run(): Promise<void> {
     try {
-      //if working directory isn't app directory 
-      if(!this.manifestData){
+      // if working directory isn't app directory
+      if (!this.manifestData) {
         await this.validateManifest();
       }
-      this.flags["app-manifest"] = this.manifestPath ?? this.flags["app-manifest"];
-      this.orgUid =  this.flags.org ?? this.manifestData?.organization_uid;
+
+      this.flags["app-manifest"] =
+        this.manifestPath ?? this.flags["app-manifest"];
+      this.orgUid = this.flags.org ?? this.manifestData?.organization_uid;
       this.sharedConfig.org = await getOrg(
         { org: this.orgUid as any },
         {
