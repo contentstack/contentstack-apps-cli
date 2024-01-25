@@ -14,6 +14,8 @@ const config = {
     "https://azure-eu-api.contentstack.com":
       "azure-eu-developerhub-api.contentstack.com",
     "https://stag-api.csnonprod.com": "stag-developerhub-api.csnonprod.com",
+    "https://gcp-na-api.contentstack.com":
+      "gcp-na-developerhub-api.contentstack.com",
   },
   appBoilerplateGithubUrl:
     "https://codeload.github.com/contentstack/marketplace-app-boilerplate/zip/refs/heads/main",
