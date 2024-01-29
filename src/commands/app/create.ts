@@ -1,5 +1,6 @@
 import * as tmp from "tmp";
 import AdmZip from "adm-zip";
+import omit from "lodash/omit";
 import pick from "lodash/pick";
 import * as shell from "shelljs";
 import merge from "lodash/merge";
@@ -14,7 +15,13 @@ import {
   writeFileSync,
   createWriteStream,
 } from "fs";
-import { ux, cliux, flags, HttpClient, configHandler } from "@contentstack/cli-utilities";
+import {
+  ux,
+  cliux,
+  flags,
+  HttpClient,
+  configHandler,
+} from "@contentstack/cli-utilities";
 
 import { BaseCommand } from "../../base-command";
 import { AppManifest, AppType } from "../../types";
@@ -28,6 +35,11 @@ import {
 
 export default class Create extends BaseCommand<typeof Create> {
   private appData!: AppManifest;
+  private tempAppData = {
+    name: "",
+    target_type: "",
+    ui_location: { locations: undefined },
+  } as any;
 
   static description =
     "Create a new app in Developer Hub and optionally clone a boilerplate locally.";
@@ -62,15 +74,14 @@ export default class Create extends BaseCommand<typeof Create> {
   async run(): Promise<void> {
     this.sharedConfig.org = this.flags.org;
     this.sharedConfig.appName = this.flags.name;
-    this.appData = require(this.sharedConfig.manifestPath);
 
     await this.flagsPromptQueue();
 
-    this.appData.name = this.sharedConfig.appName;
-    this.appData.target_type = this.flags["app-type"] as AppType;
+    this.tempAppData.name = this.sharedConfig.appName;
+    this.tempAppData.target_type = this.flags["app-type"] as AppType;
 
     if (this.flags["app-type"] === AppType.ORGANIZATION) {
-      this.appData.ui_location.locations = getOrgAppUiLocation();
+      this.tempAppData.ui_location.locations = getOrgAppUiLocation();
     }
 
     try {
@@ -84,6 +95,7 @@ export default class Create extends BaseCommand<typeof Create> {
       ) {
         await this.boilerplateFlow();
       } else {
+        this.manageManifestToggeling();
         await this.registerTheAppOnDeveloperHub(false);
       }
     } catch (error: Error | any) {
@@ -105,6 +117,8 @@ export default class Create extends BaseCommand<typeof Create> {
     await this.unZipBoilerplate(await this.cloneBoilerplate());
     tmp.setGracefulCleanup(); // NOTE If graceful cleanup is set, tmp will remove all controlled temporary objects on process exit
 
+    this.manageManifestToggeling();
+
     // NOTE Step 2: Registering the app
     await this.registerTheAppOnDeveloperHub();
 
@@ -114,7 +128,7 @@ export default class Create extends BaseCommand<typeof Create> {
     ux.action.stop();
     this.log(
       this.$t(this.messages.START_APP_COMMAND, {
-        command: `cd ${this.sharedConfig.folderPath} && npm run start`,
+        command: `cd "${this.sharedConfig.folderPath}" && npm run start`,
       }),
       "info"
     );
@@ -133,10 +147,12 @@ export default class Create extends BaseCommand<typeof Create> {
     }
 
     //Auto select org in case of oauth
-    this.sharedConfig.org = configHandler.get('oauthOrgUid') ?? (await getOrg(this.flags, {
-      log: this.log,
-      managementSdk: this.managementSdk,
-    }));
+    this.sharedConfig.org =
+      configHandler.get("oauthOrgUid") ??
+      (await getOrg(this.flags, {
+        log: this.log,
+        managementSdk: this.managementSdk,
+      }));
   }
 
   /**
@@ -206,6 +222,34 @@ export default class Create extends BaseCommand<typeof Create> {
         reject(error);
       });
     });
+  }
+
+  /**
+   * @method manageManifestToggeling
+   *
+   * The function manages toggling of the manifest file based on the app type, removing the
+   * "ui_location" property if the app type is an organization.
+   */
+  manageManifestToggeling() {
+    // NOTE Use boilerplate manifest if exist
+    const manifestPath = resolve(
+      this.sharedConfig.folderPath || "",
+      "manifest.json"
+    );
+
+    if (existsSync(manifestPath)) {
+      this.sharedConfig.manifestPath = manifestPath;
+    }
+
+    let manifest = require(this.sharedConfig.manifestPath);
+
+    if (this.flags["app-type"] === AppType.ORGANIZATION) {
+      manifest = omit(manifest, ["ui_location"]);
+    } else {
+      this.tempAppData = omit(this.tempAppData, ["ui_location"]);
+    }
+
+    this.appData = merge(manifest, this.tempAppData);
   }
 
   /**
