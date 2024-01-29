@@ -13,7 +13,7 @@ import messages from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import manifestData from "../../../../src/config/manifest.json";
 
-const gitHubHost = "https://github.com";
+const { origin, pathname } = new URL(config.appBoilerplateGithubUrl);
 const zipPath = join(process.cwd(), "test", "unit", "mock", "boilerplate.zip");
 const region: { cma: string; name: string; cda: string } =
   configHandler.get("region");
@@ -50,10 +50,8 @@ describe("app:create", () => {
 
         return (cases as Record<string, any>)[prompt.name];
       })
-      .nock(gitHubHost, (api) =>
-        api
-          .get(config.appBoilerplateGithubUrl.replace(gitHubHost, ""))
-          .reply(200, { data: "test-data" })
+      .nock(origin, (api) =>
+        api.get(pathname).reply(200, { data: "test-data" })
       )
       .nock(region.cma, (api) =>
         api
@@ -98,10 +96,8 @@ describe("app:create", () => {
 
         return (cases as Record<string, any>)[prompt.name];
       })
-      .nock(gitHubHost, (api) =>
-        api
-          .get(config.appBoilerplateGithubUrl.replace(gitHubHost, ""))
-          .reply(200, { data: "test-data" })
+      .nock(origin, (api) =>
+        api.get(pathname).reply(200, { data: "test-data" })
       )
       .nock(region.cma, (api) =>
         api
@@ -195,11 +191,7 @@ describe("app:create", () => {
 
         return (cases as Record<string, any>)[prompt.name];
       })
-      .nock(gitHubHost, (api) =>
-        api
-          .get(config.appBoilerplateGithubUrl.replace(gitHubHost, ""))
-          .reply(200)
-      )
+      .nock(origin, (api) => api.get(pathname).reply(200))
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -305,10 +297,8 @@ describe("app:create", () => {
 
         return (cases as Record<string, any>)[prompt.name];
       })
-      .nock(gitHubHost, (api) =>
-        api
-          .get(config.appBoilerplateGithubUrl.replace(gitHubHost, ""))
-          .reply(200, { data: "test-data" })
+      .nock(origin, (api) =>
+        api.get(pathname).reply(200, { data: "test-data" })
       )
       .nock(region.cma, (api) =>
         api
