@@ -8,6 +8,7 @@
     "strict": true,
     "target": "es2017",
     "esModuleInterop": true,
+    "skipLibCheck": true,
     // The composite option enforces certain constraints which make it possible for build tools
     // (including TypeScript itself, under --build mode) to quickly determine if a project has been built
     "composite": true,
