@@ -160,23 +160,10 @@ async function getInstalledApps(
  */
 async function getDeveloperHubUrl(): Promise<string> {
   const { cma, name } = configHandler.get("region") || {};
-  let developerHubBaseUrl = (config.developerHubUrls as Record<string, string>)[
-    cma
-  ];
+  let developerHubBaseUrl = cma.replace('api','developerhub-api')
 
-  if (!developerHubBaseUrl) {
-    developerHubBaseUrl = await cliux.inquire({
-      type: "input",
-      name: "name",
-      validate: (url) => {
-        if (!url) return errors.BASE_URL_EMPTY;
-
-        return true;
-      },
-      message: $t(commonMsg.DEVELOPER_HUB_URL_PROMPT, { name }),
-    });
-  }
-
+  developerHubBaseUrl = developerHubBaseUrl.startsWith('dev9')?developerHubBaseUrl.replace('dev9','dev'):developerHubBaseUrl;
+  
   if (developerHubBaseUrl.startsWith("http")) {
     developerHubBaseUrl = developerHubBaseUrl.split("//")[1];
   }
