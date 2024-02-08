@@ -166,7 +166,6 @@ async function getDeveloperHubUrl(): Promise<string> {
   }
 
   developerHubBaseUrl = developerHubBaseUrl.startsWith('dev11')?developerHubBaseUrl.replace('dev11','dev'):developerHubBaseUrl;
-  console.log(developerHubBaseUrl)
   return developerHubBaseUrl;
 }
 
