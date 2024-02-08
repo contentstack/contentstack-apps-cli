@@ -159,13 +159,15 @@ async function getInstalledApps(
  */
 async function getDeveloperHubUrl(): Promise<string> {
   const { cma } = configHandler.get("region") || {};
-  let developerHubBaseUrl = cma.replace('api','developerhub-api')
-  
+  let developerHubBaseUrl = cma.replace("api", "developerhub-api");
+
   if (developerHubBaseUrl.startsWith("http")) {
     developerHubBaseUrl = developerHubBaseUrl.split("//")[1];
   }
 
-  developerHubBaseUrl = developerHubBaseUrl.startsWith('dev11')?developerHubBaseUrl.replace('dev11','dev'):developerHubBaseUrl;
+  developerHubBaseUrl = developerHubBaseUrl.startsWith("dev11")
+    ? developerHubBaseUrl.replace("dev11", "dev")
+    : developerHubBaseUrl;
   return developerHubBaseUrl;
 }
 
