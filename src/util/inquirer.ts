@@ -12,8 +12,7 @@ import {
 import { Installation } from "@contentstack/management/types/app/installation";
 import { AppTarget } from "@contentstack/management/types/app/index";
 
-import config from "../config";
-import messages, { $t, commonMsg, errors, uninstallAppMsg } from "../messages";
+import messages, { $t, errors, uninstallAppMsg } from "../messages";
 import {
   CommonOptions,
   getOrganizations,
@@ -159,15 +158,15 @@ async function getInstalledApps(
  * @return {*}  {Promise<string>}
  */
 async function getDeveloperHubUrl(): Promise<string> {
-  const { cma, name } = configHandler.get("region") || {};
+  const { cma } = configHandler.get("region") || {};
   let developerHubBaseUrl = cma.replace('api','developerhub-api')
-
-  developerHubBaseUrl = developerHubBaseUrl.startsWith('dev9')?developerHubBaseUrl.replace('dev9','dev'):developerHubBaseUrl;
   
   if (developerHubBaseUrl.startsWith("http")) {
     developerHubBaseUrl = developerHubBaseUrl.split("//")[1];
   }
 
+  developerHubBaseUrl = developerHubBaseUrl.startsWith('dev11')?developerHubBaseUrl.replace('dev11','dev'):developerHubBaseUrl;
+  console.log(developerHubBaseUrl)
   return developerHubBaseUrl;
 }
 
