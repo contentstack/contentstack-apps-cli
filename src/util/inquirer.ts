@@ -168,6 +168,10 @@ async function getDeveloperHubUrl(): Promise<string> {
   developerHubBaseUrl = developerHubBaseUrl.startsWith("dev11")
     ? developerHubBaseUrl.replace("dev11", "dev")
     : developerHubBaseUrl;
+  developerHubBaseUrl = developerHubBaseUrl.endsWith("io")
+    ? developerHubBaseUrl.replace("io", "com")
+    : developerHubBaseUrl;
+
   return developerHubBaseUrl;
 }
 
