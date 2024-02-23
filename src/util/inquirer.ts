@@ -12,8 +12,7 @@ import {
 import { Installation } from "@contentstack/management/types/app/installation";
 import { AppTarget } from "@contentstack/management/types/app/index";
 
-import config from "../config";
-import messages, { $t, commonMsg, errors, uninstallAppMsg } from "../messages";
+import messages, { $t, errors, uninstallAppMsg } from "../messages";
 import {
   CommonOptions,
   getOrganizations,
@@ -159,27 +158,19 @@ async function getInstalledApps(
  * @return {*}  {Promise<string>}
  */
 async function getDeveloperHubUrl(): Promise<string> {
-  const { cma, name } = configHandler.get("region") || {};
-  let developerHubBaseUrl = (config.developerHubUrls as Record<string, string>)[
-    cma
-  ];
-
-  if (!developerHubBaseUrl) {
-    developerHubBaseUrl = await cliux.inquire({
-      type: "input",
-      name: "name",
-      validate: (url) => {
-        if (!url) return errors.BASE_URL_EMPTY;
-
-        return true;
-      },
-      message: $t(commonMsg.DEVELOPER_HUB_URL_PROMPT, { name }),
-    });
-  }
+  const { cma } = configHandler.get("region") || {};
+  let developerHubBaseUrl = cma.replace("api", "developerhub-api");
 
   if (developerHubBaseUrl.startsWith("http")) {
     developerHubBaseUrl = developerHubBaseUrl.split("//")[1];
   }
+
+  developerHubBaseUrl = developerHubBaseUrl.startsWith("dev11")
+    ? developerHubBaseUrl.replace("dev11", "dev")
+    : developerHubBaseUrl;
+  developerHubBaseUrl = developerHubBaseUrl.endsWith("io")
+    ? developerHubBaseUrl.replace("io", "com")
+    : developerHubBaseUrl;
 
   return developerHubBaseUrl;
 }
