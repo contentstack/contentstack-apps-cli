@@ -13,7 +13,6 @@ const config = {
       "azure-na-developerhub-api.contentstack.com",
     "https://azure-eu-api.contentstack.com":
       "azure-eu-developerhub-api.contentstack.com",
-    "https://stag-api.csnonprod.com": "stag-developerhub-api.csnonprod.com",
     "https://gcp-na-api.contentstack.com": "gcp-na-developerhub-api.contentstack.com",
   },
   appBoilerplateGithubUrl:
