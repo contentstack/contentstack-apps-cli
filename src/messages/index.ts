@@ -25,13 +25,13 @@ const errors = {
 const commonMsg = {
   CONFIG: "Path of the external config",
   MAX_RETRY_LIMIT: "Maximum retry limit reached.",
-  PROVIDE_ORG_UID: "Provide the organization UID",
+  PROVIDE_ORG_UID: "Provide the organization UID to fetch the app details for the desired operation.",
   CURRENT_WORKING_DIR: "Current working directory.",
   SKIP_CONFIRMATION: "Use this flag to skip the confirmation.",
   DEVELOPER_HUB_URL_PROMPT:
     "Enter the Developer Hub Base URL for the {name} region: ",
-  APP_UID: "Provide the app UID",
-  APP_TYPE_DESCRIPTION: "Type of App",
+  APP_UID: "Provide the app UID of an existing app.",
+  APP_TYPE_DESCRIPTION: "Type of app",
   CONTACT_SUPPORT: "Please contact the support team.",
   STACK_API_KEY: "API key of the stack where the app is to be installed.",
   USER_TERMINATION: "Process terminated by the user.",
@@ -42,7 +42,7 @@ const appCreate = {
   ORG_UID: "Organization UID",
   NAME: "{target} name",
   UNZIP: "Unzipping the boilerplate...",
-  APP_TYPE_DESCRIPTION: "Type of App",
+  APP_TYPE_DESCRIPTION: "Type of app",
   CHOOSE_ORG: "Choose an organization",
   DIR_EXIST: "Directory name already exists.",
   ROLLBACK_BOILERPLATE: "Rolling back boilerplate...",
@@ -58,7 +58,7 @@ const appCreate = {
   START_APP_COMMAND: "Start the app using the following command: {command}",
 };
 
-const getApp = {
+const getAppMsg = {
   CHOOSE_APP: "Choose an app",
   APP_UID_NOT_FOUND: "App UID was not found!",
   FILE_WRITTEN_SUCCESS: "App data has been written to {file} successfully.",
@@ -80,7 +80,7 @@ const deleteAppMsg = {
   APP_DELETED_SUCCESSFULLY: "{app} deleted successfully.",
   APP_UID_INVALID: "App UID must be valid.",
   PLEASE_SELECT_APP_FROM_LIST: "Please select an app from the list",
-  DELETE_CONFIRMATION: "Are you sure you want to delete this app?"
+  DELETE_CONFIRMATION: "Are you sure you want to delete this app?",
 }
 
 const installAppMsg = {
@@ -88,7 +88,7 @@ const installAppMsg = {
   APP_INSTALLED_SUCCESSFULLY: "{app} installed successfully in {target}.",
   INSTALL_ORG_APP_TO_STACK: "{app} is an organization app. It cannot be installed to a stack. Do you want to proceed?",
   MISSING_STACK_API_KEY: "As {app} is a stack app, it can only be installed in a stack. Please select a stack.",
-  INSTALLING_APP_NOTICE: "Installing {app} on {type} {target}."
+  INSTALLING_APP_NOTICE: "Installing {app} on {type} {target}.",
 }
 
 const uninstallAppMsg = {
@@ -104,7 +104,7 @@ const messages: typeof errors &
   typeof commonMsg &
   typeof appCreate &
   typeof appUpdate &
-  typeof getApp &
+  typeof getAppMsg &
   typeof deleteAppMsg &
   typeof installAppMsg &
   typeof uninstallAppMsg = {
@@ -112,7 +112,7 @@ const messages: typeof errors &
   ...commonMsg,
   ...appCreate,
   ...appUpdate,
-  ...getApp,
+  ...getAppMsg,
   ...deleteAppMsg,
   ...installAppMsg,
   ...uninstallAppMsg
@@ -130,4 +130,4 @@ const $t = (msg: string, args: Record<string, string>): string => {
 };
 
 export default messages;
-export { $t, errors, commonMsg, appCreate, appUpdate, getApp, deleteAppMsg, installAppMsg, uninstallAppMsg };
+export { $t, errors, commonMsg, appCreate, appUpdate, getAppMsg, deleteAppMsg, installAppMsg, uninstallAppMsg };

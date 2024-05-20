@@ -54,6 +54,7 @@ export default class Create extends BaseCommand<typeof Create> {
   static flags = {
     name: flags.string({
       char: "n",
+      default: "app-boilerplate",
       description: appCreate.NAME_DESCRIPTION,
     }),
     "app-type": flags.string({
