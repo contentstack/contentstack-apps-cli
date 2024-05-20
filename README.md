@@ -20,7 +20,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.0.5 darwin-arm64 node-v20.10.0
+@contentstack/apps-cli/1.0.7 darwin-arm64 node-v20.10.0
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -63,7 +63,7 @@ EXAMPLES
   $ csdx app:uninstall
 ```
 
-_See code: [src/commands/app/index.ts](https://github.com/contentstack/apps-cli/blob/v1.0.5/src/commands/app/index.ts)_
+_See code: [src/commands/app/index.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/index.ts)_
 
 ## `csdx app:create`
 
@@ -71,15 +71,15 @@ Create a new app in Developer Hub and optionally clone a boilerplate locally.
 
 ```
 USAGE
-  $ csdx app:create [--org <value>] [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>]
+  $ csdx app:create [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>] [--org <value>]
 
 FLAGS
   -c, --config=<value>    Path of the external config
   -d, --data-dir=<value>  Current working directory.
-  -n, --name=<value>      Name of the app to be created
-  --app-type=<option>     [default: stack] Type of App
+  -n, --name=<value>      [default: app-boilerplate] Name of the app to be created
+  --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
-  --org=<value>           Provide the organization UID
+  --org=<value>           Provide the organization UID where the app is to be created.
 
 DESCRIPTION
   Create a new app in Developer Hub and optionally clone a boilerplate locally.
@@ -94,7 +94,7 @@ EXAMPLES
   $ csdx app:create --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.0.5/src/commands/app/create.ts)_
+_See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/create.ts)_
 
 ## `csdx app:delete`
 
@@ -102,11 +102,11 @@ Delete app from marketplace
 
 ```
 USAGE
-  $ csdx app:delete [--org <value>] [--app-uid <value>]
+  $ csdx app:delete [--app-uid <value>] [--org <value>]
 
 FLAGS
-  --app-uid=<value>  Provide the app UID
-  --org=<value>      Provide the organization UID
+  --app-uid=<value>  Provide the app UID of an existing app to be deleted.
+  --org=<value>      Provide the organization UID where the app details are to be fetched from, to delete the app
 
 DESCRIPTION
   Delete app from marketplace
@@ -119,7 +119,7 @@ EXAMPLES
   $ csdx app:delete --app-uid <value> --org <value> -d ./boilerplate
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/contentstack/apps-cli/blob/v1.0.5/src/commands/app/delete.ts)_
+_See code: [src/commands/app/delete.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/delete.ts)_
 
 ## `csdx app:get`
 
@@ -127,14 +127,14 @@ Get details of an app in developer hub
 
 ```
 USAGE
-  $ csdx app:get [--org <value>] [--app-uid <value>] [--app-type stack|organization] [-d <value>]
+  $ csdx app:get [--app-uid <value>] [--app-type stack|organization] [-d <value>] [--org <value>]
 
 FLAGS
   -d, --data-dir=<value>  Current working directory.
-  --app-type=<option>     [default: stack] Type of App
+  --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
-  --app-uid=<value>       Provide the app UID
-  --org=<value>           Provide the organization UID
+  --app-uid=<value>       Provide the app UID of an existing app to fetch the details.
+  --org=<value>           Provide the organization UID where the app details are to be fetched from.
 
 DESCRIPTION
   Get details of an app in developer hub
@@ -149,7 +149,7 @@ EXAMPLES
   $ csdx app:get --org <value> --app-uid <value> --app-type organization
 ```
 
-_See code: [src/commands/app/get.ts](https://github.com/contentstack/apps-cli/blob/v1.0.5/src/commands/app/get.ts)_
+_See code: [src/commands/app/get.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/get.ts)_
 
 ## `csdx app:install`
 
@@ -157,11 +157,12 @@ Install an app from the marketplace
 
 ```
 USAGE
-  $ csdx app:install [--org <value>] [--app-uid <value>] [--stack-api-key <value>]
+  $ csdx app:install [--app-uid <value>] [--stack-api-key <value>] [--org <value>]
 
 FLAGS
-  --app-uid=<value>        Provide the app UID
-  --org=<value>            Provide the organization UID
+  --app-uid=<value>        Provide the app UID of an existing app to be installed.
+  --org=<value>            Provide the organization UID where the app details are to be fetched from, to install the
+                           app.
   --stack-api-key=<value>  API key of the stack where the app is to be installed.
 
 DESCRIPTION
@@ -175,7 +176,7 @@ EXAMPLES
   $ csdx app:install --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>
 ```
 
-_See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v1.0.5/src/commands/app/install.ts)_
+_See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/install.ts)_
 
 ## `csdx app:uninstall`
 
@@ -183,12 +184,13 @@ Uninstall an app
 
 ```
 USAGE
-  $ csdx app:uninstall [--org <value>] [--app-uid <value>] [--installation-uid <value>] [--uninstall-all]
+  $ csdx app:uninstall [--app-uid <value>] [--installation-uid <value>] [--uninstall-all] [--org <value>]
 
 FLAGS
-  --app-uid=<value>           Provide the app UID
+  --app-uid=<value>           Provide the Aapp UID of an existing app to be uninstalled.
   --installation-uid=<value>  Provide the installation ID of the app that needs to be uninstalled.
-  --org=<value>               Provide the organization UID
+  --org=<value>               Provide the organization UID where the app details are to be fetched from to uninstall the
+                              app.
   --uninstall-all             Please select stacks from where the app must be uninstalled.
 
 DESCRIPTION
@@ -202,7 +204,7 @@ EXAMPLES
   $ csdx app:uninstall --org <UID> --app-uid <APP-UID-1> --installation-uid <INSTALLATION-UID-1>
 ```
 
-_See code: [src/commands/app/uninstall.ts](https://github.com/contentstack/apps-cli/blob/v1.0.5/src/commands/app/uninstall.ts)_
+_See code: [src/commands/app/uninstall.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/uninstall.ts)_
 
 ## `csdx app:update`
 
@@ -210,11 +212,11 @@ Update the existing app in developer hub
 
 ```
 USAGE
-  $ csdx app:update [--org <value>] [--app-manifest <value>]
+  $ csdx app:update [--app-manifest <value>] [--org <value>]
 
 FLAGS
   --app-manifest=<value>  Path to the app manifest.json file:
-  --org=<value>           Provide the organization UID
+  --org=<value>           Provide the organization UID where the app details are to be fetched from.
 
 DESCRIPTION
   Update the existing app in developer hub
@@ -225,5 +227,5 @@ EXAMPLES
   $ csdx app:update --app-manifest ./boilerplate/manifest.json
 ```
 
-_See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v1.0.5/src/commands/app/update.ts)_
+_See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/update.ts)_
 <!-- commandsstop -->
