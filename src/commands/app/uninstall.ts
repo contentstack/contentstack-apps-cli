@@ -1,6 +1,6 @@
 import { flags } from "@contentstack/cli-utilities";
 
-import { uninstallAppMsg } from "../../messages";
+import { commonMsg, uninstallAppMsg } from "../../messages";
 import {AppCLIBaseCommand} from "../../app-cli-base-coomand";
 import { getOrg, fetchApp, getInstalledApps } from "../../util";
 import { UninstallAppFactory } from "../../factories/uninstall-app-factory";
@@ -16,7 +16,7 @@ export default class Uninstall extends AppCLIBaseCommand {
 
     static flags = {
       'app-uid': flags.string({
-        description: uninstallAppMsg.APP_UID,
+        description: commonMsg.APP_UID,
       }),
       'installation-uid': flags.string({
         description: uninstallAppMsg.INSTALLATION_UID

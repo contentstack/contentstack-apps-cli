@@ -15,7 +15,7 @@ export default class Delete extends AppCLIBaseCommand {
 
   static flags = {
     "app-uid": flags.string({
-      description: deleteAppMsg.APP_UID,
+      description: commonMsg.APP_UID,
     }),
   };
 
