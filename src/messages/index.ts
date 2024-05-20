@@ -25,12 +25,12 @@ const errors = {
 const commonMsg = {
   CONFIG: "Path of the external config",
   MAX_RETRY_LIMIT: "Maximum retry limit reached.",
-  PROVIDE_ORG_UID: "Provide the organization UID",
+  PROVIDE_ORG_UID: "Provide the organization UID to fetch the app details for the desired operation.",
   CURRENT_WORKING_DIR: "Current working directory.",
   SKIP_CONFIRMATION: "Use this flag to skip the confirmation.",
   DEVELOPER_HUB_URL_PROMPT:
     "Enter the Developer Hub Base URL for the {name} region: ",
-  APP_UID: "Provide the app UID of an existing app to fetch the details.",
+  APP_UID: "Provide the app UID of an existing app.",
   APP_TYPE_DESCRIPTION: "Type of app",
   CONTACT_SUPPORT: "Please contact the support team.",
   STACK_API_KEY: "API key of the stack where the app is to be installed.",
@@ -81,7 +81,6 @@ const deleteAppMsg = {
   APP_UID_INVALID: "App UID must be valid.",
   PLEASE_SELECT_APP_FROM_LIST: "Please select an app from the list",
   DELETE_CONFIRMATION: "Are you sure you want to delete this app?",
-  APP_UID: "Provide the app UID of an existing app to be deleted.",
 }
 
 const installAppMsg = {
@@ -90,7 +89,6 @@ const installAppMsg = {
   INSTALL_ORG_APP_TO_STACK: "{app} is an organization app. It cannot be installed to a stack. Do you want to proceed?",
   MISSING_STACK_API_KEY: "As {app} is a stack app, it can only be installed in a stack. Please select a stack.",
   INSTALLING_APP_NOTICE: "Installing {app} on {type} {target}.",
-  APP_UID: "Provide the app UID of an existing app to be installed.",
 }
 
 const uninstallAppMsg = {
@@ -100,7 +98,6 @@ const uninstallAppMsg = {
   APP_UNINSTALLED: "{app} uninstalled successfully.",
   UNINSTALLING_APP: "Uninstalling app from {type}...",
   UNINSTALL_ALL: "Please select stacks from where the app must be uninstalled.",
-  APP_UID: "Provide the Aapp UID of an existing app to be uninstalled.",
 }
 
 const messages: typeof errors &
