@@ -17,9 +17,6 @@ export default class Delete extends AppCLIBaseCommand {
     "app-uid": flags.string({
       description: deleteAppMsg.APP_UID,
     }),
-    org: flags.string({
-      description: deleteAppMsg.ORG_UID_DESCRIPTION,
-    }),
   };
 
   async run(): Promise<void> {

@@ -24,9 +24,6 @@ export default class Update extends AppCLIBaseCommand {
     "app-manifest": flags.string({
       description: $t(appUpdate.FILE_PATH, { fileName: "app manifest.json" }),
     }),
-    org: flags.string({
-      description: appUpdate.ORG_UID_DESCRIPTION,
-    }),
   };
 
   async run(): Promise<void> {
