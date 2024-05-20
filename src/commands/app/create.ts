@@ -54,6 +54,7 @@ export default class Create extends BaseCommand<typeof Create> {
   static flags = {
     name: flags.string({
       char: "n",
+      default: "app-boilerplate",
       description: appCreate.NAME_DESCRIPTION,
     }),
     "app-type": flags.string({
@@ -68,6 +69,9 @@ export default class Create extends BaseCommand<typeof Create> {
     "data-dir": flags.string({
       char: "d",
       description: commonMsg.CURRENT_WORKING_DIR,
+    }),
+    org: flags.string({
+      description: appCreate.ORG_UID_DESCRIPTION,
     }),
   };
 

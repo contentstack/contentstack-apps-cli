@@ -23,11 +23,14 @@ export default class Install extends AppCLIBaseCommand {
 
   static flags = {
     "app-uid": flags.string({
-      description: commonMsg.APP_UID,
+      description: installAppMsg.APP_UID,
     }),
     "stack-api-key": flags.string({
       description: commonMsg.STACK_API_KEY,
     }),
+    org: flags.string({
+      description: installAppMsg.ORG_UID_DESCRIPTION,
+    })
   };
 
   async run(): Promise<void> {
