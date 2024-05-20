@@ -20,7 +20,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.0.7 darwin-arm64 node-v20.10.0
+@contentstack/apps-cli/1.0.7 darwin-arm64 node-v18.16.0
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -71,7 +71,7 @@ Create a new app in Developer Hub and optionally clone a boilerplate locally.
 
 ```
 USAGE
-  $ csdx app:create [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>] [--org <value>]
+  $ csdx app:create [--org <value>] [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>]
 
 FLAGS
   -c, --config=<value>    Path of the external config
@@ -79,7 +79,7 @@ FLAGS
   -n, --name=<value>      [default: app-boilerplate] Name of the app to be created
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
-  --org=<value>           Provide the organization UID where the app is to be created.
+  --org=<value>           Provide the organization UID to fetch the app details for the desired operation.
 
 DESCRIPTION
   Create a new app in Developer Hub and optionally clone a boilerplate locally.
@@ -102,11 +102,11 @@ Delete app from marketplace
 
 ```
 USAGE
-  $ csdx app:delete [--app-uid <value>] [--org <value>]
+  $ csdx app:delete [--org <value>] [--app-uid <value>]
 
 FLAGS
-  --app-uid=<value>  Provide the app UID of an existing app to be deleted.
-  --org=<value>      Provide the organization UID where the app details are to be fetched from, to delete the app
+  --app-uid=<value>  Provide the app UID of an existing app.
+  --org=<value>      Provide the organization UID to fetch the app details for the desired operation.
 
 DESCRIPTION
   Delete app from marketplace
@@ -127,14 +127,14 @@ Get details of an app in developer hub
 
 ```
 USAGE
-  $ csdx app:get [--app-uid <value>] [--app-type stack|organization] [-d <value>] [--org <value>]
+  $ csdx app:get [--org <value>] [--app-uid <value>] [--app-type stack|organization] [-d <value>]
 
 FLAGS
   -d, --data-dir=<value>  Current working directory.
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
-  --app-uid=<value>       Provide the app UID of an existing app to fetch the details.
-  --org=<value>           Provide the organization UID where the app details are to be fetched from.
+  --app-uid=<value>       Provide the app UID of an existing app.
+  --org=<value>           Provide the organization UID to fetch the app details for the desired operation.
 
 DESCRIPTION
   Get details of an app in developer hub
@@ -157,12 +157,11 @@ Install an app from the marketplace
 
 ```
 USAGE
-  $ csdx app:install [--app-uid <value>] [--stack-api-key <value>] [--org <value>]
+  $ csdx app:install [--org <value>] [--app-uid <value>] [--stack-api-key <value>]
 
 FLAGS
-  --app-uid=<value>        Provide the app UID of an existing app to be installed.
-  --org=<value>            Provide the organization UID where the app details are to be fetched from, to install the
-                           app.
+  --app-uid=<value>        Provide the app UID of an existing app.
+  --org=<value>            Provide the organization UID to fetch the app details for the desired operation.
   --stack-api-key=<value>  API key of the stack where the app is to be installed.
 
 DESCRIPTION
@@ -184,13 +183,12 @@ Uninstall an app
 
 ```
 USAGE
-  $ csdx app:uninstall [--app-uid <value>] [--installation-uid <value>] [--uninstall-all] [--org <value>]
+  $ csdx app:uninstall [--org <value>] [--app-uid <value>] [--installation-uid <value>] [--uninstall-all]
 
 FLAGS
-  --app-uid=<value>           Provide the Aapp UID of an existing app to be uninstalled.
+  --app-uid=<value>           Provide the app UID of an existing app.
   --installation-uid=<value>  Provide the installation ID of the app that needs to be uninstalled.
-  --org=<value>               Provide the organization UID where the app details are to be fetched from to uninstall the
-                              app.
+  --org=<value>               Provide the organization UID to fetch the app details for the desired operation.
   --uninstall-all             Please select stacks from where the app must be uninstalled.
 
 DESCRIPTION
@@ -212,11 +210,11 @@ Update the existing app in developer hub
 
 ```
 USAGE
-  $ csdx app:update [--app-manifest <value>] [--org <value>]
+  $ csdx app:update [--org <value>] [--app-manifest <value>]
 
 FLAGS
   --app-manifest=<value>  Path to the app manifest.json file:
-  --org=<value>           Provide the organization UID where the app details are to be fetched from.
+  --org=<value>           Provide the organization UID to fetch the app details for the desired operation.
 
 DESCRIPTION
   Update the existing app in developer hub
