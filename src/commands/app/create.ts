@@ -70,9 +70,6 @@ export default class Create extends BaseCommand<typeof Create> {
       char: "d",
       description: commonMsg.CURRENT_WORKING_DIR,
     }),
-    org: flags.string({
-      description: appCreate.ORG_UID_DESCRIPTION,
-    }),
   };
 
   async run(): Promise<void> {
