@@ -1,6 +1,6 @@
 import { flags } from "@contentstack/cli-utilities";
 
-import { commonMsg, getAppMsg } from "../../messages";
+import { commonMsg } from "../../messages";
 import {AppCLIBaseCommand} from "../../app-cli-base-coomand";
 import { getOrg, getApp, writeFile, fetchApp } from "../../util";
 
@@ -26,9 +26,6 @@ export default class Get extends AppCLIBaseCommand {
     "data-dir": flags.string({
       char: "d",
       description: commonMsg.CURRENT_WORKING_DIR,
-    }),
-    org: flags.string({
-      description: getAppMsg.ORG_UID_DESCRIPTION,
     }),
   };
 

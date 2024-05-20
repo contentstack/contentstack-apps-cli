@@ -56,7 +56,6 @@ const appCreate = {
   REGISTER_THE_APP_ON_DEVELOPER_HUB:
     "Registering the app with the name {appName} on the Developer Hub...",
   START_APP_COMMAND: "Start the app using the following command: {command}",
-  ORG_UID_DESCRIPTION: "Provide the organization UID where the app is to be created.",
 };
 
 const getAppMsg = {
@@ -66,7 +65,6 @@ const getAppMsg = {
   APPS_NOT_FOUND: "No apps found!",
   FILE_ALREADY_EXISTS:
     "{file} already exists. Do you want to overwrite this file? (y/n) (Selecting 'n' creates a new file)",
-  ORG_UID_DESCRIPTION:"Provide the organization UID where the app details are to be fetched from.",
 };
 
 const appUpdate = {
@@ -75,7 +73,6 @@ const appUpdate = {
   APP_UPDATE_SUCCESS: "App updated successfully!",
   APP_VERSION_MISS_MATCH:
     "App versions mismatch! Please download the latest file using the `csdx app:get` command and sync the file with the latest downloaded file.",
-  ORG_UID_DESCRIPTION:"Provide the organization UID where the app details are to be fetched from.",
 };
 
 const deleteAppMsg = {
@@ -85,7 +82,6 @@ const deleteAppMsg = {
   PLEASE_SELECT_APP_FROM_LIST: "Please select an app from the list",
   DELETE_CONFIRMATION: "Are you sure you want to delete this app?",
   APP_UID: "Provide the app UID of an existing app to be deleted.",
-  ORG_UID_DESCRIPTION:"Provide the organization UID where the app details are to be fetched from, to delete the app",
 }
 
 const installAppMsg = {
@@ -95,7 +91,6 @@ const installAppMsg = {
   MISSING_STACK_API_KEY: "As {app} is a stack app, it can only be installed in a stack. Please select a stack.",
   INSTALLING_APP_NOTICE: "Installing {app} on {type} {target}.",
   APP_UID: "Provide the app UID of an existing app to be installed.",
-  ORG_UID_DESCRIPTION:"Provide the organization UID where the app details are to be fetched from, to install the app.",
 }
 
 const uninstallAppMsg = {
@@ -106,7 +101,6 @@ const uninstallAppMsg = {
   UNINSTALLING_APP: "Uninstalling app from {type}...",
   UNINSTALL_ALL: "Please select stacks from where the app must be uninstalled.",
   APP_UID: "Provide the Aapp UID of an existing app to be uninstalled.",
-  ORG_UID_DESCRIPTION:"Provide the organization UID where the app details are to be fetched from to uninstall the app.",
 }
 
 const messages: typeof errors &
