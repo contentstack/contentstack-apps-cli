@@ -27,7 +27,7 @@
     "lodash": "^4.17.21",
     "open": "^9.1.0",
     "shelljs": "^0.8.5",
-    "tmp": "^0.2.2",
+    "tmp": "^0.2.3",
     "winston": "^3.11.0"
   },
   "devDependencies": {
