@@ -1,6 +1,7 @@
 import { ContentstackClient, FlagInput } from "@contentstack/cli-utilities";
 import { AppLocation, Extension, LogFn } from "../types";
-import { cliux, Stack } from "@contentstack/cli-utilities";
+import { cliux, Stack, configHandler } from "@contentstack/cli-utilities";
+import config from "../../src/config";
 
 export type CommonOptions = {
   log: LogFn;
@@ -134,6 +135,47 @@ function installApp(
     });
 }
 
+const region: { cma: string, cda: string, name: string } = configHandler.get("region");
+const developerHubBaseUrl = (config.developerHubUrls as Record<string, any>)[region.cma];
+async function reinstallApp(
+  manifestUid: string,
+  authToken: string,
+  organizationUid: string,
+  targetType: string,
+  targetUid: string
+): Promise<void> {
+  const url = `https://${developerHubBaseUrl}/manifests/${manifestUid}/reinstall`; // Update with the correct URL
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'authtoken': authToken,
+    'organization_uid': organizationUid,
+  };
+
+  const body = JSON.stringify({
+    target_type: targetType,
+    target_uid: targetUid,
+  });
+
+  try {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: headers,
+      body: body,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Success:', data);
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
+
 function fetchStack(flags: FlagInput, options: CommonOptions) {
   const { managementSdk } = options;
   return managementSdk
@@ -237,4 +279,5 @@ export {
   fetchStack,
   uninstallApp,
   fetchInstalledApps,
+  reinstallApp,
 };

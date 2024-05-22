@@ -100,6 +100,15 @@ const uninstallAppMsg = {
   UNINSTALL_ALL: "Please select stacks from where the app must be uninstalled.",
 }
 
+const reinstallAppMsg = {
+  CHOOSE_A_STACK: "Please select a stack",
+  APP_REINSTALLED_SUCCESSFULLY: "{app} reinstalled successfully in {target}.",
+  REINSTALL_ORG_APP_TO_STACK: "{app} is an organization app. It cannot be reinstalled to a stack. Do you want to proceed?",
+  MISSING_STACK_API_KEY: "As {app} is a stack app, it can only be reinstalled in a stack. Please select a stack.",
+  REINSTALLING_APP_NOTICE: "Installing {app} on {type} {target}.",
+  APP_UID: "Provide the app UID of an existing app to be reinstalled.",
+}
+
 const messages: typeof errors &
   typeof commonMsg &
   typeof appCreate &
@@ -107,7 +116,8 @@ const messages: typeof errors &
   typeof getAppMsg &
   typeof deleteAppMsg &
   typeof installAppMsg &
-  typeof uninstallAppMsg = {
+  typeof uninstallAppMsg &
+  typeof reinstallAppMsg = {
   ...errors,
   ...commonMsg,
   ...appCreate,
@@ -115,7 +125,8 @@ const messages: typeof errors &
   ...getAppMsg,
   ...deleteAppMsg,
   ...installAppMsg,
-  ...uninstallAppMsg
+  ...uninstallAppMsg,
+  ...reinstallAppMsg
 };
 
 const $t = (msg: string, args: Record<string, string>): string => {
@@ -130,4 +141,4 @@ const $t = (msg: string, args: Record<string, string>): string => {
 };
 
 export default messages;
-export { $t, errors, commonMsg, appCreate, appUpdate, getAppMsg, deleteAppMsg, installAppMsg, uninstallAppMsg };
+export { $t, errors, commonMsg, appCreate, appUpdate, getAppMsg, deleteAppMsg, installAppMsg, uninstallAppMsg, reinstallAppMsg };
