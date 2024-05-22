@@ -96,7 +96,8 @@
       "app:update": "APUPT",
       "app:delete": "APDLT",
       "app:install": "API",
-      "app:uninstall": "APUI"
+      "app:uninstall": "APUI",
+      "app:reinstall": "APREI"
     }
   }
 }
