@@ -10,7 +10,7 @@ export async function writeFile(dir: string = process.cwd(), force: boolean = fa
   await ensureDirectoryExists(dir)
   const files = readdirSync(dir)
   const latestFileName = files.filter(fileName => fileName.match(new RegExp(config.defaultAppFileName))).pop()?.split('.')[0] || config.defaultAppFileName;
-  let target = resolve(sanitizePath(dir), `${latestFileName}.json`)
+  let target = resolve(sanitizePath(dir), `${sanitizePath(latestFileName)}.json`)
   if (existsSync(target)) {
     const userConfirmation: boolean = force || (await cliux.confirm($t(messages.FILE_ALREADY_EXISTS, { file: `${config.defaultAppFileName}.json` })))
     if (userConfirmation) {
