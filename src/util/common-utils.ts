@@ -1,7 +1,7 @@
 import { ContentstackClient, FlagInput } from "@contentstack/cli-utilities";
-import { AppLocation, Extension, LogFn } from "../types";
-import { cliux, Stack, configHandler } from "@contentstack/cli-utilities";
-import config from "../../src/config";
+import { AppLocation, ConfigType, Extension, LogFn } from "../types";
+import { cliux, Stack } from "@contentstack/cli-utilities";
+import { apiRequestHandler } from "./api-request-handler";
 
 export type CommonOptions = {
   log: LogFn;
@@ -135,44 +135,32 @@ function installApp(
     });
 }
 
-const region: { cma: string, cda: string, name: string } = configHandler.get("region");
-const developerHubBaseUrl = (config.developerHubUrls as Record<string, any>)[region.cma];
-async function reinstallApp(
-  manifestUid: string,
-  authToken: string,
-  organizationUid: string,
-  targetType: string,
-  targetUid: string
-): Promise<void> {
-  const url = `https://${developerHubBaseUrl}/manifests/${manifestUid}/reinstall`; // Update with the correct URL
+async function reinstallApp(params: {
+  flags: FlagInput;
+  type: string;
+  orgUid: string;
+  manifestUid: string;
+  configType: ConfigType;
+  developerHubBaseUrl: string;
+}): Promise<void> {
+  const { type, orgUid, manifestUid, developerHubBaseUrl, flags } = params;
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'authtoken': authToken,
-    'organization_uid': organizationUid,
+  const payload = {
+    target_type: type,
+    target_uid: (flags["stack-api-key"] as any) || orgUid,
   };
 
-  const body = JSON.stringify({
-    target_type: targetType,
-    target_uid: targetUid,
-  });
-
+  const url = `https://${developerHubBaseUrl}/manifests/${manifestUid}/reinstall`;
   try {
-    const response = await fetch(url, {
-      method: 'PUT',
-      headers: headers,
-      body: body,
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('Success:', data);
-  } catch (error) {
-    console.error('Error:', error);
-    throw error;
+    const result = await apiRequestHandler({
+      orgUid,
+      queryParams: params,
+      payload,
+      url,
+      })
+    return result
+  } catch (err) {
+    throw err
   }
 }
 

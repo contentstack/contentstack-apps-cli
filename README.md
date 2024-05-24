@@ -35,6 +35,7 @@ USAGE
 * [`csdx app:delete`](#csdx-appdelete)
 * [`csdx app:get`](#csdx-appget)
 * [`csdx app:install`](#csdx-appinstall)
+* [`csdx app:reinstall`](#csdx-appreinstall)
 * [`csdx app:uninstall`](#csdx-appuninstall)
 * [`csdx app:update`](#csdx-appupdate)
 
@@ -61,6 +62,8 @@ EXAMPLES
   $ csdx app:install
 
   $ csdx app:uninstall
+
+  $ csdx app:reinstall
 ```
 
 _See code: [src/commands/app/index.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/index.ts)_
@@ -176,6 +179,32 @@ EXAMPLES
 ```
 
 _See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/install.ts)_
+
+## `csdx app:reinstall`
+
+Reinstall an app from the marketplace
+
+```
+USAGE
+  $ csdx app:reinstall [--org <value>] [--app-uid <value>] [--stack-api-key <value>]
+
+FLAGS
+  --app-uid=<value>        Provide the app UID of an existing app to be reinstalled.
+  --org=<value>            Provide the organization UID to fetch the app details for the desired operation.
+  --stack-api-key=<value>  API key of the stack where the app is to be installed.
+
+DESCRIPTION
+  Reinstall an app from the marketplace
+
+EXAMPLES
+  $ csdx app:reinstall
+
+  $ csdx app:reinstall --org <UID> --app-uid <APP-UID-1>
+
+  $ csdx app:reinstall --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>
+```
+
+_See code: [src/commands/app/reinstall.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/reinstall.ts)_
 
 ## `csdx app:uninstall`
 
