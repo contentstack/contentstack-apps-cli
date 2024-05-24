@@ -5,46 +5,36 @@ import {
   getOrg,
   getApp,
   getStack,
-  reinstallApp as reinstallAppUtil,
+  reinstallApp,
   fetchApp,
   fetchStack,
-} from '../../util';
+} from "../../util";
 
 export default class Reinstall extends AppCLIBaseCommand {
-  static description = 'Reinstall an app from the marketplace';
+  static description: string | undefined =
+    "Reinstall an app from the marketplace";
 
   static examples = [
-    '$ <%= config.bin %> <%= command.id %>',
-    '$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1>',
-    '$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>',
+    "$ <%= config.bin %> <%= command.id %>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>",
   ];
 
   static flags = {
-    'app-uid': flags.string({
-      description: reinstallAppMsg.APP_UID,
+    "app-uid": flags.string({
+      description: commonMsg.APP_UID,
     }),
-    'stack-api-key': flags.string({
+    "stack-api-key": flags.string({
       description: commonMsg.STACK_API_KEY,
     }),
   };
 
-  private authToken: string;
-
-  constructor(argv: any, config: any) {
-    super(argv, config);
-    this.authToken = this.getAuthToken();
-  }
-
-  private getAuthToken(): string {
-    return process.env.AUTH_TOKEN || 'AUTHTOKEN';
-  }
-
   async run(): Promise<void> {
     try {
       let app, stack, appType;
-      this.flags['app-uid'] = this.manifestData?.uid ?? this.flags['app-uid'];
+      this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
 
-      if (this.flags['stack-api-key']) {
+      if (this.flags["stack-api-key"]) {
         stack = await fetchStack(this.flags, {
           managementSdk: this.managementSdk,
           log: this.log,
@@ -58,7 +48,7 @@ export default class Reinstall extends AppCLIBaseCommand {
           log: this.log,
         }));
 
-      if (!this.flags['app-uid']) {
+      if (!this.flags["app-uid"]) {
         app = await getApp(this.flags, this.sharedConfig.org, {
           managementSdk: this.managementAppSdk,
           log: this.log,
@@ -69,72 +59,77 @@ export default class Reinstall extends AppCLIBaseCommand {
           log: this.log,
         });
       }
-      appType = app?.['target_type'];
-      this.flags['app-uid'] = app?.uid;
+      appType = app?.["target_type"];
+      this.flags["app-uid"] = app?.uid;
 
-      if (appType === 'organization' && this.flags['stack-api-key']) {
+      if (appType === "organization" && this.flags["stack-api-key"]) {
+        appType = 'organization'
         const confirmation =
-          this.flags['yes'] ||
+          this.flags["yes"] ||
           (await cliux.inquire({
-            type: 'confirm',
+            type: "confirm",
             message: $t(reinstallAppMsg.REINSTALL_ORG_APP_TO_STACK, {
               app: app?.name || app?.uid,
             }),
-            name: 'confirmation',
+            name: "confirmation",
           }));
         if (!confirmation) {
           throw new Error(commonMsg.USER_TERMINATION);
         }
       }
 
-      if (appType === 'stack' && !this.flags['stack-api-key']) {
+      if (appType === "stack" && !this.flags["stack-api-key"]) {
+        appType = 'stack'
+
         this.log(
           $t(reinstallAppMsg.MISSING_STACK_API_KEY, {
             app: app?.name || app?.uid,
           }),
-          'warn'
+          "warn"
         );
         stack = await getStack(this.sharedConfig.org, {
           managementSdk: this.managementSdk,
           log: this.log,
         });
-        this.flags['stack-api-key'] = stack?.['api_key'];
+        this.flags["stack-api-key"] = stack?.["api_key"];
       }
 
       this.log(
         $t(reinstallAppMsg.REINSTALLING_APP_NOTICE, {
           app: app?.name || app?.uid,
           type: appType,
-          target: this.flags['stack-api-key'] || this.sharedConfig.org,
+          target: this.flags["stack-api-key"] || this.sharedConfig.org,
         }),
-        'info'
+        "info"
       );
-
-      await reinstallAppUtil(
-        this.flags['app-uid'],
-        this.authToken,
-        this.sharedConfig.org,
-        appType,
-        this.flags['stack-api-key'] || this.sharedConfig.org
-      );
-
+      await reinstallApp({
+        flags: this.flags["app-uid"],
+        type: appType,
+        orgUid: this.sharedConfig.org,
+        manifestUid: this.manifestData.uid,
+        configType: this.sharedConfig,
+        developerHubBaseUrl: this.developerHubBaseUrl,
+      });
       this.log(
         $t(reinstallAppMsg.APP_REINSTALLED_SUCCESSFULLY, {
-          app: app?.name || (this.flags['app-uid'] as string),
+          app: app?.name || (this.flags["app-uid"] as string),
           target: stack?.name || this.sharedConfig.org,
         }),
-        'info'
+        "info"
       );
 
       this.displayStackUrl();
     } catch (error: any) {
-      this.log(error?.errorMessage || error?.message || error, 'error');
+      this.log(error?.errorMessage || error?.message || error, "error");
       this.exit(1);
     }
   }
 
   displayStackUrl(): void {
-    const stackPath = `${this.uiHost}/#!/stack/${this.flags['stack-api-key']}/dashboard`;
-    this.log(`Please use the following URL to start using the stack: ${stackPath}`, 'info');
+    const stackPath = `${this.uiHost}/#!/stack/${this.flags["stack-api-key"]}/dashboard`;
+    this.log(
+      `Please use the following URL to start using the stack: ${stackPath}`,
+      "info"
+    );
   }
 }

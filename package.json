@@ -97,7 +97,7 @@
       "app:delete": "APDLT",
       "app:install": "API",
       "app:uninstall": "APUI",
-      "app:reinstall": "APREI"
+      "app:reinstall": "APRI"
     }
   }
 }
