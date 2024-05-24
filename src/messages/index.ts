@@ -105,7 +105,7 @@ const reinstallAppMsg = {
   APP_REINSTALLED_SUCCESSFULLY: "{app} reinstalled successfully in {target}.",
   REINSTALL_ORG_APP_TO_STACK: "{app} is an organization app. It cannot be reinstalled to a stack. Do you want to proceed?",
   MISSING_STACK_API_KEY: "As {app} is a stack app, it can only be reinstalled in a stack. Please select a stack.",
-  REINSTALLING_APP_NOTICE: "Installing {app} on {type} {target}.",
+  REINSTALLING_APP_NOTICE: "Reinstalling {app} on {type} {target}.",
   APP_UID: "Provide the app UID of an existing app to be reinstalled.",
 }
 
