@@ -31,6 +31,7 @@ import {
   getAppName,
   getDirName,
   getOrgAppUiLocation,
+  sanitizePath
 } from "../../util";
 
 export default class Create extends BaseCommand<typeof Create> {
@@ -386,7 +387,7 @@ export default class Create extends BaseCommand<typeof Create> {
 
     this.sharedConfig.folderPath = resolve(
       dirname(this.sharedConfig.folderPath),
-      this.appData.name
+      sanitizePath(this.appData.name)
     );
     this.sharedConfig.nameChanged = true;
 
