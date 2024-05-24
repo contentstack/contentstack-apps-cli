@@ -189,7 +189,7 @@ USAGE
   $ csdx app:reinstall [--org <value>] [--app-uid <value>] [--stack-api-key <value>]
 
 FLAGS
-  --app-uid=<value>        Provide the app UID of an existing app to be reinstalled.
+  --app-uid=<value>        Provide the app UID of an existing app.
   --org=<value>            Provide the organization UID to fetch the app details for the desired operation.
   --stack-api-key=<value>  API key of the stack where the app is to be installed.
 
