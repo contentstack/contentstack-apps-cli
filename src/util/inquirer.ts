@@ -20,6 +20,7 @@ import {
   fetchAppInstallations,
   fetchInstalledApps,
   fetchApps,
+  sanitizePath,
 } from "./common-utils";
 
 /**
@@ -64,14 +65,14 @@ async function getDirName(path: string): Promise<string> {
           return $t(errors.INVALID_NAME, { min: "3", max: "50" });
         }
 
-        if (existsSync(join(basePath, name))) {
+        if (existsSync(join(sanitizePath(basePath), sanitizePath(name)))) {
           return messages.DIR_EXIST;
         }
 
         return true;
       },
     })
-    .then((name) => join(basePath, name as string));
+    .then((name) => join(sanitizePath(basePath), sanitizePath(name as string)));
 }
 
 /**
