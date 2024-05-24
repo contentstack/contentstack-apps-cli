@@ -255,6 +255,10 @@ async function fetchInstalledApps(
   return batchRequests.flat();
 }
 
+
+// To remove the relative path 
+const sanitizePath = (str: string) => str?.replace(/^(\.\.(\/|\\|$))+/, '');
+
 export {
   getOrganizations,
   getOrgAppUiLocation,
@@ -268,4 +272,5 @@ export {
   uninstallApp,
   fetchInstalledApps,
   reinstallApp,
+  sanitizePath
 };
