@@ -7,7 +7,7 @@
   "license": "MIT",
   "main": "./lib/index.js",
   "bin": {
-    "app": "bin/run"
+    "app": "bin/run.js"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
   ],
   "dependencies": {
     "@contentstack/cli-command": "~1.2.17",
-    "@contentstack/cli-utilities": "~1.5.10",
+    "@contentstack/cli-utilities": "~1.6.1",
     "adm-zip": "^0.5.10",
     "chalk": "^4.1.2",
     "lodash": "^4.17.21",
@@ -31,7 +31,7 @@
     "winston": "^3.11.0"
   },
   "devDependencies": {
-    "@oclif/test": "^2.0.3",
+    "@oclif/test": "^3.2.5",
     "@types/adm-zip": "^0.5.5",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
