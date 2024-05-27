@@ -1,5 +1,5 @@
 import { ContentstackClient, FlagInput } from "@contentstack/cli-utilities";
-import { AppLocation, ConfigType, Extension, LogFn } from "../types";
+import { AppLocation, Extension, LogFn } from "../types";
 import { cliux, Stack } from "@contentstack/cli-utilities";
 import { apiRequestHandler } from "./api-request-handler";
 
@@ -138,13 +138,12 @@ function installApp(
 async function reinstallApp(params: {
   flags: FlagInput;
   type: string;
-  orgUid: string;
-  manifestUid: string;
-  configType: ConfigType;
   developerHubBaseUrl: string;
-}): Promise<void> {
-  const { type, orgUid, manifestUid, developerHubBaseUrl, flags } = params;
-
+}, 
+headers: { orgUid: string, manifestUid: string }
+): Promise<void> {
+  const { type, developerHubBaseUrl, flags } = params;
+  const {orgUid, manifestUid } = headers;
   const payload = {
     target_type: type,
     target_uid: (flags["stack-api-key"] as any) || orgUid,
@@ -153,8 +152,7 @@ async function reinstallApp(params: {
   const url = `https://${developerHubBaseUrl}/manifests/${manifestUid}/reinstall`;
   try {
     const result = await apiRequestHandler({
-      orgUid,
-      queryParams: params,
+      orgUid, 
       payload,
       url,
       method: "PUT"

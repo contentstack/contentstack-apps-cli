@@ -3,7 +3,7 @@ import { formatErrors } from "./error-helper";
 
 interface RequestParams {
   orgUid: string;
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method: "GET" | "POST" | "PUT" | "DELETE";
   queryParams?: Record<string, any>;
   payload?: any;
   url: string;
@@ -11,11 +11,11 @@ interface RequestParams {
 
 export async function apiRequestHandler(params: RequestParams): Promise<any> {
   const { orgUid, method, queryParams, payload, url } = params;
-  const authtoken = configHandler.get('authtoken');
+  const authtoken = configHandler.get("authtoken");
 
   const headers = {
     organization_uid: orgUid,
-    authtoken
+    authtoken,
   };
 
   const httpClient = new HttpClient();
@@ -27,13 +27,13 @@ export async function apiRequestHandler(params: RequestParams): Promise<any> {
 
   try {
     let response;
-    if (method === 'GET') {
+    if (method === "GET") {
       response = await httpClient.get(url);
-    } else if (method === 'POST') {
+    } else if (method === "POST") {
       response = await httpClient.post(url, payload);
-    } else if (method === 'PUT') {
+    } else if (method === "PUT") {
       response = await httpClient.put(url, payload);
-    } else if (method === 'DELETE') {
+    } else if (method === "DELETE") {
       response = await httpClient.delete(url);
     } else {
       throw new Error(`Unsupported HTTP method: ${method}`);
@@ -43,11 +43,10 @@ export async function apiRequestHandler(params: RequestParams): Promise<any> {
     if (status >= 200 && status < 300) {
       return data;
     }
-    data?.error
-      ? formatErrors(data.error)
-      : data?.error_message || 'Something went wrong';
-    throw data;
-    
+    const error_message = data?.error
+      ? formatErrors(data)
+      : data?.error_message || "Something went wrong";
+    throw error_message;
   } catch (error) {
     throw error;
   }

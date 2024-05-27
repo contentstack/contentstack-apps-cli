@@ -1,18 +1,7 @@
 export function formatErrors(errors: any): string {
-  const errorMessages: string[] = [];
-  for (const errorKey in errors) {
-    const errorValue = errors[errorKey];
-    if (Array.isArray(errorValue)) {
-      errorMessages.push(...errorValue.map((error: any) => formatError(error)));
-    } else {
-      errorMessages.push(formatError(errorValue));
-    }
+  let errorMessage: string = "";
+  if (errors.message) {
+    errorMessage = errors.message;
   }
-  return errorMessages.join(" ");
-}
-function formatError(error: any): string {
-  if (typeof error === "object") {
-    return Object.values(error).join(" ");
-  }
-  return String(error);
+  return errorMessage;
 }
