@@ -3,26 +3,42 @@ import { formatErrors } from "./error-helper";
 
 interface RequestParams {
   orgUid: string;
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   queryParams?: Record<string, any>;
   payload?: any;
   url: string;
 }
 
 export async function apiRequestHandler(params: RequestParams): Promise<any> {
-  const { orgUid, queryParams, payload, url } = params;
+  const { orgUid, method, queryParams, payload, url } = params;
   const authtoken = configHandler.get('authtoken');
-  
+
   const headers = {
     organization_uid: orgUid,
     authtoken
-  }
-  const httpClient = new HttpClient()
-  httpClient.headers(headers)
-  if (queryParams) 
+  };
+
+  const httpClient = new HttpClient();
+  httpClient.headers(headers);
+
+  if (queryParams) {
     httpClient.queryParams(queryParams);
+  }
 
   try {
-    const response = await httpClient.put(url, payload)
+    let response;
+    if (method === 'GET') {
+      response = await httpClient.get(url);
+    } else if (method === 'POST') {
+      response = await httpClient.post(url, payload);
+    } else if (method === 'PUT') {
+      response = await httpClient.put(url, payload);
+    } else if (method === 'DELETE') {
+      response = await httpClient.delete(url);
+    } else {
+      throw new Error(`Unsupported HTTP method: ${method}`);
+    }
+
     const { status, data } = response;
     if (status >= 200 && status < 300) {
       return data;

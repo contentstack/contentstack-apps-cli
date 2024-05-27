@@ -157,7 +157,8 @@ async function reinstallApp(params: {
       queryParams: params,
       payload,
       url,
-      })
+      method: "PUT"
+    })
     return result
   } catch (err) {
     throw err
