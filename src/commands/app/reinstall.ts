@@ -105,11 +105,10 @@ export default class Reinstall extends AppCLIBaseCommand {
       await reinstallApp({
         flags: this.flags,
         type: appType,
-        orgUid: this.sharedConfig.org,
-        manifestUid: this.manifestData.uid,
-        configType: this.sharedConfig,
         developerHubBaseUrl: this.developerHubBaseUrl,
-      });
+      }, 
+      {orgUid: this.sharedConfig.org, manifestUid: this.manifestData.uid}
+      );
       this.log(
         $t(reinstallAppMsg.APP_REINSTALLED_SUCCESSFULLY, {
           app: app?.name || (this.flags["app-uid"] as string),
