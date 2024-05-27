@@ -139,11 +139,10 @@ async function reinstallApp(params: {
   flags: FlagInput;
   type: string;
   developerHubBaseUrl: string;
-}, 
-headers: { orgUid: string, manifestUid: string }
-): Promise<void> {
-  const { type, developerHubBaseUrl, flags } = params;
-  const {orgUid, manifestUid } = headers;
+  orgUid: string;
+  manifestUid: string;
+}): Promise<void> {
+  const { type, developerHubBaseUrl, flags, orgUid, manifestUid } = params;
   const payload = {
     target_type: type,
     target_uid: (flags["stack-api-key"] as any) || orgUid,
@@ -152,14 +151,14 @@ headers: { orgUid: string, manifestUid: string }
   const url = `https://${developerHubBaseUrl}/manifests/${manifestUid}/reinstall`;
   try {
     const result = await apiRequestHandler({
-      orgUid, 
+      orgUid,
       payload,
       url,
-      method: "PUT"
-    })
-    return result
+      method: "PUT",
+    });
+    return result;
   } catch (err) {
-    throw err
+    throw err;
   }
 }
 
@@ -254,9 +253,8 @@ async function fetchInstalledApps(
   return batchRequests.flat();
 }
 
-
-// To remove the relative path 
-const sanitizePath = (str: string) => str?.replace(/^(\.\.(\/|\\|$))+/, '');
+// To remove the relative path
+const sanitizePath = (str: string) => str?.replace(/^(\.\.(\/|\\|$))+/, "");
 
 export {
   getOrganizations,
@@ -271,5 +269,5 @@ export {
   uninstallApp,
   fetchInstalledApps,
   reinstallApp,
-  sanitizePath
+  sanitizePath,
 };

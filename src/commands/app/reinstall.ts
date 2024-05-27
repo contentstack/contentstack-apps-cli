@@ -63,7 +63,7 @@ export default class Reinstall extends AppCLIBaseCommand {
       this.flags["app-uid"] = app?.uid;
 
       if (appType === "organization" && this.flags["stack-api-key"]) {
-        appType = 'organization'
+        appType = "organization";
         const confirmation =
           this.flags["yes"] ||
           (await cliux.inquire({
@@ -79,7 +79,7 @@ export default class Reinstall extends AppCLIBaseCommand {
       }
 
       if (appType === "stack" && !this.flags["stack-api-key"]) {
-        appType = 'stack'
+        appType = "stack";
 
         this.log(
           $t(reinstallAppMsg.MISSING_STACK_API_KEY, {
@@ -106,9 +106,9 @@ export default class Reinstall extends AppCLIBaseCommand {
         flags: this.flags,
         type: appType,
         developerHubBaseUrl: this.developerHubBaseUrl,
-      }, 
-      {orgUid: this.sharedConfig.org, manifestUid: this.manifestData.uid}
-      );
+        orgUid: this.sharedConfig.org,
+        manifestUid: this.manifestData.uid,
+      });
       this.log(
         $t(reinstallAppMsg.APP_REINSTALLED_SUCCESSFULLY, {
           app: app?.name || (this.flags["app-uid"] as string),
