@@ -122,6 +122,12 @@ export default class Install extends AppCLIBaseCommand {
       this.displayStackUrl();
     } catch (error: any) {
       this.log(error?.errorMessage || error?.message || error, "error");
+      if (
+        error?.errorMessage === "Installation for app is already done" &&
+        error?.status === 400
+      ) {
+        this.displayReInstallMsg();
+      }
       this.exit(1);
     }
   }
@@ -135,5 +141,12 @@ export default class Install extends AppCLIBaseCommand {
       `Please use the following URL to start using the stack: ${stackPath}`,
       "info"
     );
+  }
+
+  /**
+   * @method displayStackUrl - show guid to stack after installing app successfully in the stack
+   */
+  displayReInstallMsg(): void {
+    this.log(this.messages.APP_ALREADY_INSTALLED, "info");
   }
 }

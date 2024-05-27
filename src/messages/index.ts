@@ -89,6 +89,7 @@ const installAppMsg = {
   INSTALL_ORG_APP_TO_STACK: "{app} is an organization app. It cannot be installed to a stack. Do you want to proceed?",
   MISSING_STACK_API_KEY: "As {app} is a stack app, it can only be installed in a stack. Please select a stack.",
   INSTALLING_APP_NOTICE: "Installing {app} on {type} {target}.",
+  APP_ALREADY_INSTALLED: "Please use $ csdx app:reinstall to reinstall the app.",
 }
 
 const uninstallAppMsg = {

@@ -27,26 +27,31 @@ export async function apiRequestHandler(params: RequestParams): Promise<any> {
 
   try {
     let response;
-    if (method === "GET") {
-      response = await httpClient.get(url);
-    } else if (method === "POST") {
-      response = await httpClient.post(url, payload);
-    } else if (method === "PUT") {
-      response = await httpClient.put(url, payload);
-    } else if (method === "DELETE") {
-      response = await httpClient.delete(url);
-    } else {
-      throw new Error(`Unsupported HTTP method: ${method}`);
+    switch (method) {
+      case "GET":
+        response = await httpClient.get(url);
+        break;
+      case "POST":
+        response = await httpClient.post(url, payload);
+        break;
+      case "PUT":
+        response = await httpClient.put(url, payload);
+        break;
+      case "DELETE":
+        response = await httpClient.delete(url);
+        break;
+      default:
+        throw new Error(`Unsupported HTTP method: ${method}`);
     }
 
     const { status, data } = response;
     if (status >= 200 && status < 300) {
       return data;
     }
-    const error_message = data?.error
+    const errorMessage = data?.error
       ? formatErrors(data)
       : data?.error_message || "Something went wrong";
-    throw error_message;
+    throw errorMessage;
   } catch (error) {
     throw error;
   }
