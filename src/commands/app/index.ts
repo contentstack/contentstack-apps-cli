@@ -14,6 +14,7 @@ export default class App extends Command {
     "$ <%= config.bin %> <%= command.id %>:delete",
     "$ <%= config.bin %> <%= command.id %>:install",
     "$ <%= config.bin %> <%= command.id %>:uninstall",
+    "$ <%= config.bin %> <%= command.id %>:reinstall",
   ];
 
   async run(): Promise<void> {
