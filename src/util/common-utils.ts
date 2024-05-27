@@ -1,6 +1,7 @@
 import { ContentstackClient, FlagInput } from "@contentstack/cli-utilities";
 import { AppLocation, Extension, LogFn } from "../types";
 import { cliux, Stack } from "@contentstack/cli-utilities";
+import { apiRequestHandler } from "./api-request-handler";
 
 export type CommonOptions = {
   log: LogFn;
@@ -134,6 +135,33 @@ function installApp(
     });
 }
 
+async function reinstallApp(params: {
+  flags: FlagInput;
+  type: string;
+  developerHubBaseUrl: string;
+  orgUid: string;
+  manifestUid: string;
+}): Promise<void> {
+  const { type, developerHubBaseUrl, flags, orgUid, manifestUid } = params;
+  const payload = {
+    target_type: type,
+    target_uid: (flags["stack-api-key"] as any) || orgUid,
+  };
+
+  const url = `https://${developerHubBaseUrl}/manifests/${manifestUid}/reinstall`;
+  try {
+    const result = await apiRequestHandler({
+      orgUid,
+      payload,
+      url,
+      method: "PUT",
+    });
+    return result;
+  } catch (err) {
+    throw err;
+  }
+}
+
 function fetchStack(flags: FlagInput, options: CommonOptions) {
   const { managementSdk } = options;
   return managementSdk
@@ -225,9 +253,8 @@ async function fetchInstalledApps(
   return batchRequests.flat();
 }
 
-
-// To remove the relative path 
-const sanitizePath = (str: string) => str?.replace(/^(\.\.(\/|\\|$))+/, '');
+// To remove the relative path
+const sanitizePath = (str: string) => str?.replace(/^(\.\.(\/|\\|$))+/, "");
 
 export {
   getOrganizations,
@@ -241,5 +268,6 @@ export {
   fetchStack,
   uninstallApp,
   fetchInstalledApps,
-  sanitizePath
+  reinstallApp,
+  sanitizePath,
 };

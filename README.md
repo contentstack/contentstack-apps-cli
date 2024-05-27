@@ -20,7 +20,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.0.7 darwin-arm64 node-v18.16.0
+@contentstack/apps-cli/1.1.0 darwin-arm64 node-v18.16.0
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -35,6 +35,7 @@ USAGE
 * [`csdx app:delete`](#csdx-appdelete)
 * [`csdx app:get`](#csdx-appget)
 * [`csdx app:install`](#csdx-appinstall)
+* [`csdx app:reinstall`](#csdx-appreinstall)
 * [`csdx app:uninstall`](#csdx-appuninstall)
 * [`csdx app:update`](#csdx-appupdate)
 
@@ -61,9 +62,11 @@ EXAMPLES
   $ csdx app:install
 
   $ csdx app:uninstall
+
+  $ csdx app:reinstall
 ```
 
-_See code: [src/commands/app/index.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/index.ts)_
+_See code: [src/commands/app/index.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/index.ts)_
 
 ## `csdx app:create`
 
@@ -94,7 +97,7 @@ EXAMPLES
   $ csdx app:create --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/create.ts)_
+_See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/create.ts)_
 
 ## `csdx app:delete`
 
@@ -119,7 +122,7 @@ EXAMPLES
   $ csdx app:delete --app-uid <value> --org <value> -d ./boilerplate
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/delete.ts)_
+_See code: [src/commands/app/delete.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/delete.ts)_
 
 ## `csdx app:get`
 
@@ -149,7 +152,7 @@ EXAMPLES
   $ csdx app:get --org <value> --app-uid <value> --app-type organization
 ```
 
-_See code: [src/commands/app/get.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/get.ts)_
+_See code: [src/commands/app/get.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/get.ts)_
 
 ## `csdx app:install`
 
@@ -175,7 +178,33 @@ EXAMPLES
   $ csdx app:install --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>
 ```
 
-_See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/install.ts)_
+_See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/install.ts)_
+
+## `csdx app:reinstall`
+
+Reinstall an app from the marketplace
+
+```
+USAGE
+  $ csdx app:reinstall [--org <value>] [--app-uid <value>] [--stack-api-key <value>]
+
+FLAGS
+  --app-uid=<value>        Provide the app UID of an existing app.
+  --org=<value>            Provide the organization UID to fetch the app details for the desired operation.
+  --stack-api-key=<value>  API key of the stack where the app is to be installed.
+
+DESCRIPTION
+  Reinstall an app from the marketplace
+
+EXAMPLES
+  $ csdx app:reinstall
+
+  $ csdx app:reinstall --org <UID> --app-uid <APP-UID-1>
+
+  $ csdx app:reinstall --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>
+```
+
+_See code: [src/commands/app/reinstall.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/reinstall.ts)_
 
 ## `csdx app:uninstall`
 
@@ -202,7 +231,7 @@ EXAMPLES
   $ csdx app:uninstall --org <UID> --app-uid <APP-UID-1> --installation-uid <INSTALLATION-UID-1>
 ```
 
-_See code: [src/commands/app/uninstall.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/uninstall.ts)_
+_See code: [src/commands/app/uninstall.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/uninstall.ts)_
 
 ## `csdx app:update`
 
@@ -225,5 +254,5 @@ EXAMPLES
   $ csdx app:update --app-manifest ./boilerplate/manifest.json
 ```
 
-_See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v1.0.7/src/commands/app/update.ts)_
+_See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/update.ts)_
 <!-- commandsstop -->
