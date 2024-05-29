@@ -12,14 +12,13 @@ import config from "../../../../src/config";
 import messages from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import manifestData from "../../../../src/config/manifest.json";
+import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 
 const { origin, pathname } = new URL(config.appBoilerplateGithubUrl);
 const zipPath = join(process.cwd(), "test", "unit", "mock", "boilerplate.zip");
 const region: { cma: string; name: string; cda: string } =
   configHandler.get("region");
-const developerHubBaseUrl = (config.developerHubUrls as Record<string, any>)[
-  region.cma
-];
+const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:create", () => {
   beforeEach(() => {
