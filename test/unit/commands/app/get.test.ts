@@ -12,9 +12,7 @@ import * as commonUtils from "../../../../src/util/common-utils";
 
 const region: { cma: string; name: string; cda: string } =
   configHandler.get("region");
-const developerHubBaseUrl = (config.developerHubUrls as Record<string, any>)[
-  region.cma
-];
+const developerHubBaseUrl = configHandler.get("developerHubBaseUrl");
 
 describe("app:get", () => {
   describe("Get app manifest", () => {

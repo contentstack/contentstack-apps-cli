@@ -3,11 +3,10 @@ import {expect, test} from "@oclif/test";
 
 import * as mock from "../../mock/common.mock.json"
 
-import config from "../../../../src/config";
 import messages, { $t } from "../../../../src/messages";
 
 const region: { cma: string, cda: string, name: string } = configHandler.get("region");
-const developerHubBaseUrl = (config.developerHubUrls as Record<string, any>)[region.cma];
+const developerHubBaseUrl = configHandler.get("developerHubBaseUrl");
 
 describe("app:install", () => {
     describe("Install an app on organization", () => {

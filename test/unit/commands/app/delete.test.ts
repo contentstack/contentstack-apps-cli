@@ -2,14 +2,11 @@ import { test, expect } from "@oclif/test";
 import { cliux, configHandler, ux } from "@contentstack/cli-utilities";
 import * as mock from "../../mock/common.mock.json"
 
-import config from "../../../../src/config";
 import messages, {$t} from "../../../../src/messages";
 
 const region: { cma: string; name: string; cda: string } =
   configHandler.get("region");
-const developerHubBaseUrl = (config.developerHubUrls as Record<string, any>)[
-  region.cma
-];
+const developerHubBaseUrl = configHandler.get("developerHubBaseUrl");
 
 describe("app:delete", () => {
     describe("app:delete with --org and --app-uid flags", () => {
