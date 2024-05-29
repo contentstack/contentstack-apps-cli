@@ -7,16 +7,13 @@ import {
   managementSDKClient,
 } from "@contentstack/cli-utilities";
 
-import config from "../../../src/config";
 import { LogFn } from "../../../src/types";
 import * as mock from "../mock/common.mock.json";
 import { fetchApps, getOrganizations } from "../../../src/util/common-utils";
 
 const region: { cma: string; name: string; cda: string } =
   configHandler.get("region");
-const developerHubBaseUrl = (config.developerHubUrls as Record<string, any>)[
-  region.cma
-];
+const developerHubBaseUrl = configHandler.get("developerHubBaseUrl");
 
 describe("common utils", () => {
   const log: LogFn = () => {};
