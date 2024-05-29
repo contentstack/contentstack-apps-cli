@@ -7,10 +7,11 @@ import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
 import messages from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import manifestData from "../../config/manifest.json";
+import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 
 const region: { cma: string; name: string; cda: string } =
   configHandler.get("region");
-const developerHubBaseUrl = configHandler.get("developerHubBaseUrl");
+const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:update", () => {
   describe("Update app with `--app-manifest` flag", () => {

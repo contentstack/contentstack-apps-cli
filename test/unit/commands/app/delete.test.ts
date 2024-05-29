@@ -3,10 +3,11 @@ import { cliux, configHandler, ux } from "@contentstack/cli-utilities";
 import * as mock from "../../mock/common.mock.json"
 
 import messages, {$t} from "../../../../src/messages";
+import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 
 const region: { cma: string; name: string; cda: string } =
   configHandler.get("region");
-const developerHubBaseUrl = configHandler.get("developerHubBaseUrl");
+const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:delete", () => {
     describe("app:delete with --org and --app-uid flags", () => {

@@ -10,10 +10,12 @@ import {
 import { LogFn } from "../../../src/types";
 import * as mock from "../mock/common.mock.json";
 import { fetchApps, getOrganizations } from "../../../src/util/common-utils";
+import { getDeveloperHubUrl } from "../../../src/util/inquirer";
 
 const region: { cma: string; name: string; cda: string } =
   configHandler.get("region");
-const developerHubBaseUrl = configHandler.get("developerHubBaseUrl");
+const developerHubBaseUrl = getDeveloperHubUrl();
+
 
 describe("common utils", () => {
   const log: LogFn = () => {};

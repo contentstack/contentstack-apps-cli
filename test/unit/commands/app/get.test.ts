@@ -9,10 +9,12 @@ import * as mock from "../../mock/common.mock.json";
 import manifestData from "../../config/manifest.json";
 import messages, { $t } from "../../../../src/messages";
 import * as commonUtils from "../../../../src/util/common-utils";
+import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 
 const region: { cma: string; name: string; cda: string } =
   configHandler.get("region");
-const developerHubBaseUrl = configHandler.get("developerHubBaseUrl");
+const developerHubBaseUrl = getDeveloperHubUrl();
+
 
 describe("app:get", () => {
   describe("Get app manifest", () => {

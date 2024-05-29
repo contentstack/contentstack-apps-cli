@@ -158,7 +158,7 @@ async function getInstalledApps(
  *
  * @return {*}  {Promise<string>}
  */
-async function getDeveloperHubUrl(): Promise<string> {
+function getDeveloperHubUrl(): string {
   const { cma } = configHandler.get("region") || {};
   let developerHubBaseUrl = cma.replace("api", "developerhub-api");
 
