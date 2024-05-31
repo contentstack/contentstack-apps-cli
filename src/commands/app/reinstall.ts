@@ -1,19 +1,18 @@
 import { cliux, flags } from "@contentstack/cli-utilities";
-
 import { AppCLIBaseCommand } from "../../app-cli-base-coomand";
-import { $t, commonMsg, installAppMsg } from "../../messages";
+import { $t, commonMsg, reinstallAppMsg } from "../../messages";
 import {
   getOrg,
   getApp,
   getStack,
-  installApp,
+  reinstallApp,
   fetchApp,
   fetchStack,
 } from "../../util";
 
-export default class Install extends AppCLIBaseCommand {
+export default class Reinstall extends AppCLIBaseCommand {
   static description: string | undefined =
-    "Install an app from the marketplace";
+    "Reinstall an app from the marketplace";
 
   static examples = [
     "$ <%= config.bin %> <%= command.id %>",
@@ -33,10 +32,8 @@ export default class Install extends AppCLIBaseCommand {
   async run(): Promise<void> {
     try {
       let app, stack, appType;
-      this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"]; //manifest file first preference
+      this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
 
-      // validating user given stack, as installation API doesn't return appropriate errors if stack-api-key is invalid
-      // validating this first, as orgUid is not required for fetching stack
       if (this.flags["stack-api-key"]) {
         stack = await fetchStack(this.flags, {
           managementSdk: this.managementSdk,
@@ -44,7 +41,6 @@ export default class Install extends AppCLIBaseCommand {
         });
       }
 
-      // get organization to be used
       this.sharedConfig.org =
         this.manifestData?.organization_uid ??
         (await getOrg(this.flags, {
@@ -52,7 +48,6 @@ export default class Install extends AppCLIBaseCommand {
           log: this.log,
         }));
 
-      // fetch app details
       if (!this.flags["app-uid"]) {
         app = await getApp(this.flags, this.sharedConfig.org, {
           managementSdk: this.managementAppSdk,
@@ -64,16 +59,16 @@ export default class Install extends AppCLIBaseCommand {
           log: this.log,
         });
       }
-      appType = app?.["target_type"]; // get app-type from the fetched app
+      appType = app?.["target_type"];
       this.flags["app-uid"] = app?.uid;
 
-      // in case stack-api-key is provided and the selected app is an organization app
       if (appType === "organization" && this.flags["stack-api-key"]) {
+        appType = "organization";
         const confirmation =
           this.flags["yes"] ||
           (await cliux.inquire({
             type: "confirm",
-            message: $t(installAppMsg.INSTALL_ORG_APP_TO_STACK, {
+            message: $t(reinstallAppMsg.REINSTALL_ORG_APP_TO_STACK, {
               app: app?.name || app?.uid,
             }),
             name: "confirmation",
@@ -83,10 +78,11 @@ export default class Install extends AppCLIBaseCommand {
         }
       }
 
-      // in case a stack app is selected and no stack-api-key is provided
       if (appType === "stack" && !this.flags["stack-api-key"]) {
+        appType = "stack";
+
         this.log(
-          $t(installAppMsg.MISSING_STACK_API_KEY, {
+          $t(reinstallAppMsg.MISSING_STACK_API_KEY, {
             app: app?.name || app?.uid,
           }),
           "warn"
@@ -98,21 +94,23 @@ export default class Install extends AppCLIBaseCommand {
         this.flags["stack-api-key"] = stack?.["api_key"];
       }
 
-      // install app
       this.log(
-        $t(installAppMsg.INSTALLING_APP_NOTICE, {
+        $t(reinstallAppMsg.REINSTALLING_APP_NOTICE, {
           app: app?.name || app?.uid,
           type: appType,
           target: this.flags["stack-api-key"] || this.sharedConfig.org,
         }),
         "info"
       );
-      await installApp(this.flags, this.sharedConfig.org, appType, {
-        managementSdk: this.managementAppSdk,
-        log: this.log,
+      await reinstallApp({
+        flags: this.flags,
+        type: appType,
+        developerHubBaseUrl: this.developerHubBaseUrl,
+        orgUid: this.sharedConfig.org,
+        manifestUid: this.flags["app-uid"],
       });
       this.log(
-        $t(installAppMsg.APP_INSTALLED_SUCCESSFULLY, {
+        $t(reinstallAppMsg.APP_REINSTALLED_SUCCESSFULLY, {
           app: app?.name || (this.flags["app-uid"] as string),
           target: stack?.name || this.sharedConfig.org,
         }),
@@ -122,31 +120,15 @@ export default class Install extends AppCLIBaseCommand {
       this.displayStackUrl();
     } catch (error: any) {
       this.log(error?.errorMessage || error?.message || error, "error");
-      if (
-        error?.errorMessage === "Installation for app is already done" &&
-        error?.status === 400
-      ) {
-        this.displayReInstallMsg();
-      }
       this.exit(1);
     }
   }
 
-  /**
-   * @method displayStackUrl - show guid to stack after installing app successfully in the stack
-   */
   displayStackUrl(): void {
     const stackPath = `${this.uiHost}/#!/stack/${this.flags["stack-api-key"]}/dashboard`;
     this.log(
       `Please use the following URL to start using the stack: ${stackPath}`,
       "info"
     );
-  }
-
-  /**
-   * @method displayStackUrl - show guid to stack after installing app successfully in the stack
-   */
-  displayReInstallMsg(): void {
-    this.log(this.messages.APP_ALREADY_INSTALLED, "info");
   }
 }

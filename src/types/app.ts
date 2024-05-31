@@ -1,3 +1,6 @@
+import { FlagInput } from "@contentstack/cli-utilities";
+import { ConfigType } from "./utils";
+
 export interface TokenConfiguration {
   enabled?: boolean;
   scopes?: string[];
@@ -113,3 +116,12 @@ export interface AppManifest {
 export interface AppManifestWithUiLocation extends AppManifest {
   ui_location: LocationConfiguration;
 }
+
+export interface ReinstallParams {
+  flags: FlagInput,
+  type: string,
+  orgUid: string,
+  manifestUid: string,
+  configType: ConfigType,
+  developerHubBaseUrl: string
+};
