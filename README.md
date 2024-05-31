@@ -20,7 +20,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.1.0 darwin-arm64 node-v18.16.0
+@contentstack/apps-cli/1.1.0 darwin-arm64 node-v18.17.0
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -165,7 +165,7 @@ USAGE
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
   --org=<value>            Provide the organization UID to fetch the app details for the desired operation.
-  --stack-api-key=<value>  API key of the stack where the app is to be installed.
+  --stack-api-key=<value>  API key of the stack where the app operation is to be performed.
 
 DESCRIPTION
   Install an app from the marketplace
@@ -191,7 +191,7 @@ USAGE
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
   --org=<value>            Provide the organization UID to fetch the app details for the desired operation.
-  --stack-api-key=<value>  API key of the stack where the app is to be installed.
+  --stack-api-key=<value>  API key of the stack where the app operation is to be performed.
 
 DESCRIPTION
   Reinstall an app from the marketplace
