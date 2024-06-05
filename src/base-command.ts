@@ -70,9 +70,9 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
     this.registerConfig();
     
     this.developerHubBaseUrl =
-    this.sharedConfig.developerHubBaseUrl || (await getDeveloperHubUrl());
+      this.sharedConfig.developerHubBaseUrl || getDeveloperHubUrl();
     await this.initCmaSDK();
-    
+
     // Init logger
     const logger = new Logger(this.sharedConfig);
     this.log = logger.log.bind(logger);
@@ -164,9 +164,9 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
   validateRegionAndAuth() {
     if (this.region) {
       if (!isAuthenticated()) {
-          this.log(this.messages.CLI_APP_CLI_LOGIN_FAILED, "error");
-          this.exit(1);
-        }
+        this.log(this.messages.CLI_APP_CLI_LOGIN_FAILED, "error");
+        this.exit(1);
+      }
     }
   }
 }
