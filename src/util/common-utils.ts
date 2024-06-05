@@ -1,5 +1,4 @@
-import { ContentstackClient, FlagInput } from "@contentstack/cli-utilities";
-import { ContentstackClient as MarketplaceContentstackClient } from "@contentstack/marketplace-sdk";
+import { ContentstackClient, FlagInput, ContentstackMarketplaceClient } from "@contentstack/cli-utilities";
 import { AppLocation, Extension, LogFn } from "../types";
 import { cliux, Stack } from "@contentstack/cli-utilities";
 import { apiRequestHandler } from "./api-request-handler";
@@ -10,7 +9,7 @@ export type CommonOptions = {
 };
 export type MarketPlaceOptions = {
   log: LogFn;
-  marketplaceSdk: MarketplaceContentstackClient;
+  marketplaceSdk: ContentstackMarketplaceClient;
 };
 
 async function getOrganizations(
