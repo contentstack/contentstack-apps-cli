@@ -14,6 +14,7 @@ import {
   cliux,
   isAuthenticated,
 } from "@contentstack/cli-utilities";
+import { ContentstackClient as MarketplaceContentstackClient } from "@contentstack/marketplace-sdk";
 
 import config from "./config";
 import { ConfigType, LogFn } from "./types";
@@ -39,6 +40,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
   };
   protected managementSdk!: ContentstackClient;
   protected managementAppSdk!: ContentstackClient;
+  protected marketplaceAppSdk!: MarketplaceContentstackClient;
 
   protected flags!: Flags<T>;
   protected args!: Args<T>;
