@@ -4,16 +4,14 @@ import { PassThrough } from "stream";
 import { expect, test } from "@oclif/test";
 import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
 
-import config from "../../../../src/config";
 import messages from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import manifestData from "../../config/manifest.json";
+import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 
 const region: { cma: string; name: string; cda: string } =
   configHandler.get("region");
-const developerHubBaseUrl = (config.developerHubUrls as Record<string, any>)[
-  region.cma
-];
+const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:update", () => {
   describe("Update app with `--app-manifest` flag", () => {
