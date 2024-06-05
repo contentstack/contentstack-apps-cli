@@ -19,3 +19,5 @@ dependabot.yml
 oclif.manifest.json
 *.env
 .vscode/
+/app-boilerplate
+/app-boilerplate+1
