@@ -127,11 +127,11 @@ function installApp(
   flags: FlagInput,
   orgUid: string,
   type: string,
-  options: CommonOptions
+  options: MarketPlaceOptions
 ) {
-  const { managementSdk } = options;
-  return managementSdk
-    .organization(orgUid)
+  const { marketplaceSdk } = options;
+  return marketplaceSdk
+    .marketplace(orgUid)
     .app(flags["app-uid"] as any)
     .install({
       targetUid: (flags["stack-api-key"] as any) || orgUid,

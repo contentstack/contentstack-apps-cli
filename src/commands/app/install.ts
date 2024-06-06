@@ -108,7 +108,7 @@ export default class Install extends AppCLIBaseCommand {
         "info"
       );
       await installApp(this.flags, this.sharedConfig.org, appType, {
-        managementSdk: this.managementAppSdk,
+        marketplaceSdk: this.marketplaceAppSdk,
         log: this.log,
       });
       this.log(
