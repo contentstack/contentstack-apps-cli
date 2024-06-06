@@ -25,7 +25,7 @@ const errors = {
 const commonMsg = {
   CONFIG: "Path of the external config",
   MAX_RETRY_LIMIT: "Maximum retry limit reached.",
-  PROVIDE_ORG_UID: "Provide the organization UID to fetch the app details for the desired operation.",
+  PROVIDE_ORG_UID: "Provide the organization UID to fetch the app details for the operation.",
   CURRENT_WORKING_DIR: "Current working directory.",
   SKIP_CONFIRMATION: "Use this flag to skip the confirmation.",
   DEVELOPER_HUB_URL_PROMPT:
