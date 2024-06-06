@@ -20,7 +20,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.1.0 darwin-arm64 node-v18.17.0
+@contentstack/apps-cli/1.2.0 darwin-arm64 node-v18.16.0
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -66,7 +66,7 @@ EXAMPLES
   $ csdx app:reinstall
 ```
 
-_See code: [src/commands/app/index.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/index.ts)_
+_See code: [src/commands/app/index.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/index.ts)_
 
 ## `csdx app:create`
 
@@ -82,7 +82,7 @@ FLAGS
   -n, --name=<value>      [default: app-boilerplate] Name of the app to be created
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
-  --org=<value>           Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>           Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Create a new app in Developer Hub and optionally clone a boilerplate locally.
@@ -97,7 +97,7 @@ EXAMPLES
   $ csdx app:create --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/create.ts)_
+_See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/create.ts)_
 
 ## `csdx app:delete`
 
@@ -109,7 +109,7 @@ USAGE
 
 FLAGS
   --app-uid=<value>  Provide the app UID of an existing app.
-  --org=<value>      Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>      Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Delete app from marketplace
@@ -122,7 +122,7 @@ EXAMPLES
   $ csdx app:delete --app-uid <value> --org <value> -d ./boilerplate
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/delete.ts)_
+_See code: [src/commands/app/delete.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/delete.ts)_
 
 ## `csdx app:get`
 
@@ -137,7 +137,7 @@ FLAGS
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
   --app-uid=<value>       Provide the app UID of an existing app.
-  --org=<value>           Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>           Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Get details of an app in developer hub
@@ -152,7 +152,7 @@ EXAMPLES
   $ csdx app:get --org <value> --app-uid <value> --app-type organization
 ```
 
-_See code: [src/commands/app/get.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/get.ts)_
+_See code: [src/commands/app/get.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/get.ts)_
 
 ## `csdx app:install`
 
@@ -164,7 +164,7 @@ USAGE
 
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
-  --org=<value>            Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>            Provide the organization UID to fetch the app details for the operation.
   --stack-api-key=<value>  API key of the stack where the app operation is to be performed.
 
 DESCRIPTION
@@ -178,7 +178,7 @@ EXAMPLES
   $ csdx app:install --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>
 ```
 
-_See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/install.ts)_
+_See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/install.ts)_
 
 ## `csdx app:reinstall`
 
@@ -190,7 +190,7 @@ USAGE
 
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
-  --org=<value>            Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>            Provide the organization UID to fetch the app details for the operation.
   --stack-api-key=<value>  API key of the stack where the app operation is to be performed.
 
 DESCRIPTION
@@ -204,7 +204,7 @@ EXAMPLES
   $ csdx app:reinstall --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>
 ```
 
-_See code: [src/commands/app/reinstall.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/reinstall.ts)_
+_See code: [src/commands/app/reinstall.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/reinstall.ts)_
 
 ## `csdx app:uninstall`
 
@@ -217,7 +217,7 @@ USAGE
 FLAGS
   --app-uid=<value>           Provide the app UID of an existing app.
   --installation-uid=<value>  Provide the installation ID of the app that needs to be uninstalled.
-  --org=<value>               Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>               Provide the organization UID to fetch the app details for the operation.
   --uninstall-all             Please select stacks from where the app must be uninstalled.
 
 DESCRIPTION
@@ -231,7 +231,7 @@ EXAMPLES
   $ csdx app:uninstall --org <UID> --app-uid <APP-UID-1> --installation-uid <INSTALLATION-UID-1>
 ```
 
-_See code: [src/commands/app/uninstall.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/uninstall.ts)_
+_See code: [src/commands/app/uninstall.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/uninstall.ts)_
 
 ## `csdx app:update`
 
@@ -243,7 +243,7 @@ USAGE
 
 FLAGS
   --app-manifest=<value>  Path to the app manifest.json file:
-  --org=<value>           Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>           Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Update the existing app in developer hub
@@ -254,5 +254,5 @@ EXAMPLES
   $ csdx app:update --app-manifest ./boilerplate/manifest.json
 ```
 
-_See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/update.ts)_
+_See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/update.ts)_
 <!-- commandsstop -->
