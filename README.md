@@ -20,7 +20,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.1.0 darwin-arm64 node-v18.17.0
+@contentstack/apps-cli/1.1.0 darwin-arm64 node-v18.16.0
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -82,7 +82,7 @@ FLAGS
   -n, --name=<value>      [default: app-boilerplate] Name of the app to be created
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
-  --org=<value>           Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>           Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Create a new app in Developer Hub and optionally clone a boilerplate locally.
@@ -109,7 +109,7 @@ USAGE
 
 FLAGS
   --app-uid=<value>  Provide the app UID of an existing app.
-  --org=<value>      Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>      Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Delete app from marketplace
@@ -137,7 +137,7 @@ FLAGS
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
   --app-uid=<value>       Provide the app UID of an existing app.
-  --org=<value>           Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>           Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Get details of an app in developer hub
@@ -164,7 +164,7 @@ USAGE
 
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
-  --org=<value>            Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>            Provide the organization UID to fetch the app details for the operation.
   --stack-api-key=<value>  API key of the stack where the app operation is to be performed.
 
 DESCRIPTION
@@ -190,7 +190,7 @@ USAGE
 
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
-  --org=<value>            Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>            Provide the organization UID to fetch the app details for the operation.
   --stack-api-key=<value>  API key of the stack where the app operation is to be performed.
 
 DESCRIPTION
@@ -217,7 +217,7 @@ USAGE
 FLAGS
   --app-uid=<value>           Provide the app UID of an existing app.
   --installation-uid=<value>  Provide the installation ID of the app that needs to be uninstalled.
-  --org=<value>               Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>               Provide the organization UID to fetch the app details for the operation.
   --uninstall-all             Please select stacks from where the app must be uninstalled.
 
 DESCRIPTION
@@ -243,7 +243,7 @@ USAGE
 
 FLAGS
   --app-manifest=<value>  Path to the app manifest.json file:
-  --org=<value>           Provide the organization UID to fetch the app details for the desired operation.
+  --org=<value>           Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Update the existing app in developer hub
