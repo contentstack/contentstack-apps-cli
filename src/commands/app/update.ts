@@ -121,7 +121,7 @@ export default class Update extends AppCLIBaseCommand {
 
     if (!this.manifestData.uid) {
       appData = (await getApp(this.flags, this.orgUid, {
-        managementSdk: this.managementAppSdk,
+        marketplaceSdk: this.marketplaceAppSdk,
         log: this.log,
       })) as App;
       this.manifestData.uid = appData.uid;
@@ -130,7 +130,7 @@ export default class Update extends AppCLIBaseCommand {
         { "app-uid": this.manifestData.uid as any },
         this.orgUid,
         {
-          managementSdk: this.managementAppSdk,
+          marketplaceSdk: this.marketplaceAppSdk,
           log: this.log,
         }
       );

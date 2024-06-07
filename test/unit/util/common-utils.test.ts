@@ -4,7 +4,9 @@ import {
   cliux,
   configHandler,
   ContentstackClient,
+  ContentstackMarketplaceClient,
   managementSDKClient,
+  marketplaceSDKClient,
 } from "@contentstack/cli-utilities";
 
 import { LogFn } from "../../../src/types";
@@ -20,13 +22,13 @@ const developerHubBaseUrl = getDeveloperHubUrl();
 describe("common utils", () => {
   const log: LogFn = () => {};
   let managementSdk: ContentstackClient;
-  let managementAppSdk: ContentstackClient;
+  let marketplaceAppSdk: ContentstackMarketplaceClient;
 
   before(async () => {
     managementSdk = await managementSDKClient({
       host: region.cma.replace("https://", ""),
     });
-    managementAppSdk = await managementSDKClient({
+    marketplaceAppSdk = await marketplaceSDKClient({
       host: developerHubBaseUrl,
     });
   });
@@ -109,7 +111,7 @@ describe("common utils", () => {
             "test-uid-1",
             {
               log,
-              managementSdk: managementAppSdk,
+              marketplaceSdk: marketplaceAppSdk,
             }
           );
           expect(app.uid).to.equal(mock.apps[0].uid);
@@ -130,7 +132,7 @@ describe("common utils", () => {
           async () =>
             await fetchApps({ "app-type": "stack" as any }, "test-uid-1", {
               log,
-              managementSdk: managementAppSdk,
+              marketplaceSdk: marketplaceAppSdk,
             })
         )
         .catch(({ message }) => expect(message).to.contains('"status":400'))
