@@ -41,12 +41,12 @@ export default class Get extends AppCLIBaseCommand {
 
       if (!this.flags["app-uid"]) {
         appData = await getApp(this.flags, this.sharedConfig.org, {
-          managementSdk: this.managementAppSdk,
+          marketplaceSdk: this.marketplaceAppSdk,
           log: this.log,
         });
       } else {
         appData = await fetchApp(this.flags, this.sharedConfig.org, {
-          managementSdk: this.managementAppSdk,
+          marketplaceSdk: this.marketplaceAppSdk,
           log: this.log,
         });
       }
