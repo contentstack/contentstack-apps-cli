@@ -30,7 +30,7 @@ export default class Delete extends AppCLIBaseCommand {
 
       if (!this.flags["app-uid"]) {
         app = await getApp(this.flags, this.sharedConfig.org, {
-          managementSdk: this.managementAppSdk,
+          marketplaceSdk: this.marketplaceAppSdk,
           log: this.log,
         });
         this.flags["app-uid"] = app?.uid;
@@ -49,7 +49,7 @@ export default class Delete extends AppCLIBaseCommand {
         
         if (userConfirmation) {
           await deleteApp(this.flags, this.sharedConfig.org, {
-            managementSdk: this.managementAppSdk,
+            marketplaceSdk: this.marketplaceAppSdk,
             log: this.log,
           });
           this.log(
