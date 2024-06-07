@@ -113,11 +113,11 @@ function fetchAppInstallations(
     });
 }
 
-function deleteApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
-  const { managementSdk } = options;
+function deleteApp(flags: FlagInput, orgUid: string, options: MarketPlaceOptions) {
+  const { marketplaceSdk } = options;
   const app: any = flags["app-uid"];
-  return managementSdk
-    .organization(orgUid)
+  return marketplaceSdk
+    .marketplace(orgUid)
     .app(app as string)
     .delete();
 }
