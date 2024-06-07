@@ -21,6 +21,7 @@ import {
   fetchInstalledApps,
   fetchApps,
   sanitizePath,
+  MarketPlaceOptions,
 } from "./common-utils";
 
 /**
@@ -106,7 +107,7 @@ async function getOrg(flags: FlagInput, options: CommonOptions) {
 async function getApp(
   flags: FlagInput,
   orgUid: string,
-  options: CommonOptions
+  options: MarketPlaceOptions
 ): Promise<Record<string, any> | undefined> {
   cliux.loader("Loading Apps");
   const apps = await fetchApps(flags, orgUid, options);
@@ -131,7 +132,7 @@ async function getApp(
 async function getInstalledApps(
   flags: FlagInput,
   orgUid: string,
-  options: CommonOptions
+  options: MarketPlaceOptions
 ): Promise<Record<string, any> | undefined> {
   cliux.loader("Loading Apps");
   const apps = await fetchInstalledApps(flags, orgUid, options);
