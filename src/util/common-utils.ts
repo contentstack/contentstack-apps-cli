@@ -54,15 +54,14 @@ function getOrgAppUiLocation(): Extension[] {
 async function fetchApps(
   flags: FlagInput,
   orgUid: string,
-  options: CommonOptions,
+  options: MarketPlaceOptions,
   skip = 0,
   apps: Record<string, any>[] = []
 ): Promise<Record<string, any>[]> {
-  const { log, managementSdk } = options;
-  const response = await managementSdk
-    .organization(orgUid)
-    .app()
-    .findAll({
+  const { log, marketplaceSdk } = options;
+  const response = await marketplaceSdk
+    .marketplace(orgUid)
+    .findAllApps({
       limit: 50,
       asc: "name",
       include_count: true,
@@ -85,11 +84,11 @@ async function fetchApps(
   return apps;
 }
 
-function fetchApp(flags: FlagInput, orgUid: string, options: CommonOptions) {
-  const { managementSdk } = options;
+function fetchApp(flags: FlagInput, orgUid: string, options: MarketPlaceOptions) {
+  const { marketplaceSdk } = options;
   const app: any = flags["app-uid"];
-  return managementSdk
-    .organization(orgUid)
+  return marketplaceSdk
+    .marketplace(orgUid)
     .app(app as string)
     .fetch();
 }
@@ -218,9 +217,9 @@ function uninstallApp(
 async function fetchInstalledApps(
   flags: FlagInput,
   orgUid: string,
-  options: CommonOptions
+  options: MarketPlaceOptions
 ) {
-  const { managementSdk, log } = options;
+  const { marketplaceSdk, log } = options;
   const apps = (await fetchApps(flags, orgUid, options)) || [];
   let batchRequests = [];
   // Make calls in batch. 10 requests per batch allowed.
@@ -231,11 +230,10 @@ async function fetchInstalledApps(
   for (const batch of batchRequests) {
     const promises = batch.map(async (app) => {
       try {
-        const installations = await managementSdk
-          .organization(orgUid)
+        const installations = await marketplaceSdk
+          .marketplace(orgUid)
           .app(app.uid)
-          .installation()
-          .findAll();
+          .listInstallations();
         return installations.items.length ? installations.items : null;
       } catch (error) {
         log("Unable to fetch installations.", "warn");
