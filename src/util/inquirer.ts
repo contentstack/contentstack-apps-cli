@@ -86,13 +86,14 @@ async function getDirName(path: string): Promise<string> {
  */
 async function getOrg(flags: FlagInput, options: CommonOptions) {
   const organizations = (await getOrganizations(options)) || [];
+  let orgUid = flags.org as unknown as string;
 
   if (!(flags.org && find(organizations, { uid: flags.org }))) {
     if (flags.org) {
       throw new Error(messages.ORG_UID_NOT_FOUND);
     }
 
-    flags.org = await cliux
+    orgUid = await cliux
       .inquire({
         type: "search-list",
         name: "Organization",
@@ -102,7 +103,7 @@ async function getOrg(flags: FlagInput, options: CommonOptions) {
       .then((name) => find(organizations, { name })?.uid);
   }
 
-  return flags.org;
+  return orgUid;
 }
 
 async function getApp(

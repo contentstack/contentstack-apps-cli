@@ -20,7 +20,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.1.1 darwin-arm64 node-v18.16.0
+@contentstack/apps-cli/1.1.1 darwin-arm64 node-v18.20.2
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -83,7 +83,6 @@ FLAGS
   -n, --name=<value>      [default: app-boilerplate] Name of the app to be created
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
-  --org=<value>           Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Create a new app in Developer Hub and optionally clone a boilerplate locally.
@@ -110,7 +109,6 @@ USAGE
 
 FLAGS
   --app-uid=<value>  Provide the app UID of an existing app.
-  --org=<value>      Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Delete app from marketplace
@@ -131,12 +129,17 @@ Deploy an app
 
 ```
 USAGE
-  $ csdx app:deploy [--app-uid <value>] [--hosting-type <value>] [--app-url <value>]
+  $ csdx app:deploy [--app-uid <value>] [--hosting-type <value>] [--app-url <value>] [-y] [--project-type
+    existing-project|new-project] [-c <value>]
 
 FLAGS
-  --app-uid=<value>       Provide the app UID of an existing app.
-  --app-url=<value>       App URL
-  --hosting-type=<value>  Hosting type of the app
+  -c, --config=<value>     [optional] path of config file
+  -y, --yes                Force disconnect launch project by skipping the confirmation
+  --app-uid=<value>        Provide the app UID of an existing app.
+  --app-url=<value>        App URL
+  --hosting-type=<value>   Hosting Type
+  --project-type=<option>  Project Type
+                           <options: existing-project|new-project>
 
 DESCRIPTION
   Deploy an app
@@ -151,7 +154,7 @@ EXAMPLES
   $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --app-url <https://localhost:3000>
 ```
 
-_See code: [src/commands/app/deploy.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/deploy.ts)_
+_See code: [src/commands/app/deploy.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/deploy.ts)_
 
 ## `csdx app:get`
 
@@ -166,7 +169,6 @@ FLAGS
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
   --app-uid=<value>       Provide the app UID of an existing app.
-  --org=<value>           Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Get details of an app in developer hub
@@ -193,7 +195,6 @@ USAGE
 
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
-  --org=<value>            Provide the organization UID to fetch the app details for the operation.
   --stack-api-key=<value>  API key of the stack where the app operation is to be performed.
 
 DESCRIPTION
@@ -219,7 +220,6 @@ USAGE
 
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
-  --org=<value>            Provide the organization UID to fetch the app details for the operation.
   --stack-api-key=<value>  API key of the stack where the app operation is to be performed.
 
 DESCRIPTION
@@ -246,7 +246,6 @@ USAGE
 FLAGS
   --app-uid=<value>           Provide the app UID of an existing app.
   --installation-uid=<value>  Provide the installation ID of the app that needs to be uninstalled.
-  --org=<value>               Provide the organization UID to fetch the app details for the operation.
   --uninstall-all             Please select stacks from where the app must be uninstalled.
 
 DESCRIPTION
@@ -272,7 +271,6 @@ USAGE
 
 FLAGS
   --app-manifest=<value>  Path to the app manifest.json file:
-  --org=<value>           Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Update the existing app in developer hub
