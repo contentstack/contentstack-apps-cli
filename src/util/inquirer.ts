@@ -12,7 +12,7 @@ import {
 import { Installation } from "@contentstack/management/types/app/installation";
 import { AppTarget } from "@contentstack/management/types/app/index";
 
-import messages, { $t, errors, uninstallAppMsg } from "../messages";
+import messages, { $t, deployAppMsg, errors, uninstallAppMsg } from "../messages";
 import {
   CommonOptions,
   getOrganizations,
@@ -23,6 +23,7 @@ import {
   sanitizePath,
   MarketPlaceOptions,
 } from "./common-utils";
+import { LaunchProjectRes } from "../types";
 
 /**
  * @method getAppName
@@ -85,13 +86,14 @@ async function getDirName(path: string): Promise<string> {
  */
 async function getOrg(flags: FlagInput, options: CommonOptions) {
   const organizations = (await getOrganizations(options)) || [];
+  let orgUid = flags.org as unknown as string;
 
   if (!(flags.org && find(organizations, { uid: flags.org }))) {
     if (flags.org) {
       throw new Error(messages.ORG_UID_NOT_FOUND);
     }
 
-    flags.org = await cliux
+    orgUid = await cliux
       .inquire({
         type: "search-list",
         name: "Organization",
@@ -101,7 +103,7 @@ async function getOrg(flags: FlagInput, options: CommonOptions) {
       .then((name) => find(organizations, { name })?.uid);
   }
 
-  return flags.org;
+  return orgUid;
 }
 
 async function getApp(
@@ -291,6 +293,74 @@ function populateMissingDataInInstallations(
   return installations;
 }
 
+async function getHostingType() {
+  const hostingTypes = [
+    { name: "Hosting with Launch", value: "Hosting with Launch" },
+    { name: "Custom Hosting", value: "Custom Hosting" },
+  ];
+
+  return cliux.inquire<string>({
+    type: "list",
+    name: "hosting types",
+    message: "Hosting type",
+    choices: hostingTypes,
+  });
+}
+
+async function getAppUrl(defaultUrl: string = ""): Promise<string | boolean> {
+  return cliux.inquire({
+    type: "input",
+    name: "appUrl",
+    default: defaultUrl,
+    message: "App URL",
+    validate: (name) => {
+      const urlPattern = /^(http|https):\/\//;
+      if (!name.length) {
+        return errors.INVALID_URL;
+      }
+
+      if (!urlPattern.test(name)) {
+        return errors.INVALID_URL;
+      }
+
+      return true;
+    },
+  });
+}
+
+async function selectProject(
+  projects: LaunchProjectRes[]
+): Promise<LaunchProjectRes | undefined> {
+  return await cliux
+    .inquire({
+      type: "search-list",
+      name: "Project",
+      choices: projects,
+      message: "Choose a project",
+    })
+    .then((name) => find(projects, { name }));
+}
+
+const askProjectType = async (): Promise<string> => {
+  return cliux.inquire<string>({
+    type: "list",
+    name: "selectedProject",
+    message: "Project type",
+    choices: [
+      { name: "Existing project", value: "existing-project" },
+      { name: "New Project", value: "new-project" },
+    ],
+  });
+};
+
+async function askConfirmation(): Promise<boolean> {
+  return await cliux.inquire<boolean>({
+    type: "confirm",
+    message: deployAppMsg.DISCONNECT_PROJECT,
+    name: "disconnect_launch_confirmation",
+  });
+}
+
 export {
   getOrg,
   getAppName,
@@ -300,4 +370,9 @@ export {
   getInstalledApps,
   getStack,
   getInstallation,
+  getHostingType,
+  getAppUrl,
+  askProjectType,
+  askConfirmation,
+  selectProject,
 };
