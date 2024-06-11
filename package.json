@@ -40,7 +40,7 @@
     "@types/tmp": "^0.2.6",
     "axios": "^1.6.5",
     "chai": "^4.3.10",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.5",
     "eslint": "^8.56.0",
     "eslint-config-oclif": "^4.0.0",
     "eslint-config-oclif-typescript": "^1.0.3",
