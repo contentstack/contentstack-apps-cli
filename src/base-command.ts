@@ -13,6 +13,9 @@ import {
   InquirePayload,
   cliux,
   isAuthenticated,
+  ContentstackMarketplaceClient,
+  marketplaceSDKInitiator,
+  marketplaceSDKClient,
 } from "@contentstack/cli-utilities";
 
 import config from "./config";
@@ -39,6 +42,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
   };
   protected managementSdk!: ContentstackClient;
   protected managementAppSdk!: ContentstackClient;
+  protected marketplaceAppSdk!: ContentstackMarketplaceClient;
 
   protected flags!: Flags<T>;
   protected args!: Args<T>;
@@ -72,6 +76,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
     this.developerHubBaseUrl =
       this.sharedConfig.developerHubBaseUrl || getDeveloperHubUrl();
     await this.initCmaSDK();
+    await this.initMarketplaceSDK();
 
     // Init logger
     const logger = new Logger(this.sharedConfig);
@@ -123,6 +128,13 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
       host: this.cmaHost,
     });
     this.managementAppSdk = await managementSDKClient({
+      host: this.developerHubBaseUrl,
+    });
+  }
+  
+  async initMarketplaceSDK() {
+    marketplaceSDKInitiator.init(this.context);
+    this.marketplaceAppSdk = await marketplaceSDKClient({
       host: this.developerHubBaseUrl,
     });
   }

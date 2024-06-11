@@ -55,12 +55,12 @@ export default class Install extends AppCLIBaseCommand {
       // fetch app details
       if (!this.flags["app-uid"]) {
         app = await getApp(this.flags, this.sharedConfig.org, {
-          managementSdk: this.managementAppSdk,
+          marketplaceSdk: this.marketplaceAppSdk,
           log: this.log,
         });
       } else {
         app = await fetchApp(this.flags, this.sharedConfig.org, {
-          managementSdk: this.managementAppSdk,
+          marketplaceSdk: this.marketplaceAppSdk,
           log: this.log,
         });
       }
@@ -108,7 +108,7 @@ export default class Install extends AppCLIBaseCommand {
         "info"
       );
       await installApp(this.flags, this.sharedConfig.org, appType, {
-        managementSdk: this.managementAppSdk,
+        marketplaceSdk: this.marketplaceAppSdk,
         log: this.log,
       });
       this.log(

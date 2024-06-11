@@ -266,8 +266,8 @@ export default class Create extends BaseCommand<typeof Create> {
         appName: this.sharedConfig.appName,
       })
     );
-    await this.managementAppSdk
-      .organization(this.sharedConfig.org)
+    await this.marketplaceAppSdk
+      .marketplace(this.sharedConfig.org)
       .app()
       .create(this.appData as AppData)
       .then((response) => {
