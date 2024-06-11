@@ -181,8 +181,9 @@ export default class Deploy extends AppCLIBaseCommand {
     const apolloClient = await this.getApolloClient();
     const projects = await getProjects(apolloClient);
     const isProjectConnected = projects.filter(
-      (project) => project.developerHubAppUid === this.flags["app-uid"]
+      (project) => project?.developerHubAppUid === this.flags["app-uid"]
     );
+
     if (isProjectConnected?.length) {
       this.flags["yes"] = this.flags["yes"] || (await askConfirmation());
       if (!this.flags["yes"]) {
@@ -203,6 +204,13 @@ export default class Deploy extends AppCLIBaseCommand {
     await this.handleProjectType(config, updateHostingPayload, projects);
   }
 
+  /**
+   * Handles the project type based on the provided configuration, update hosting payload, and projects.
+   * @param config - The configuration object.
+   * @param updateHostingPayload - The update hosting payload.
+   * @param projects - The list of projects.
+   * @returns A Promise that resolves to void.
+   */
   async handleProjectType(
     config: Record<string, string>,
     updateHostingPayload: UpdateHostingParams,
@@ -223,6 +231,12 @@ export default class Deploy extends AppCLIBaseCommand {
     updateHostingPayload["deployment_url"] = this.flags["app-url"];
   }
 
+  /**
+   * Handles an existing project by updating the hosting payload and returning the project URL.
+   * @param updateHostingPayload - The payload containing the updated hosting information.
+   * @param projects - An array of projects to choose from.
+   * @returns A Promise that resolves to the project URL if a project is selected, otherwise an empty string.
+   */
   async handleExistingProject(
     updateHostingPayload: UpdateHostingParams,
     projects: any[]
@@ -236,6 +250,13 @@ export default class Deploy extends AppCLIBaseCommand {
     return "";
   }
 
+  /**
+   * Handles the deployment of a new project.
+   * 
+   * @param config - The configuration object containing project details.
+   * @param updateHostingPayload - The payload for updating hosting parameters.
+   * @returns A Promise that resolves to a string.
+   */
   async handleNewProject(
     config: Record<string, string>,
     updateHostingPayload: UpdateHostingParams
