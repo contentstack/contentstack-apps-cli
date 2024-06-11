@@ -1,6 +1,6 @@
-import { cliux, flags } from "@contentstack/cli-utilities";
+import { cliux, flags, FlagInput } from "@contentstack/cli-utilities";
 
-import {AppCLIBaseCommand} from "../../app-cli-base-coomand";
+import { AppCLIBaseCommand } from "../../app-cli-base-command";
 import { $t, commonMsg, deleteAppMsg } from "../../messages";
 import { getOrg, fetchAppInstallations, deleteApp, getApp } from "../../util";
 
@@ -13,7 +13,7 @@ export default class Delete extends AppCLIBaseCommand {
     "$ <%= config.bin %> <%= command.id %> --app-uid <value> --org <value> -d ./boilerplate",
   ];
 
-  static flags = {
+  static flags: FlagInput = {
     "app-uid": flags.string({
       description: commonMsg.APP_UID,
     }),
@@ -22,10 +22,12 @@ export default class Delete extends AppCLIBaseCommand {
   async run(): Promise<void> {
     try {
       let app;
-      this.sharedConfig.org = this.manifestData?.organization_uid ?? (await getOrg(this.flags, {
-        managementSdk: this.managementSdk,
-        log: this.log,
-      }));
+      this.sharedConfig.org =
+        this.manifestData?.organization_uid ??
+        (await getOrg(this.flags, {
+          managementSdk: this.managementSdk,
+          log: this.log,
+        }));
       this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
 
       if (!this.flags["app-uid"]) {
@@ -41,12 +43,14 @@ export default class Delete extends AppCLIBaseCommand {
         { managementSdk: this.managementAppSdk, log: this.log }
       );
       if (appInstallations.length === 0) {
-        const userConfirmation = this.flags['yes'] || await cliux.inquire({
-          type: "confirm",
-          message: deleteAppMsg.DELETE_CONFIRMATION,
-          name: "confirmation"
-        })
-        
+        const userConfirmation =
+          this.flags["yes"] ||
+          (await cliux.inquire({
+            type: "confirm",
+            message: deleteAppMsg.DELETE_CONFIRMATION,
+            name: "confirmation",
+          }));
+
         if (userConfirmation) {
           await deleteApp(this.flags, this.sharedConfig.org, {
             marketplaceSdk: this.marketplaceAppSdk,
@@ -55,10 +59,11 @@ export default class Delete extends AppCLIBaseCommand {
           this.log(
             $t(deleteAppMsg.APP_DELETED_SUCCESSFULLY, {
               app: app?.name || (this.flags["app-uid"] as string),
-            }), "info"
+            }),
+            "info"
           );
         } else {
-          this.log(commonMsg.USER_TERMINATION, "error")
+          this.log(commonMsg.USER_TERMINATION, "error");
         }
       } else {
         this.log(deleteAppMsg.APP_IS_INSTALLED, "error");

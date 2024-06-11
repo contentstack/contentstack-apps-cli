@@ -33,6 +33,7 @@ USAGE
 * [`csdx app`](#csdx-app)
 * [`csdx app:create`](#csdx-appcreate)
 * [`csdx app:delete`](#csdx-appdelete)
+* [`csdx app:deploy`](#csdx-appdeploy)
 * [`csdx app:get`](#csdx-appget)
 * [`csdx app:install`](#csdx-appinstall)
 * [`csdx app:reinstall`](#csdx-appreinstall)
@@ -74,7 +75,7 @@ Create a new app in Developer Hub and optionally clone a boilerplate locally.
 
 ```
 USAGE
-  $ csdx app:create [--org <value>] [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>]
+  $ csdx app:create [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>]
 
 FLAGS
   -c, --config=<value>    Path of the external config
@@ -105,7 +106,7 @@ Delete app from marketplace
 
 ```
 USAGE
-  $ csdx app:delete [--org <value>] [--app-uid <value>]
+  $ csdx app:delete [--app-uid <value>]
 
 FLAGS
   --app-uid=<value>  Provide the app UID of an existing app.
@@ -124,13 +125,41 @@ EXAMPLES
 
 _See code: [src/commands/app/delete.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/delete.ts)_
 
+## `csdx app:deploy`
+
+Deploy an app
+
+```
+USAGE
+  $ csdx app:deploy [--app-uid <value>] [--hosting-type <value>] [--app-url <value>]
+
+FLAGS
+  --app-uid=<value>       Provide the app UID of an existing app.
+  --app-url=<value>       App URL
+  --hosting-type=<value>  Hosting type of the app
+
+DESCRIPTION
+  Deploy an app
+
+EXAMPLES
+  $ csdx app:deploy
+
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1>
+
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch>
+
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --app-url <https://localhost:3000>
+```
+
+_See code: [src/commands/app/deploy.ts](https://github.com/contentstack/apps-cli/blob/v1.1.0/src/commands/app/deploy.ts)_
+
 ## `csdx app:get`
 
 Get details of an app in developer hub
 
 ```
 USAGE
-  $ csdx app:get [--org <value>] [--app-uid <value>] [--app-type stack|organization] [-d <value>]
+  $ csdx app:get [--app-uid <value>] [--app-type stack|organization] [-d <value>]
 
 FLAGS
   -d, --data-dir=<value>  Current working directory.
@@ -160,7 +189,7 @@ Install an app from the marketplace
 
 ```
 USAGE
-  $ csdx app:install [--org <value>] [--app-uid <value>] [--stack-api-key <value>]
+  $ csdx app:install [--app-uid <value>] [--stack-api-key <value>]
 
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
@@ -186,7 +215,7 @@ Reinstall an app from the marketplace
 
 ```
 USAGE
-  $ csdx app:reinstall [--org <value>] [--app-uid <value>] [--stack-api-key <value>]
+  $ csdx app:reinstall [--app-uid <value>] [--stack-api-key <value>]
 
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
@@ -212,7 +241,7 @@ Uninstall an app
 
 ```
 USAGE
-  $ csdx app:uninstall [--org <value>] [--app-uid <value>] [--installation-uid <value>] [--uninstall-all]
+  $ csdx app:uninstall [--app-uid <value>] [--installation-uid <value>] [--uninstall-all]
 
 FLAGS
   --app-uid=<value>           Provide the app UID of an existing app.
@@ -239,7 +268,7 @@ Update the existing app in developer hub
 
 ```
 USAGE
-  $ csdx app:update [--org <value>] [--app-manifest <value>]
+  $ csdx app:update [--app-manifest <value>]
 
 FLAGS
   --app-manifest=<value>  Path to the app manifest.json file:
