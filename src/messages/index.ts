@@ -20,6 +20,8 @@ const errors = {
     "App could not be registered. Please verify the inputs and try again.",
   DUPLICATE_APP_NAME:
     "The {appName} app already exists. Please create an app with a different name.",
+  INVALID_URL:
+    "Please enter a valid URL. The URL should start with http:// or https://",
 };
 
 const commonMsg = {
@@ -110,6 +112,18 @@ const reinstallAppMsg = {
   APP_UID: "Provide the app UID of an existing app to be reinstalled.",
 }
 
+const deployAppMsg = {
+  APP_UID: "Provide the app UID of an existing app to be reinstalled.",
+  APP_DEPLOYED: "{app} deployed successfully.",
+  FORCE_DISCONNECT: "Force disconnect launch project by skipping the confirmation",
+  PROJECT_TYPE: "Project Type",
+  APP_URL: "App URL",
+  HOSTING_TYPE: "Hosting Type",
+  CONFIG_FILE: "[optional] path of config file",
+  LAUNCH_PROJECT_SKIP_MSG: "Launch Project connected! Skipping deployment process",
+  DISCONNECT_PROJECT: "Are you sure you want to disconnect launch Project ?"
+}
+
 const messages: typeof errors &
   typeof commonMsg &
   typeof appCreate &
@@ -118,7 +132,8 @@ const messages: typeof errors &
   typeof deleteAppMsg &
   typeof installAppMsg &
   typeof uninstallAppMsg &
-  typeof reinstallAppMsg = {
+  typeof reinstallAppMsg &
+  typeof deployAppMsg= {
   ...errors,
   ...commonMsg,
   ...appCreate,
@@ -127,7 +142,8 @@ const messages: typeof errors &
   ...deleteAppMsg,
   ...installAppMsg,
   ...uninstallAppMsg,
-  ...reinstallAppMsg
+  ...reinstallAppMsg,
+  ...deployAppMsg
 };
 
 const $t = (msg: string, args: Record<string, string>): string => {
@@ -142,4 +158,4 @@ const $t = (msg: string, args: Record<string, string>): string => {
 };
 
 export default messages;
-export { $t, errors, commonMsg, appCreate, appUpdate, getAppMsg, deleteAppMsg, installAppMsg, uninstallAppMsg, reinstallAppMsg };
+export { $t, errors, commonMsg, appCreate, appUpdate, getAppMsg, deleteAppMsg, installAppMsg, uninstallAppMsg, reinstallAppMsg, deployAppMsg };
