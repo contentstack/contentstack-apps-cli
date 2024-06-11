@@ -1,7 +1,7 @@
-import { flags } from "@contentstack/cli-utilities";
+import { flags, FlagInput } from "@contentstack/cli-utilities";
 
 import { commonMsg } from "../../messages";
-import {AppCLIBaseCommand} from "../../app-cli-base-coomand";
+import { AppCLIBaseCommand } from "../../app-cli-base-command";
 import { getOrg, getApp, writeFile, fetchApp } from "../../util";
 
 export default class Get extends AppCLIBaseCommand {
@@ -14,7 +14,7 @@ export default class Get extends AppCLIBaseCommand {
     "$ <%= config.bin %> <%= command.id %> --org <value> --app-uid <value> --app-type organization",
   ];
 
-  static flags = {
+  static flags: FlagInput = {
     "app-uid": flags.string({
       description: commonMsg.APP_UID,
     }),
@@ -33,11 +33,13 @@ export default class Get extends AppCLIBaseCommand {
     try {
       let appData;
       this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
-      
-      this.sharedConfig.org = this.manifestData?.organization_uid ?? (await getOrg(this.flags, {
-        managementSdk: this.managementSdk,
-        log: this.log,
-      }));
+
+      this.sharedConfig.org =
+        this.manifestData?.organization_uid ??
+        (await getOrg(this.flags, {
+          managementSdk: this.managementSdk,
+          log: this.log,
+        }));
 
       if (!this.flags["app-uid"]) {
         appData = await getApp(this.flags, this.sharedConfig.org, {
