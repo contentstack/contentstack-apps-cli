@@ -1,8 +1,10 @@
 import { ApolloClient } from "@apollo/client/core";
-import { Flags, FlagInput } from "@contentstack/cli-utilities";
+import { Flags, FlagInput, cliux } from "@contentstack/cli-utilities";
 import config from "@contentstack/cli-launch/dist/config";
 import { GraphqlApiClient } from "@contentstack/cli-launch/dist/util";
 import Launch from "@contentstack/cli-launch/dist/commands/launch/index";
+
+import { UpdateHostingParams } from "../../types";
 import { commonMsg, deployAppMsg } from "../../messages";
 import { AppCLIBaseCommand } from "../../app-cli-base-command";
 import {
@@ -19,8 +21,8 @@ import {
   setupConfig,
   disconnectApp,
   formatUrl,
+  handleProjectNameConflict,
 } from "../../util";
-import { UpdateHostingParams } from "../../types";
 
 export default class Deploy extends AppCLIBaseCommand {
   static description = "Deploy an app";
@@ -47,10 +49,10 @@ export default class Deploy extends AppCLIBaseCommand {
       description: deployAppMsg.FORCE_DISCONNECT,
       default: false,
     }),
-    "project-type": Flags.string({
+    "launch-project-type": Flags.string({
       multiple: false,
       options: ["existing-project", "new-project"],
-      description: deployAppMsg.PROJECT_TYPE,
+      description: deployAppMsg.LAUNCH_PROJECT_TYPE,
     }),
     config: Flags.string({
       char: "c",
@@ -88,15 +90,19 @@ export default class Deploy extends AppCLIBaseCommand {
           return;
       }
 
-      await updateApp(
-        flags,
-        this.sharedConfig.org,
-        {
-          managementSdk: this.managementAppSdk,
-          log: this.log,
-        },
-        updateHostingPayload
-      );
+      if (flags["app-url"]) {
+        const spinner = cliux.loaderV2("Updating App...");
+        await updateApp(
+          flags,
+          this.sharedConfig.org,
+          {
+            managementSdk: this.managementAppSdk,
+            log: this.log,
+          },
+          updateHostingPayload
+        );
+        cliux.loaderV2("done", spinner);
+      }
 
       this.log(
         this.$t(deployAppMsg.APP_DEPLOYED, {
@@ -106,7 +112,6 @@ export default class Deploy extends AppCLIBaseCommand {
       );
       this.log(`App URL: ${flags["app-url"]}`, "info");
     } catch (error: any) {
-      console.log("error", error);
       this.log(error?.errorMessage || error?.message || error, "error");
       this.exit(1);
     }
@@ -187,20 +192,18 @@ export default class Deploy extends AppCLIBaseCommand {
     if (isProjectConnected?.length) {
       this.flags["yes"] = this.flags["yes"] || (await askConfirmation());
       if (!this.flags["yes"]) {
-        this.log(
-          deployAppMsg.LAUNCH_PROJECT_SKIP_MSG,
-          "info"
-        );
-        return;
+        throw new Error(deployAppMsg.APP_UPDATE_TERMINATION_MSG);
       }
+      const spinner = cliux.loaderV2("Disconnecting launch project...");
       await disconnectApp(
         this.flags,
         this.sharedConfig.org,
         this.developerHubBaseUrl
       );
+      cliux.loaderV2("disconnected...", spinner);
     }
-    this.flags["project-type"] =
-      this.flags["project-type"] || (await askProjectType());
+    this.flags["launch-project-type"] =
+      this.flags["launch-project-type"] || (await askProjectType());
     await this.handleProjectType(config, updateHostingPayload, projects);
   }
 
@@ -218,9 +221,13 @@ export default class Deploy extends AppCLIBaseCommand {
   ): Promise<void> {
     let url: string = "";
 
-    if (this.flags["project-type"] === "existing-project") {
+    if (this.flags["launch-project-type"] === "existing-project") {
       url = await this.handleExistingProject(updateHostingPayload, projects);
-    } else if (this.flags["project-type"] === "new-project") {
+    } else if (this.flags["launch-project-type"] === "new-project") {
+      config["name"] = await handleProjectNameConflict(
+        config["name"],
+        projects
+      );
       url = await this.handleNewProject(config, updateHostingPayload);
     } else {
       this.log("Invalid project type", "error");
@@ -252,34 +259,42 @@ export default class Deploy extends AppCLIBaseCommand {
 
   /**
    * Handles the deployment of a new project.
-   * 
+   *
    * @param config - The configuration object containing project details.
    * @param updateHostingPayload - The payload for updating hosting parameters.
-   * @returns A Promise that resolves to a string.
+   * @returns The URL of the deployed project.
    */
   async handleNewProject(
     config: Record<string, string>,
     updateHostingPayload: UpdateHostingParams
   ): Promise<string> {
-    await Launch.run([
-      "--org",
-      this.sharedConfig.org,
-      "--name",
-      config["name"],
-      "--type",
-      config["type"],
-      "--environment",
-      config["environment"],
-      "--framework",
-      config["framework"],
-      "--build-command",
-      config["build-command"],
-      "--out-dir",
-      config["out-dir"],
-      "--branch",
-      config["branch"],
-    ]);
-    updateHostingPayload["deployment_url"] = this.flags["app-url"];
+    const args = [];
+    const configMappings = {
+      org: this.sharedConfig.org,
+      name: config["name"],
+      type: config["type"],
+      environment: config["environment"],
+      framework: config["framework"],
+      "build-command": config["build-command"],
+      "out-dir": config["out-dir"],
+      branch: config["branch"],
+    };
+
+    for (const [key, value] of Object.entries(configMappings)) {
+      if (config[key]) {
+        args.push(`--${key}`, value);
+      }
+    }
+
+    await Launch.run(args);
+    const apolloClient = await this.getApolloClient();
+    const projects = await getProjects(apolloClient);
+    const project = projects.find((project) => project.name === config["name"]);
+    if (project) {
+      updateHostingPayload["environment_uid"] = project.environmentUid;
+      updateHostingPayload["project_uid"] = project.uid;
+      return project.url || "";
+    }
     return "";
   }
 }

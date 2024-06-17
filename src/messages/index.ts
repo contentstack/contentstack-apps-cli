@@ -113,15 +113,16 @@ const reinstallAppMsg = {
 }
 
 const deployAppMsg = {
-  APP_UID: "Provide the app UID of an existing app to be reinstalled.",
   APP_DEPLOYED: "{app} deployed successfully.",
   FORCE_DISCONNECT: "Force disconnect launch project by skipping the confirmation",
-  PROJECT_TYPE: "Project Type",
+  LAUNCH_PROJECT_TYPE: "Launch Project Type",
   APP_URL: "App URL",
   HOSTING_TYPE: "Hosting Type",
   CONFIG_FILE: "[optional] path of config file",
-  LAUNCH_PROJECT_SKIP_MSG: "Launch Project connected! Skipping deployment process",
-  DISCONNECT_PROJECT: "Are you sure you want to disconnect launch Project ?"
+  APP_UPDATE_TERMINATION_MSG: "Launch Project connected! Skipping app hosting updates process...",
+  DISCONNECT_PROJECT: "Are you sure you want to disconnect launch Project ?",
+  PROJECT_NOT_FOUND: "Project not found!",
+  PROJECT_NAME_CONFLICT_FAILED: "Project name conflict resolution failed!"
 }
 
 const messages: typeof errors &
