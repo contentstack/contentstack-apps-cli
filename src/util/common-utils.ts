@@ -17,6 +17,8 @@ import {
   LogFn,
   UpdateHostingParams,
 } from "../types";
+import { askProjectName } from "./inquirer";
+import { deployAppMsg } from "../messages";
 
 export type CommonOptions = {
   log: LogFn;
@@ -304,7 +306,7 @@ async function getProjects(
   const projects: any = await apolloClient
     .query({ query: projectsQuery, variables: { query: {} } })
     .then(({ data: { projects } }: { data: { projects: any } }) => projects);
-    
+
   return map(
     projects.edges,
     ({
@@ -315,16 +317,14 @@ async function getProjects(
           deployment: { url },
           environment: { uid: environmentUid },
         },
-        integrations: {
-          developerHubApp: { uid: developerHubAppUid },
-        },
+        integrations: { developerHubApp },
       },
     }) => ({
       name,
       uid,
       url,
       environmentUid,
-      developerHubAppUid,
+      developerHubAppUid: developerHubApp?.uid || null,
     })
   );
 }
@@ -384,6 +384,22 @@ function formatUrl(url: string): string {
   return url ? (url.startsWith("https") ? url : `https://${url}`) : "";
 }
 
+const handleProjectNameConflict = async (
+  projectName: string,
+  projects: any[],
+  retry = 1
+): Promise<string> => {
+  if (retry > 3) {
+    throw new Error(deployAppMsg.PROJECT_NAME_CONFLICT_FAILED);
+  }
+  const project = projects.find((project) => project.name === projectName);
+  if (project) {
+    projectName = await askProjectName(projectName);
+    return handleProjectNameConflict(projectName, projects, retry + 1);
+  }
+  return projectName;
+};
+
 export {
   getOrganizations,
   getOrgAppUiLocation,
@@ -404,4 +420,5 @@ export {
   setupConfig,
   disconnectApp,
   formatUrl,
+  handleProjectNameConflict,
 };

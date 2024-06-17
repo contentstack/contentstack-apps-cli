@@ -12,7 +12,12 @@ import {
 import { Installation } from "@contentstack/management/types/app/installation";
 import { AppTarget } from "@contentstack/management/types/app/index";
 
-import messages, { $t, deployAppMsg, errors, uninstallAppMsg } from "../messages";
+import messages, {
+  $t,
+  deployAppMsg,
+  errors,
+  uninstallAppMsg,
+} from "../messages";
 import {
   CommonOptions,
   getOrganizations,
@@ -342,13 +347,13 @@ async function selectProject(
 }
 
 const askProjectType = async (): Promise<string> => {
-  return cliux.inquire<string>({
+  return await cliux.inquire<string>({
     type: "list",
-    name: "selectedProject",
-    message: "Project type",
+    name: "selected_project_type",
+    message: "Launch Project type",
     choices: [
-      { name: "Existing project", value: "existing-project" },
-      { name: "New Project", value: "new-project" },
+      { name: "Existing", value: "existing-project" },
+      { name: "New", value: "new-project" },
     ],
   });
 };
@@ -359,6 +364,25 @@ async function askConfirmation(): Promise<boolean> {
     message: deployAppMsg.DISCONNECT_PROJECT,
     name: "disconnect_launch_confirmation",
   });
+}
+
+const askProjectName = async (
+  projectName: string,
+): Promise<string> => {
+  return await cliux.inquire({
+    type: "input",
+    name: "name",
+    validate: inquireRequireValidation,
+    message: `${projectName} project already exist. Enter a new name to create a project.?`,
+  });
+};
+
+function inquireRequireValidation(input: any): string | boolean {
+  if (isEmpty(input)) {
+    return "This field can't be empty.";
+  }
+
+  return true;
 }
 
 export {
@@ -375,4 +399,5 @@ export {
   askProjectType,
   askConfirmation,
   selectProject,
+  askProjectName
 };
