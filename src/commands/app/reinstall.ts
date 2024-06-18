@@ -1,5 +1,5 @@
-import { cliux, flags } from "@contentstack/cli-utilities";
-import { AppCLIBaseCommand } from "../../app-cli-base-coomand";
+import { cliux, flags, FlagInput } from "@contentstack/cli-utilities";
+import { AppCLIBaseCommand } from "../../app-cli-base-command";
 import { $t, commonMsg, reinstallAppMsg } from "../../messages";
 import {
   getOrg,
@@ -20,7 +20,7 @@ export default class Reinstall extends AppCLIBaseCommand {
     "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>",
   ];
 
-  static flags = {
+  static flags: FlagInput = {
     "app-uid": flags.string({
       description: commonMsg.APP_UID,
     }),
