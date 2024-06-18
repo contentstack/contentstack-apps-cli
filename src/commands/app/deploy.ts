@@ -30,8 +30,9 @@ export default class Deploy extends AppCLIBaseCommand {
   static examples = [
     "$ <%= config.bin %> <%= command.id %>",
     "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1>",
-    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch>",
-    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --app-url <https://localhost:3000>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Custom Hosting> --app-url <https://localhost:3000>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <existing-project>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <existing-project> --config <config-path>",
   ];
 
   static flags: FlagInput = {
