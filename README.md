@@ -129,17 +129,17 @@ Deploy an app
 
 ```
 USAGE
-  $ csdx app:deploy [--app-uid <value>] [--hosting-type <value>] [--app-url <value>] [-y] [--project-type
+  $ csdx app:deploy [--app-uid <value>] [--hosting-type <value>] [--app-url <value>] [-y] [--launch-project-type
     existing-project|new-project] [-c <value>]
 
 FLAGS
-  -c, --config=<value>     [optional] path of config file
-  -y, --yes                Force disconnect launch project by skipping the confirmation
-  --app-uid=<value>        Provide the app UID of an existing app.
-  --app-url=<value>        App URL
-  --hosting-type=<value>   Hosting Type
-  --project-type=<option>  Project Type
-                           <options: existing-project|new-project>
+  -c, --config=<value>            [optional] path of config file
+  -y, --yes                       Force disconnect launch project by skipping the confirmation
+  --app-uid=<value>               Provide the app UID of an existing app.
+  --app-url=<value>               App URL
+  --hosting-type=<value>          Hosting Type
+  --launch-project-type=<option>  Launch Project Type
+                                  <options: existing-project|new-project>
 
 DESCRIPTION
   Deploy an app
@@ -149,9 +149,11 @@ EXAMPLES
 
   $ csdx app:deploy --org <UID> --app-uid <APP-UID-1>
 
-  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch>
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Custom Hosting> --app-url <https://localhost:3000>
 
-  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --app-url <https://localhost:3000>
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <existing-project>
+
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <existing-project> --config <config-path>
 ```
 
 _See code: [src/commands/app/deploy.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/deploy.ts)_
