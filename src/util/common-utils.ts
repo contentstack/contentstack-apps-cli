@@ -1,7 +1,24 @@
-import { ContentstackClient, FlagInput, ContentstackMarketplaceClient } from "@contentstack/cli-utilities";
-import { AppLocation, Extension, LogFn } from "../types";
-import { cliux, Stack } from "@contentstack/cli-utilities";
+import map from "lodash/map";
+import { ApolloClient } from "@apollo/client/core";
+import {
+  ContentstackClient,
+  FlagInput,
+  ContentstackMarketplaceClient,
+  cliux,
+  Stack,
+  FsUtility,
+} from "@contentstack/cli-utilities";
+import { projectsQuery } from "../graphql/queries";
 import { apiRequestHandler } from "./api-request-handler";
+import {
+  AppLocation,
+  Extension,
+  LaunchProjectRes,
+  LogFn,
+  UpdateHostingParams,
+} from "../types";
+import { askProjectName } from "./inquirer";
+import { deployAppMsg } from "../messages";
 
 export type CommonOptions = {
   log: LogFn;
@@ -84,7 +101,11 @@ async function fetchApps(
   return apps;
 }
 
-function fetchApp(flags: FlagInput, orgUid: string, options: MarketPlaceOptions) {
+function fetchApp(
+  flags: FlagInput,
+  orgUid: string,
+  options: MarketPlaceOptions
+) {
   const { marketplaceSdk } = options;
   const app: any = flags["app-uid"];
   return marketplaceSdk
@@ -113,7 +134,11 @@ function fetchAppInstallations(
     });
 }
 
-function deleteApp(flags: FlagInput, orgUid: string, options: MarketPlaceOptions) {
+function deleteApp(
+  flags: FlagInput,
+  orgUid: string,
+  options: MarketPlaceOptions
+) {
   const { marketplaceSdk } = options;
   const app: any = flags["app-uid"];
   return marketplaceSdk
@@ -258,6 +283,123 @@ async function fetchInstalledApps(
 // To remove the relative path
 const sanitizePath = (str: string) => str?.replace(/^(\.\.(\/|\\|$))+/, "");
 
+async function updateApp(
+  flags: FlagInput,
+  orgUid: string,
+  options: CommonOptions,
+  updateReqPayload: UpdateHostingParams
+) {
+  const { managementSdk } = options;
+  const appUid: any = flags["app-uid"];
+  const payload = {
+    uid: appUid,
+    hosting: updateReqPayload,
+  };
+  let app = managementSdk.organization(orgUid).app(appUid as string);
+  app = Object.assign(app, payload);
+  await app.update();
+}
+
+async function getProjects(
+  apolloClient: ApolloClient<any>
+): Promise<LaunchProjectRes[]> {
+  const projects: any = await apolloClient
+    .query({ query: projectsQuery, variables: { query: {} } })
+    .then(({ data: { projects } }: { data: { projects: any } }) => projects);
+
+  return map(
+    projects.edges,
+    ({
+      node: {
+        uid,
+        name,
+        latestDeploymentStatus: {
+          deployment: { url },
+          environment: { uid: environmentUid },
+        },
+        integrations: { developerHubApp },
+      },
+    }) => ({
+      name,
+      uid,
+      url,
+      environmentUid,
+      developerHubAppUid: developerHubApp?.uid || null,
+    })
+  );
+}
+
+function getManifestDetails(
+  flags: FlagInput,
+  orgUid: string,
+  options: CommonOptions
+) {
+  const { managementSdk } = options;
+  const app: any = flags["app-uid"];
+  return managementSdk
+    .organization(orgUid)
+    .app(app as string)
+    .hosting();
+}
+
+function setupConfig(configPath: string) {
+  const configDetails: Record<string, string> = {};
+  if (configPath) {
+    const config = new FsUtility().readFile(configPath, true) as Record<
+      string,
+      any
+    >;
+    configDetails["name"] = config?.name;
+    configDetails["type"] = config?.type;
+    configDetails["environment"] = config?.environment;
+    configDetails["framework"] = config?.framework;
+    configDetails["build-command"] = config?.buildCommand;
+    configDetails["out-dir"] = config?.outDir;
+    configDetails["branch"] = config?.branch;
+  }
+  return configDetails;
+}
+
+async function disconnectApp(
+  flags: FlagInput,
+  orgUid: string,
+  developerHubBaseUrl: string
+) {
+  const appUid: any = flags["app-uid"];
+  const url = `https://${developerHubBaseUrl}/manifests/${appUid}/hosting/disconnect`;
+  try {
+    const result = await apiRequestHandler({
+      orgUid,
+      payload: { provider: "launch" },
+      url,
+      method: "PATCH",
+    });
+    return result;
+  } catch (err) {
+    throw err;
+  }
+}
+
+function formatUrl(url: string): string {
+  return url ? (url.startsWith("https") ? url : `https://${url}`) : "";
+}
+
+const handleProjectNameConflict = async (
+  projectName: string,
+  projects: any[],
+  retry = 1
+): Promise<string> => {
+  if (retry > 3) {
+    throw new Error(deployAppMsg.PROJECT_NAME_CONFLICT_FAILED);
+  }
+  const project = projects.find((project) => project.name === projectName);
+  if (project) {
+    projectName = await askProjectName(projectName);
+    return handleProjectNameConflict(projectName, projects, retry + 1);
+  }
+  return projectName;
+};
+
 export {
   getOrganizations,
   getOrgAppUiLocation,
@@ -272,4 +414,11 @@ export {
   fetchInstalledApps,
   reinstallApp,
   sanitizePath,
+  updateApp,
+  getProjects,
+  getManifestDetails,
+  setupConfig,
+  disconnectApp,
+  formatUrl,
+  handleProjectNameConflict,
 };

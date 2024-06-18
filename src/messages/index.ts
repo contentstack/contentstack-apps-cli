@@ -20,6 +20,8 @@ const errors = {
     "App could not be registered. Please verify the inputs and try again.",
   DUPLICATE_APP_NAME:
     "The {appName} app already exists. Please create an app with a different name.",
+  INVALID_URL:
+    "Please enter a valid URL. The URL should start with http:// or https://",
 };
 
 const commonMsg = {
@@ -110,6 +112,19 @@ const reinstallAppMsg = {
   APP_UID: "Provide the app UID of an existing app to be reinstalled.",
 }
 
+const deployAppMsg = {
+  APP_DEPLOYED: "{app} deployed successfully.",
+  FORCE_DISCONNECT: "Force disconnect launch project by skipping the confirmation",
+  LAUNCH_PROJECT_TYPE: "Launch Project Type",
+  APP_URL: "App URL",
+  HOSTING_TYPE: "Hosting Type",
+  CONFIG_FILE: "[optional] path of config file",
+  APP_UPDATE_TERMINATION_MSG: "Launch Project connected! Skipping app hosting updates process...",
+  DISCONNECT_PROJECT: "Are you sure you want to disconnect launch Project ?",
+  PROJECT_NOT_FOUND: "Project not found!",
+  PROJECT_NAME_CONFLICT_FAILED: "Project name conflict resolution failed!"
+}
+
 const messages: typeof errors &
   typeof commonMsg &
   typeof appCreate &
@@ -118,7 +133,8 @@ const messages: typeof errors &
   typeof deleteAppMsg &
   typeof installAppMsg &
   typeof uninstallAppMsg &
-  typeof reinstallAppMsg = {
+  typeof reinstallAppMsg &
+  typeof deployAppMsg= {
   ...errors,
   ...commonMsg,
   ...appCreate,
@@ -127,7 +143,8 @@ const messages: typeof errors &
   ...deleteAppMsg,
   ...installAppMsg,
   ...uninstallAppMsg,
-  ...reinstallAppMsg
+  ...reinstallAppMsg,
+  ...deployAppMsg
 };
 
 const $t = (msg: string, args: Record<string, string>): string => {
@@ -142,4 +159,4 @@ const $t = (msg: string, args: Record<string, string>): string => {
 };
 
 export default messages;
-export { $t, errors, commonMsg, appCreate, appUpdate, getAppMsg, deleteAppMsg, installAppMsg, uninstallAppMsg, reinstallAppMsg };
+export { $t, errors, commonMsg, appCreate, appUpdate, getAppMsg, deleteAppMsg, installAppMsg, uninstallAppMsg, reinstallAppMsg, deployAppMsg };
