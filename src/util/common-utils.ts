@@ -313,17 +313,14 @@ async function getProjects(
       node: {
         uid,
         name,
-        latestDeploymentStatus: {
-          deployment: { url },
-          environment: { uid: environmentUid },
-        },
+        latestDeploymentStatus,
         integrations: { developerHubApp },
       },
     }) => ({
       name,
       uid,
-      url,
-      environmentUid,
+      url: latestDeploymentStatus?.deployment?.url || null,
+      environmentUid: latestDeploymentStatus?.environment?.uid || null,
       developerHubAppUid: developerHubApp?.uid || null,
     })
   );
