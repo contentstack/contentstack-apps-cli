@@ -1,10 +1,10 @@
 import { ApolloClient } from "@apollo/client/core";
-import { Flags, FlagInput, cliux } from "@contentstack/cli-utilities";
+import { Flags, FlagInput } from "@contentstack/cli-utilities";
 import config from "@contentstack/cli-launch/dist/config";
 import { GraphqlApiClient } from "@contentstack/cli-launch/dist/util";
 import Launch from "@contentstack/cli-launch/dist/commands/launch/index";
 
-import { UpdateHostingParams } from "../../types";
+import { LaunchProjectRes, UpdateHostingParams } from "../../types";
 import { commonMsg, deployAppMsg } from "../../messages";
 import { AppCLIBaseCommand } from "../../app-cli-base-command";
 import {
@@ -32,7 +32,8 @@ export default class Deploy extends AppCLIBaseCommand {
     "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1>",
     "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Custom Hosting> --app-url <https://localhost:3000>",
     "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <existing-project>",
-    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <existing-project> --config <config-path>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <new-project>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <new-project> --config <config-path>",
   ];
 
   static flags: FlagInput = {
@@ -72,38 +73,40 @@ export default class Deploy extends AppCLIBaseCommand {
       const updateHostingPayload: UpdateHostingParams = {
         provider: "external",
         deployment_url: "",
-        environment_uid: "",
-        project_uid: "",
       };
+      const apolloClient = await this.getApolloClient();
+      const projects = await getProjects(apolloClient);
 
       switch (flags["hosting-type"]) {
         case "Custom Hosting":
+          await this.handleAppDisconnect(projects);
           flags["app-url"] = flags["app-url"] || (await getAppUrl());
+          this.flags["app-url"] = formatUrl(flags["app-url"]);
+          updateHostingPayload["deployment_url"] = this.flags["app-url"];
           break;
         case "Hosting with Launch":
           updateHostingPayload["provider"] = "launch";
           const config = setupConfig(flags["config"]);
           config["name"] = config["name"] || app?.name;
-          await this.handleHostingWithLaunch(config, updateHostingPayload);
+          await this.handleAppDisconnect(projects);
+          this.flags["launch-project-type"] =
+            this.flags["launch-project-type"] || (await askProjectType());
+          await this.handleHostingWithLaunch(config, updateHostingPayload, projects);
           break;
         default:
           this.log("Invalid hosting type", "error");
           return;
       }
 
-      if (flags["app-url"]) {
-        const spinner = cliux.loaderV2("Updating App...");
-        await updateApp(
-          flags,
-          this.sharedConfig.org,
-          {
-            managementSdk: this.managementAppSdk,
-            log: this.log,
-          },
-          updateHostingPayload
-        );
-        cliux.loaderV2("done", spinner);
-      }
+      await updateApp(
+        flags,
+        this.sharedConfig.org,
+        {
+          managementSdk: this.managementAppSdk,
+          log: this.log,
+        },
+        updateHostingPayload
+      );
 
       this.log(
         this.$t(deployAppMsg.APP_DEPLOYED, {
@@ -174,48 +177,13 @@ export default class Deploy extends AppCLIBaseCommand {
   }
 
   /**
-   * Handles hosting with launch for the application deployment.
-   *
-   * @param config - The configuration object.
-   * @param updateHostingPayload - The payload for updating hosting.
-   * @returns A Promise that resolves when the hosting with launch is handled.
-   */
-  async handleHostingWithLaunch(
-    config: Record<string, string>,
-    updateHostingPayload: UpdateHostingParams
-  ): Promise<void> {
-    const apolloClient = await this.getApolloClient();
-    const projects = await getProjects(apolloClient);
-    const isProjectConnected = projects.filter(
-      (project) => project?.developerHubAppUid === this.flags["app-uid"]
-    );
-
-    if (isProjectConnected?.length) {
-      this.flags["yes"] = this.flags["yes"] || (await askConfirmation());
-      if (!this.flags["yes"]) {
-        throw new Error(deployAppMsg.APP_UPDATE_TERMINATION_MSG);
-      }
-      const spinner = cliux.loaderV2("Disconnecting launch project...");
-      await disconnectApp(
-        this.flags,
-        this.sharedConfig.org,
-        this.developerHubBaseUrl
-      );
-      cliux.loaderV2("disconnected...", spinner);
-    }
-    this.flags["launch-project-type"] =
-      this.flags["launch-project-type"] || (await askProjectType());
-    await this.handleProjectType(config, updateHostingPayload, projects);
-  }
-
-  /**
    * Handles the project type based on the provided configuration, update hosting payload, and projects.
    * @param config - The configuration object.
    * @param updateHostingPayload - The update hosting payload.
    * @param projects - The list of projects.
    * @returns A Promise that resolves to void.
    */
-  async handleProjectType(
+  async handleHostingWithLaunch(
     config: Record<string, string>,
     updateHostingPayload: UpdateHostingParams,
     projects: any[]
@@ -297,5 +265,30 @@ export default class Deploy extends AppCLIBaseCommand {
       return project.url || "";
     }
     return "";
+  }
+
+  /**
+   * Handles the disconnection of an app from projects.
+   *
+   * @param projects - An array of LaunchProjectRes objects representing the projects.
+   * @returns {Promise<void>} - A promise that resolves when the disconnection is complete.
+   * @throws {Error} - Throws an error if the user chooses not to disconnect the app.
+   */
+  async handleAppDisconnect(projects: LaunchProjectRes[]): Promise<void> {
+    const isProjectConnected = projects.filter(
+      (project) => project?.developerHubAppUid === this.flags["app-uid"]
+    );
+
+    if (isProjectConnected?.length) {
+      this.flags["yes"] = this.flags["yes"] || (await askConfirmation());
+      if (!this.flags["yes"]) {
+        throw new Error(deployAppMsg.APP_UPDATE_TERMINATION_MSG);
+      }
+      await disconnectApp(
+        this.flags,
+        this.sharedConfig.org,
+        this.developerHubBaseUrl
+      );
+    }
   }
 }
