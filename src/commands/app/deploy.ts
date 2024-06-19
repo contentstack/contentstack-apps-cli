@@ -69,17 +69,18 @@ export default class Deploy extends AppCLIBaseCommand {
       this.sharedConfig.org = await this.getOrganization();
       const app = await this.fetchAppDetails();
 
+      const apolloClient = await this.getApolloClient();
+      const projects = await getProjects(apolloClient);
+      await this.handleAppDisconnect(projects);
+      
       flags["hosting-type"] = flags["hosting-type"] || (await getHostingType());
       const updateHostingPayload: UpdateHostingParams = {
         provider: "external",
         deployment_url: "",
       };
-      const apolloClient = await this.getApolloClient();
-      const projects = await getProjects(apolloClient);
 
       switch (flags["hosting-type"]) {
         case "Custom Hosting":
-          await this.handleAppDisconnect(projects);
           flags["app-url"] = flags["app-url"] || (await getAppUrl());
           this.flags["app-url"] = formatUrl(flags["app-url"]);
           updateHostingPayload["deployment_url"] = this.flags["app-url"];
@@ -88,7 +89,6 @@ export default class Deploy extends AppCLIBaseCommand {
           updateHostingPayload["provider"] = "launch";
           const config = setupConfig(flags["config"]);
           config["name"] = config["name"] || app?.name;
-          await this.handleAppDisconnect(projects);
           this.flags["launch-project"] =
             this.flags["launch-project"] || (await askProjectType());
           await this.handleHostingWithLaunch(config, updateHostingPayload, projects);
