@@ -46,11 +46,6 @@ export default class Deploy extends AppCLIBaseCommand {
     "app-url": Flags.string({
       description: deployAppMsg.APP_URL,
     }),
-    yes: Flags.boolean({
-      char: "y",
-      description: deployAppMsg.FORCE_DISCONNECT,
-      default: false,
-    }),
     "launch-project": Flags.string({
       multiple: false,
       options: ["existing", "new"],

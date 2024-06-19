@@ -20,7 +20,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.1.1 darwin-arm64 node-v18.20.2
+@contentstack/apps-cli/1.2.0 darwin-arm64 node-v18.20.2
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -67,7 +67,7 @@ EXAMPLES
   $ csdx app:reinstall
 ```
 
-_See code: [src/commands/app/index.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/index.ts)_
+_See code: [src/commands/app/index.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/index.ts)_
 
 ## `csdx app:create`
 
@@ -97,7 +97,7 @@ EXAMPLES
   $ csdx app:create --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/create.ts)_
+_See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/create.ts)_
 
 ## `csdx app:delete`
 
@@ -121,7 +121,7 @@ EXAMPLES
   $ csdx app:delete --app-uid <value> --org <value> -d ./boilerplate
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/delete.ts)_
+_See code: [src/commands/app/delete.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/delete.ts)_
 
 ## `csdx app:deploy`
 
@@ -129,17 +129,16 @@ Deploy an app
 
 ```
 USAGE
-  $ csdx app:deploy [--app-uid <value>] [--hosting-type <value>] [--app-url <value>] [-y] [--launch-project-type
-    existing-project|new-project] [-c <value>]
+  $ csdx app:deploy [--app-uid <value>] [--hosting-type <value>] [--app-url <value>] [--launch-project
+    existing|new] [-c <value>]
 
 FLAGS
-  -c, --config=<value>            [optional] path of config file
-  -y, --yes                       Force disconnect launch project by skipping the confirmation
-  --app-uid=<value>               Provide the app UID of an existing app.
-  --app-url=<value>               App URL
-  --hosting-type=<value>          Hosting Type
-  --launch-project-type=<option>  Launch Project Type
-                                  <options: existing-project|new-project>
+  -c, --config=<value>       [optional] path of config file
+  --app-uid=<value>          Provide the app UID of an existing app.
+  --app-url=<value>          App URL
+  --hosting-type=<value>     Hosting Type
+  --launch-project=<option>  Launch Project
+                             <options: existing|new>
 
 DESCRIPTION
   Deploy an app
@@ -151,12 +150,14 @@ EXAMPLES
 
   $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Custom Hosting> --app-url <https://localhost:3000>
 
-  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <existing-project>
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <existing>
 
-  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <existing-project> --config <config-path>
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <new>
+
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <new> --config <config-path>
 ```
 
-_See code: [src/commands/app/deploy.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/deploy.ts)_
+_See code: [src/commands/app/deploy.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/deploy.ts)_
 
 ## `csdx app:get`
 
@@ -185,7 +186,7 @@ EXAMPLES
   $ csdx app:get --org <value> --app-uid <value> --app-type organization
 ```
 
-_See code: [src/commands/app/get.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/get.ts)_
+_See code: [src/commands/app/get.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/get.ts)_
 
 ## `csdx app:install`
 
@@ -210,7 +211,7 @@ EXAMPLES
   $ csdx app:install --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>
 ```
 
-_See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/install.ts)_
+_See code: [src/commands/app/install.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/install.ts)_
 
 ## `csdx app:reinstall`
 
@@ -235,7 +236,7 @@ EXAMPLES
   $ csdx app:reinstall --org <UID> --app-uid <APP-UID-1> --stack-api-key <STACK-API-KEY-1>
 ```
 
-_See code: [src/commands/app/reinstall.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/reinstall.ts)_
+_See code: [src/commands/app/reinstall.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/reinstall.ts)_
 
 ## `csdx app:uninstall`
 
@@ -261,7 +262,7 @@ EXAMPLES
   $ csdx app:uninstall --org <UID> --app-uid <APP-UID-1> --installation-uid <INSTALLATION-UID-1>
 ```
 
-_See code: [src/commands/app/uninstall.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/uninstall.ts)_
+_See code: [src/commands/app/uninstall.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/uninstall.ts)_
 
 ## `csdx app:update`
 
@@ -283,5 +284,5 @@ EXAMPLES
   $ csdx app:update --app-manifest ./boilerplate/manifest.json
 ```
 
-_See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v1.1.1/src/commands/app/update.ts)_
+_See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v1.2.0/src/commands/app/update.ts)_
 <!-- commandsstop -->
