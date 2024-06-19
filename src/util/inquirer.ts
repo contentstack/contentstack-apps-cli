@@ -349,11 +349,11 @@ async function selectProject(
 const askProjectType = async (): Promise<string> => {
   return await cliux.inquire<string>({
     type: "list",
-    name: "selected_project_type",
-    message: "Launch Project type",
+    name: "selected_launch_project",
+    message: "Launch Project",
     choices: [
-      { name: "Existing", value: "existing-project" },
-      { name: "New", value: "new-project" },
+      { name: "Existing", value: "existing" },
+      { name: "New", value: "new" },
     ],
   });
 };
