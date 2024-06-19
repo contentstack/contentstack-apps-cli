@@ -68,6 +68,7 @@ export default class Deploy extends AppCLIBaseCommand {
       flags["app-uid"] = this.manifestData?.uid ?? flags["app-uid"];
       this.sharedConfig.org = await this.getOrganization();
       const app = await this.fetchAppDetails();
+      this.flags["app-uid"] = app?.uid;
 
       const apolloClient = await this.getApolloClient();
       const projects = await getProjects(apolloClient);
@@ -117,7 +118,7 @@ export default class Deploy extends AppCLIBaseCommand {
       this.log(`App URL: ${flags["app-url"]}`, "info");
     } catch (error: any) {
       this.log(error?.errorMessage || error?.message || error, "error");
-      this.exit(1);
+      process.exit(1);
     }
   }
 
