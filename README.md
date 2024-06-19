@@ -21,6 +21,7 @@ $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
 @contentstack/apps-cli/1.2.0 darwin-arm64 node-v18.20.2
+@contentstack/apps-cli/1.2.0 darwin-arm64 node-v18.20.2
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
