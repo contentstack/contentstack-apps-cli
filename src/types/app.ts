@@ -129,8 +129,8 @@ export interface ReinstallParams {
 export interface UpdateHostingParams {
   provider: string;
   deployment_url: string;
-  environment_uid: string;
-  project_uid: string;
+  environment_uid?: string;
+  project_uid?: string;
 }
 
 export interface LaunchProjectRes {
