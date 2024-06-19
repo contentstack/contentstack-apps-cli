@@ -31,9 +31,9 @@ export default class Deploy extends AppCLIBaseCommand {
     "$ <%= config.bin %> <%= command.id %>",
     "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1>",
     "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Custom Hosting> --app-url <https://localhost:3000>",
-    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <existing-project>",
-    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <new-project>",
-    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project-type <new-project> --config <config-path>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <existing>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <new>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <new> --config <config-path>",
   ];
 
   static flags: FlagInput = {
@@ -51,10 +51,10 @@ export default class Deploy extends AppCLIBaseCommand {
       description: deployAppMsg.FORCE_DISCONNECT,
       default: false,
     }),
-    "launch-project-type": Flags.string({
+    "launch-project": Flags.string({
       multiple: false,
-      options: ["existing-project", "new-project"],
-      description: deployAppMsg.LAUNCH_PROJECT_TYPE,
+      options: ["existing", "new"],
+      description: deployAppMsg.LAUNCH_PROJECT,
     }),
     config: Flags.string({
       char: "c",
@@ -89,8 +89,8 @@ export default class Deploy extends AppCLIBaseCommand {
           const config = setupConfig(flags["config"]);
           config["name"] = config["name"] || app?.name;
           await this.handleAppDisconnect(projects);
-          this.flags["launch-project-type"] =
-            this.flags["launch-project-type"] || (await askProjectType());
+          this.flags["launch-project"] =
+            this.flags["launch-project"] || (await askProjectType());
           await this.handleHostingWithLaunch(config, updateHostingPayload, projects);
           break;
         default:
@@ -190,9 +190,9 @@ export default class Deploy extends AppCLIBaseCommand {
   ): Promise<void> {
     let url: string = "";
 
-    if (this.flags["launch-project-type"] === "existing-project") {
+    if (this.flags["launch-project"] === "existing") {
       url = await this.handleExistingProject(updateHostingPayload, projects);
-    } else if (this.flags["launch-project-type"] === "new-project") {
+    } else if (this.flags["launch-project"] === "new") {
       config["name"] = await handleProjectNameConflict(
         config["name"],
         projects

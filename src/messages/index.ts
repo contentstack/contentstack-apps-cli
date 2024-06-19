@@ -115,7 +115,7 @@ const reinstallAppMsg = {
 const deployAppMsg = {
   APP_DEPLOYED: "{app} deployed successfully.",
   FORCE_DISCONNECT: "Force disconnect launch project by skipping the confirmation",
-  LAUNCH_PROJECT_TYPE: "Launch Project Type",
+  LAUNCH_PROJECT: "Launch Project",
   APP_URL: "App URL",
   HOSTING_TYPE: "Hosting Type",
   CONFIG_FILE: "[optional] path of config file",
