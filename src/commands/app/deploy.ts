@@ -68,7 +68,7 @@ export default class Deploy extends AppCLIBaseCommand {
       flags["app-uid"] = this.manifestData?.uid ?? flags["app-uid"];
       this.sharedConfig.org = await this.getOrganization();
       const app = await this.fetchAppDetails();
-      this.flags["app-uid"] = app?.uid;
+      this.flags["app-uid"] = app?.uid || "";
 
       const apolloClient = await this.getApolloClient();
       const projects = await getProjects(apolloClient);
@@ -99,15 +99,17 @@ export default class Deploy extends AppCLIBaseCommand {
           return;
       }
 
-      await updateApp(
-        flags,
-        this.sharedConfig.org,
-        {
-          managementSdk: this.managementAppSdk,
-          log: this.log,
-        },
-        updateHostingPayload
-      );
+      if(this.flags["app-uid"]){
+        await updateApp(
+          flags,
+          this.sharedConfig.org,
+          {
+            managementSdk: this.managementAppSdk,
+            log: this.log,
+          },
+          updateHostingPayload
+        );
+      }
 
       this.log(
         this.$t(deployAppMsg.APP_DEPLOYED, {
