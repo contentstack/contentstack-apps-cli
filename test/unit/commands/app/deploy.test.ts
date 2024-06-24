@@ -21,8 +21,9 @@ describe("app:deploy", () => {
         const cases = {
           App: mock.apps[1].name,
           Organization: mock.organizations[0].name,
+          "hosting types": "Custom Hosting",
+          "app-url": "https://example.com",
         };
-
         return (cases as Record<string, any>)[prompt.name];
       })
       .nock(region.cma, (api) =>
@@ -38,9 +39,25 @@ describe("app:deploy", () => {
           })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api.put(`/manifests/${mock.apps[1].uid}`).reply(200, {
+          data: mock.apps,
+        })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
         api
-          .post(`/manifests/${mock.apps[1].uid}/deployments`, {
-            hosting_type: "Custom hosting",
+          .patch(`/manifests/${mock.apps[1].uid}/hosting/disconnect`)
+          .reply(200, {
+            data: mock.apps,
+          })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+          .put(`/manifests/${mock.apps[1].uid}/hosting`, {
+            hosting: {
+              provider: "external",
+              deployment_url: "https://example.com",
+            },
+            uid: mock.apps[1].uid,
           })
           .reply(200, {
             data: mock.apps,
@@ -49,12 +66,9 @@ describe("app:deploy", () => {
       .command(["app:deploy"])
       .do(({ stdout }) => {
         expect(stdout).to.contain(
-          $t(messages.HOSTING_TYPE, {
-            hosting_type: "Custom Hosting",
-            deployment_url: "https://example.com"
-          })
+          $t(messages.APP_DEPLOYED, { app: mock.apps[1].name })
         );
       })
-      .it("should install an organization app");
+      .it("should deploy the app with custom hosting");
   });
 });
