@@ -117,7 +117,7 @@ const deployAppMsg = {
   FORCE_DISCONNECT: "Force disconnect launch project by skipping the confirmation",
   LAUNCH_PROJECT: "Choose a new or an existing Launch project.",
   APP_URL: "Please enter the URL of the app you want to deploy.",
-  HOSTING_TYPE: "Please provide a valid Hosting Type.",
+  HOSTING_TYPE: "Choose a valid Hosting Type.",
   CONFIG_FILE: "[optional] Please enter the path of the config file.",
   APP_UPDATE_TERMINATION_MSG: "The app is already connected to the Launch project. Skipping the app hosting updates process.",
   DISCONNECT_PROJECT: "Are you sure you wan to disconnect the Launch project?",

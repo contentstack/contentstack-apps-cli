@@ -136,7 +136,7 @@ FLAGS
   -c, --config=<value>       [optional] Please enter the path of the config file.
   --app-uid=<value>          Provide the app UID of an existing app.
   --app-url=<value>          Please enter the URL of the app you want to deploy.
-  --hosting-type=<option>    Please provide a valid Hosting Type.
+  --hosting-type=<option>    Choose a valid Hosting Type.
                              <options: Hosting with Launch|Custom Hosting>
   --launch-project=<option>  Choose a new or an existing Launch project.
                              <options: existing|new>
