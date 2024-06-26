@@ -113,16 +113,16 @@ const reinstallAppMsg = {
 }
 
 const deployAppMsg = {
-  APP_DEPLOYED: "{app} deployed successfully.",
+  APP_DEPLOYED: "{app} has been deployed successfully.",
   FORCE_DISCONNECT: "Force disconnect launch project by skipping the confirmation",
-  LAUNCH_PROJECT: "Launch Project",
-  APP_URL: "App URL",
-  HOSTING_TYPE: "Hosting Type",
-  CONFIG_FILE: "[optional] path of config file",
-  APP_UPDATE_TERMINATION_MSG: "Launch Project connected! Skipping app hosting updates process...",
-  DISCONNECT_PROJECT: "Are you sure you want to disconnect launch Project ?",
-  PROJECT_NOT_FOUND: "Project not found!",
-  PROJECT_NAME_CONFLICT_FAILED: "Project name conflict resolution failed!"
+  LAUNCH_PROJECT: "Choose a new or an existing Launch project.",
+  APP_URL: "Please enter the URL of the app you want to deploy.",
+  HOSTING_TYPE: "Please provide a valid Hosting Type.",
+  CONFIG_FILE: "[optional] Please enter the path of the config file.",
+  APP_UPDATE_TERMINATION_MSG: "The app is already connected to the Launch project. Skipping the app hosting updates process.",
+  DISCONNECT_PROJECT: "Are you sure you wan to disconnect the Launch project?",
+  PROJECT_NOT_FOUND: "We couldn't find the project. Please enter a valid project name.",
+  PROJECT_NAME_CONFLICT_FAILED: "Unable to resolve the project name conflict."
 }
 
 const messages: typeof errors &
