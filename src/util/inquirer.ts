@@ -373,7 +373,7 @@ const askProjectName = async (
     type: "input",
     name: "name",
     validate: inquireRequireValidation,
-    message: `${projectName} project already exist. Enter a new name to create a project.?`,
+    message: `The project name ${projectName} is already in use. Please enter a different name for your project`,
   });
 };
 
