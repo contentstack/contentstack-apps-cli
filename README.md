@@ -21,7 +21,6 @@ $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
 @contentstack/apps-cli/1.2.0 darwin-arm64 node-v18.20.2
-@contentstack/apps-cli/1.2.0 darwin-arm64 node-v18.20.2
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -130,16 +129,16 @@ Deploy an app
 
 ```
 USAGE
-  $ csdx app:deploy [--app-uid <value>] [--hosting-type <value>] [--app-url <value>] [-y] [--launch-project
-    existing|new] [-c <value>]
+  $ csdx app:deploy [--app-uid <value>] [--hosting-type Hosting with Launch|Custom Hosting] [--app-url <value>]
+    [--launch-project existing|new] [-c <value>]
 
 FLAGS
-  -c, --config=<value>       [optional] path of config file
-  -y, --yes                  Force disconnect launch project by skipping the confirmation
+  -c, --config=<value>       [optional] Please enter the path of the config file.
   --app-uid=<value>          Provide the app UID of an existing app.
-  --app-url=<value>          App URL
-  --hosting-type=<value>     Hosting Type
-  --launch-project=<option>  Launch Project
+  --app-url=<value>          Please enter the URL of the app you want to deploy.
+  --hosting-type=<option>    Please provide a valid Hosting Type.
+                             <options: Hosting with Launch|Custom Hosting>
+  --launch-project=<option>  Choose a new or an existing Launch project.
                              <options: existing|new>
 
 DESCRIPTION
