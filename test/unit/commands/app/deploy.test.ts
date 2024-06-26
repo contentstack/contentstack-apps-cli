@@ -11,7 +11,7 @@ const region: { cma: string; cda: string; name: string } =
 const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:deploy", () => {
-  describe("Deploy an with custom hosting", () => {
+  describe("Deploy an app with custom hosting", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
@@ -22,7 +22,7 @@ describe("app:deploy", () => {
           App: mock.apps[1].name,
           Organization: mock.organizations[0].name,
           "hosting types": "Custom Hosting",
-          "app-url": "https://example.com",
+          appUrl: "https://example.com",
         };
         return (cases as Record<string, any>)[prompt.name];
       })
@@ -35,33 +35,11 @@ describe("app:deploy", () => {
         api
           .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
           .reply(200, {
-            data: mock.apps,
+            data: mock.apps2,
           })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.put(`/manifests/${mock.apps[1].uid}`).reply(200, {
-          data: mock.apps,
-        })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .patch(`/manifests/${mock.apps[1].uid}/hosting/disconnect`)
-          .reply(200, {
-            data: mock.apps,
-          })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .put(`/manifests/${mock.apps[1].uid}/hosting`, {
-            hosting: {
-              provider: "external",
-              deployment_url: "https://example.com",
-            },
-            uid: mock.apps[1].uid,
-          })
-          .reply(200, {
-            data: mock.apps,
-          })
+        api.put(`/manifests/${mock.apps2[1].uid}`).reply(200, mock.deploy_custom_host)
       )
       .command(["app:deploy"])
       .do(({ stdout }) => {
@@ -70,5 +48,48 @@ describe("app:deploy", () => {
         );
       })
       .it("should deploy the app with custom hosting");
+  });
+
+  describe("Deploy an app with Hosting with Launch with existing project", () => {
+    test
+      .stdout({ print: process.env.PRINT === "true" || false })
+      .stub(ux.action, "stop", () => {})
+      .stub(ux.action, "start", () => {})
+      .stub(cliux, "inquire", async (...args: any) => {
+        const [prompt]: any = args;
+        const cases = {
+          App: mock.apps2[1].name,
+          Organization: mock.organizations[0].name,
+          "hosting types": "Hosting with Launch",
+          "provider": "launch",
+          "selected_launch_project":"existing",
+          "deployment_url": "https://example.com",
+          "environment_uid": "environment_uid",
+          "project_uid": "project_uid",
+        };
+        return (cases as Record<string, any>)[prompt.name];
+      })
+      .nock(region.cma, (api) =>
+        api
+          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+          .reply(200, { organizations: mock.organizations })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+          .reply(200, {
+            data: mock.apps2,
+          })
+      )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api.put(`/manifests/${mock.apps2[1].uid}`).reply(200, mock.deploy_launch_host)
+      )
+      .command(["app:deploy"])
+      .do(({ stdout }) => {
+        expect(stdout).to.contain(
+          $t(messages.APP_DEPLOYED, { app: mock.apps2[1].name })
+        );
+      })
+      .it("should deploy the app with Hosting with Launch with existing project");
   });
 });
