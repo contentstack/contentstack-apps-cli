@@ -41,6 +41,8 @@ export default class Deploy extends AppCLIBaseCommand {
       description: commonMsg.APP_UID,
     }),
     "hosting-type": Flags.string({
+      multiple: false,
+      options: ["Hosting with Launch", "Custom Hosting"],
       description: deployAppMsg.HOSTING_TYPE,
     }),
     "app-url": Flags.string({
@@ -90,7 +92,7 @@ export default class Deploy extends AppCLIBaseCommand {
           await this.handleHostingWithLaunch(config, updateHostingPayload, projects);
           break;
         default:
-          this.log("Invalid hosting type", "error");
+          this.log("Please provide a valid Hosting Type.", "error");
           return;
       }
 
@@ -197,7 +199,7 @@ export default class Deploy extends AppCLIBaseCommand {
       );
       url = await this.handleNewProject(config, updateHostingPayload);
     } else {
-      this.log("Invalid project type", "error");
+      this.log("Please provide a valid launch project.", "error");
       return;
     }
 
