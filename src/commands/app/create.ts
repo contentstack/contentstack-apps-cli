@@ -21,6 +21,7 @@ import {
   flags,
   HttpClient,
   configHandler,
+  FlagInput
 } from "@contentstack/cli-utilities";
 
 import { BaseCommand } from "../../base-command";
@@ -52,7 +53,7 @@ export default class Create extends BaseCommand<typeof Create> {
     "$ <%= config.bin %> <%= command.id %> --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json",
   ];
 
-  static flags = {
+  static flags: FlagInput = {
     name: flags.string({
       char: "n",
       default: "app-boilerplate",

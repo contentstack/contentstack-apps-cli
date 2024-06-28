@@ -3,7 +3,7 @@ import { formatErrors } from "./error-helper";
 
 interface RequestParams {
   orgUid: string;
-  method: "GET" | "POST" | "PUT" | "DELETE";
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   queryParams?: Record<string, any>;
   payload?: any;
   url: string;
@@ -39,6 +39,9 @@ export async function apiRequestHandler(params: RequestParams): Promise<any> {
         break;
       case "DELETE":
         response = await httpClient.delete(url);
+        break;
+      case "PATCH":
+        response = await httpClient.patch(url, payload);
         break;
       default:
         throw new Error(`Unsupported HTTP method: ${method}`);
