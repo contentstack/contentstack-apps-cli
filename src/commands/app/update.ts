@@ -1,13 +1,13 @@
 import pick from "lodash/pick";
 import merge from "lodash/merge";
 import isEmpty from "lodash/isEmpty";
-import { flags } from "@contentstack/cli-utilities";
+import { flags, FlagInput } from "@contentstack/cli-utilities";
 import { App } from "@contentstack/management/types/app";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
 import { $t, appUpdate } from "../../messages";
 import { fetchApp, getApp, getOrg } from "../../util";
-import { AppCLIBaseCommand } from "../../app-cli-base-coomand";
+import {AppCLIBaseCommand} from "../../app-cli-base-command";
 
 export default class Update extends AppCLIBaseCommand {
   private orgUid!: string;
@@ -20,7 +20,7 @@ export default class Update extends AppCLIBaseCommand {
     "$ <%= config.bin %> <%= command.id %> --app-manifest ./boilerplate/manifest.json",
   ];
 
-  static flags = {
+  static flags: FlagInput = {
     "app-manifest": flags.string({
       description: $t(appUpdate.FILE_PATH, { fileName: "app manifest.json" }),
     }),
