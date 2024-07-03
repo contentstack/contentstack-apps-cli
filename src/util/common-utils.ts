@@ -163,31 +163,20 @@ function installApp(
     });
 }
 
-async function reinstallApp(params: {
-  flags: FlagInput;
-  type: string;
-  developerHubBaseUrl: string;
-  orgUid: string;
-  manifestUid: string;
-}): Promise<void> {
-  const { type, developerHubBaseUrl, flags, orgUid, manifestUid } = params;
-  const payload = {
-    target_type: type,
-    target_uid: (flags["stack-api-key"] as any) || orgUid,
-  };
-
-  const url = `https://${developerHubBaseUrl}/manifests/${manifestUid}/reinstall`;
-  try {
-    const result = await apiRequestHandler({
-      orgUid,
-      payload,
-      url,
-      method: "PUT",
+function reinstallApp(
+  flags: FlagInput,
+  orgUid: string,
+  type: string,
+  options: MarketPlaceOptions
+) {
+  const { marketplaceSdk } = options;
+  return marketplaceSdk
+    .marketplace(orgUid)
+    .app(flags["app-uid"] as any)
+    .reinstall({
+      targetUid: (flags["stack-api-key"] as any) || orgUid,
+      targetType: type as any,
     });
-    return result;
-  } catch (err) {
-    throw err;
-  }
 }
 
 function fetchStack(flags: FlagInput, options: CommonOptions) {
