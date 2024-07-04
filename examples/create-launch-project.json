@@ -1,0 +1,9 @@
+{
+  "name": "app name",
+  "type":  "GitHub",
+  "environment": "Default",
+  "framework": "NextJs",
+  "build-command": "npm run build",
+  "out-dir": "./.next",
+  "branch": "master"
+}

@@ -118,10 +118,25 @@ export interface AppManifestWithUiLocation extends AppManifest {
 }
 
 export interface ReinstallParams {
-  flags: FlagInput,
-  type: string,
-  orgUid: string,
-  manifestUid: string,
-  configType: ConfigType,
-  developerHubBaseUrl: string
-};
+  flags: FlagInput;
+  type: string;
+  orgUid: string;
+  manifestUid: string;
+  configType: ConfigType;
+  developerHubBaseUrl: string;
+}
+
+export interface UpdateHostingParams {
+  provider: string;
+  deployment_url: string;
+  environment_uid?: string;
+  project_uid?: string;
+}
+
+export interface LaunchProjectRes {
+  name: any;
+  uid: any;
+  url: any;
+  environmentUid: any;
+  developerHubAppUid: any;
+}
