@@ -27,6 +27,7 @@ import {
   fetchApps,
   sanitizePath,
   MarketPlaceOptions,
+  fetchBoilerplateDetails,
 } from "./common-utils";
 import { LaunchProjectRes } from "../types";
 
@@ -385,6 +386,22 @@ function inquireRequireValidation(input: any): string | boolean {
   return true;
 }
 
+const selectedBoilerplate = async (): Promise<any> => {
+  const boilerplates = await fetchBoilerplateDetails();
+
+  const response = await cliux
+    .inquire({
+      type: "search-list",
+      name: "App",
+      choices: boilerplates.map((bp) => bp.name),
+      message: "Select a boilerplate from search list",
+    })
+    .then((name) => {
+      return find(boilerplates, (boilerplate) => boilerplate.name === name);
+    });
+  return response;
+};
+
 export {
   getOrg,
   getAppName,
@@ -399,5 +416,6 @@ export {
   askProjectType,
   askConfirmation,
   selectProject,
-  askProjectName
+  askProjectName,
+  selectedBoilerplate,
 };
