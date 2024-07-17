@@ -32,7 +32,8 @@ import {
   getAppName,
   getDirName,
   getOrgAppUiLocation,
-  sanitizePath
+  sanitizePath,
+  selectedBoilerplate,
 } from "../../util";
 
 export default class Create extends BaseCommand<typeof Create> {
@@ -96,7 +97,15 @@ export default class Create extends BaseCommand<typeof Create> {
           message: this.messages.CONFIRM_CLONE_BOILERPLATE,
         }))
       ) {
-        await this.boilerplateFlow();
+        const boilerplate = await selectedBoilerplate();
+        if (boilerplate) {
+          this.sharedConfig.boilerplateName = boilerplate.name
+            .toLowerCase()
+            .replace(/ /g, "-");
+          this.sharedConfig.appBoilerplateGithubUrl = boilerplate.link;
+          this.sharedConfig.appName = this.sharedConfig.boilerplateName;
+          await this.boilerplateFlow();
+        }
       } else {
         this.manageManifestToggeling();
         await this.registerTheAppOnDeveloperHub(false);
@@ -119,6 +128,12 @@ export default class Create extends BaseCommand<typeof Create> {
     // NOTE Step 1: download the boilerplate app from GitHub
     await this.unZipBoilerplate(await this.cloneBoilerplate());
     tmp.setGracefulCleanup(); // NOTE If graceful cleanup is set, tmp will remove all controlled temporary objects on process exit
+
+    // Update the sharedConfig.appName with the actual folder name
+    this.sharedConfig.appName =
+      this.sharedConfig.folderPath.split("/").pop() ||
+      this.sharedConfig.appName;
+    this.tempAppData.name = this.sharedConfig.appName;
 
     this.manageManifestToggeling();
 
@@ -198,7 +213,11 @@ export default class Create extends BaseCommand<typeof Create> {
     const zip = new AdmZip(filepath);
     const dataDir = this.flags["data-dir"] ?? process.cwd();
     let targetPath = resolve(dataDir, this.sharedConfig.appName);
-    const sourcePath = resolve(dataDir, this.sharedConfig.boilerplateName);
+
+    // Get the directory inside the zip file
+    const zipEntries = zip.getEntries();
+    const firstEntry = zipEntries[0];
+    const sourcePath = resolve(dataDir, firstEntry.entryName.split("/")[0]);
 
     if (this.flags["data-dir"] && !existsSync(this.flags["data-dir"])) {
       mkdirSync(this.flags["data-dir"], { recursive: true });
@@ -225,6 +244,10 @@ export default class Create extends BaseCommand<typeof Create> {
         reject(error);
       });
     });
+    // Update the app name and folder path
+    this.sharedConfig.appName =
+      this.sharedConfig.folderPath.split("/").pop() ||
+      this.sharedConfig.appName;
   }
 
   /**
@@ -236,8 +259,8 @@ export default class Create extends BaseCommand<typeof Create> {
   manageManifestToggeling() {
     // NOTE Use boilerplate manifest if exist
     const manifestPath = resolve(
-      this.sharedConfig.folderPath || "",
-      "manifest.json"
+      this.sharedConfig.folderPath,
+      `${this.sharedConfig.folderPath}/manifest.json`
     );
 
     if (existsSync(manifestPath)) {
@@ -301,7 +324,10 @@ export default class Create extends BaseCommand<typeof Create> {
         this.appData = merge(this.appData, pick(response, validKeys));
         if (saveManifest) {
           writeFileSync(
-            resolve(this.sharedConfig.folderPath, "manifest.json"),
+            resolve(
+              this.sharedConfig.folderPath,
+              `${this.sharedConfig.folderPath}/manifest.json`
+            ),
             JSON.stringify(this.appData),
             {
               encoding: "utf8",

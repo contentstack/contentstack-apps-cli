@@ -19,6 +19,8 @@ import {
 } from "../types";
 import { askProjectName } from "./inquirer";
 import { deployAppMsg } from "../messages";
+import config from "../config";
+import axios from "axios";
 
 export type CommonOptions = {
   log: LogFn;
@@ -396,6 +398,15 @@ const handleProjectNameConflict = async (
   }
   return projectName;
 };
+async function fetchBoilerplateDetails(): Promise<Record<string, any>[]> {
+  try {
+    const url = config.boilerplatesUrl;
+    const content = await axios.get(url);
+    return content.data.templates
+  } catch (error) {
+    throw error;
+  }
+}
 
 export {
   getOrganizations,
@@ -418,4 +429,5 @@ export {
   disconnectApp,
   formatUrl,
   handleProjectNameConflict,
+  fetchBoilerplateDetails
 };
