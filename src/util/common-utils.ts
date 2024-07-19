@@ -400,9 +400,7 @@ const handleProjectNameConflict = async (
 };
 async function fetchBoilerplateDetails(): Promise<Record<string, any>[]> {
   try {
-    const url = config.boilerplatesUrl;
-    const client = new HttpClient();
-    const content = await client.get(url);
+    const content = await new HttpClient().get(config.boilerplatesUrl);
     return content?.data?.templates ?? [];
   } catch (error) {
     throw error;
