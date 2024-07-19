@@ -142,7 +142,7 @@ export interface LaunchProjectRes {
 }
 
 export interface BoilerplateAppType {
-  name?: string;
+  name: string;
   description?: string;
   link: string;
   tags?: string[];

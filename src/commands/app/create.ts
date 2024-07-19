@@ -21,7 +21,7 @@ import {
   flags,
   HttpClient,
   configHandler,
-  FlagInput
+  FlagInput,
 } from "@contentstack/cli-utilities";
 
 import { BaseCommand } from "../../base-command";
@@ -100,11 +100,9 @@ export default class Create extends BaseCommand<typeof Create> {
         const boilerplate: BoilerplateAppType = await selectedBoilerplate();
 
         if (boilerplate) {
-          if (boilerplate.name) {
-            this.sharedConfig.boilerplateName = boilerplate.name
-              .toLowerCase()
-              .replace(/ /g, "-");
-          }
+          this.sharedConfig.boilerplateName = boilerplate.name
+            .toLowerCase()
+            .replace(/ /g, "-");
           this.sharedConfig.appBoilerplateGithubUrl = boilerplate.link;
           this.sharedConfig.appName = await getAppName(
             this.sharedConfig.boilerplateName
