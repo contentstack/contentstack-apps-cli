@@ -25,7 +25,7 @@ import {
 } from "@contentstack/cli-utilities";
 
 import { BaseCommand } from "../../base-command";
-import { AppManifest, AppType } from "../../types";
+import { AppManifest, AppType, BoilerplateAppType } from "../../types";
 import { appCreate, commonMsg } from "../../messages";
 import {
   getOrg,
@@ -97,23 +97,18 @@ export default class Create extends BaseCommand<typeof Create> {
           message: this.messages.CONFIRM_CLONE_BOILERPLATE,
         }))
       ) {
-        const boilerplate = await selectedBoilerplate();
+        const boilerplate: BoilerplateAppType = await selectedBoilerplate();
 
-        if (boilerplate && boilerplate?.link) {
-          this.sharedConfig.boilerplateName = boilerplate.name
-            .toLowerCase()
-            .replace(/ /g, "-");
+        if (boilerplate) {
+          if (boilerplate.name) {
+            this.sharedConfig.boilerplateName = boilerplate.name
+              .toLowerCase()
+              .replace(/ /g, "-");
+          }
           this.sharedConfig.appBoilerplateGithubUrl = boilerplate.link;
           this.sharedConfig.appName = await getAppName(
             this.sharedConfig.boilerplateName
           );
-
-          // Handle case where user does not provide a new name
-          if (!this.sharedConfig.appName) {
-            console.error("App name is required.");
-            process.exit(1);
-          }
-
           await this.boilerplateFlow();
         }
       } else {
@@ -139,7 +134,7 @@ export default class Create extends BaseCommand<typeof Create> {
     await this.unZipBoilerplate(await this.cloneBoilerplate());
     tmp.setGracefulCleanup(); // NOTE If graceful cleanup is set, tmp will remove all controlled temporary objects on process exit
 
-    // Update the sharedConfig.appName with the actual folder name
+    // To remove the default app name from flag and replace it with the actual folder name
     this.sharedConfig.appName =
       this.sharedConfig.folderPath.split("/").pop() ||
       this.sharedConfig.appName;
@@ -254,10 +249,6 @@ export default class Create extends BaseCommand<typeof Create> {
         reject(error);
       });
     });
-    // Update the app name and folder path
-    this.sharedConfig.appName =
-      this.sharedConfig.folderPath.split("/").pop() ||
-      this.sharedConfig.appName;
   }
 
   /**
