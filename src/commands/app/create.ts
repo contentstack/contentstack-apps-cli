@@ -99,7 +99,7 @@ export default class Create extends BaseCommand<typeof Create> {
       ) {
         const boilerplate = await selectedBoilerplate();
 
-        if (boilerplate && boilerplate.name && boilerplate.link) {
+        if (boilerplate && boilerplate?.link) {
           this.sharedConfig.boilerplateName = boilerplate.name
             .toLowerCase()
             .replace(/ /g, "-");
