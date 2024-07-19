@@ -2,7 +2,7 @@ import { resolve } from "path";
 
 const config = {
   defaultAppName: "app-boilerplate",
-  manifestPath: resolve(__dirname, ""),
+  manifestPath: resolve(__dirname, "manifest.json"),
   boilerplateName: "marketplace-app-boilerplate-main",
   developerHubBaseUrl: "",
   appBoilerplateGithubUrl:

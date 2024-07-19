@@ -389,7 +389,7 @@ function inquireRequireValidation(input: any): string | boolean {
 const selectedBoilerplate = async (): Promise<any> => {
   const boilerplates = await fetchBoilerplateDetails();
 
-  const response = await cliux
+  return await cliux
     .inquire({
       type: "search-list",
       name: "App",
@@ -399,7 +399,6 @@ const selectedBoilerplate = async (): Promise<any> => {
     .then((name) => {
       return find(boilerplates, (boilerplate) => boilerplate.name === name);
     });
-  return response;
 };
 
 export {
