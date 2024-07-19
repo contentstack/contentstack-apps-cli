@@ -140,3 +140,12 @@ export interface LaunchProjectRes {
   environmentUid: any;
   developerHubAppUid: any;
 }
+
+export interface BoilerplateAppType {
+  name?: string;
+  description?: string;
+  link: string;
+  tags?: string[];
+  created_at?: string;
+  updated_at?: string;
+}
