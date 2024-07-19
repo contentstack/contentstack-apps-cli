@@ -98,12 +98,22 @@ export default class Create extends BaseCommand<typeof Create> {
         }))
       ) {
         const boilerplate = await selectedBoilerplate();
-        if (boilerplate) {
+
+        if (boilerplate && boilerplate.name && boilerplate.link) {
           this.sharedConfig.boilerplateName = boilerplate.name
             .toLowerCase()
             .replace(/ /g, "-");
           this.sharedConfig.appBoilerplateGithubUrl = boilerplate.link;
-          this.sharedConfig.appName = this.sharedConfig.boilerplateName;
+          this.sharedConfig.appName = await getAppName(
+            this.sharedConfig.boilerplateName
+          );
+
+          // Handle case where user does not provide a new name
+          if (!this.sharedConfig.appName) {
+            console.error("App name is required.");
+            process.exit(1);
+          }
+
           await this.boilerplateFlow();
         }
       } else {
@@ -258,10 +268,7 @@ export default class Create extends BaseCommand<typeof Create> {
    */
   manageManifestToggeling() {
     // NOTE Use boilerplate manifest if exist
-    const manifestPath = resolve(
-      this.sharedConfig.folderPath,
-      `${this.sharedConfig.folderPath}/manifest.json`
-    );
+    const manifestPath = resolve(this.sharedConfig.folderPath, "manifest.json");
 
     if (existsSync(manifestPath)) {
       this.sharedConfig.manifestPath = manifestPath;
