@@ -52,6 +52,7 @@ export default class Create extends BaseCommand<typeof Create> {
     "$ <%= config.bin %> <%= command.id %> --name App-1 --app-type stack",
     "$ <%= config.bin %> <%= command.id %> --name App-2 --app-type stack -d ./boilerplate",
     "$ <%= config.bin %> <%= command.id %> --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json",
+    "$ <%= config.bin %> <%= command.id %> --name App-4 --app-type organization --org <UID> -boilerplates <boilerplate-name>",
   ];
 
   static flags: FlagInput = {
@@ -73,6 +74,9 @@ export default class Create extends BaseCommand<typeof Create> {
       char: "d",
       description: commonMsg.CURRENT_WORKING_DIR,
     }),
+    "boilerplates": flags.string({
+      description: appCreate.BOILERPLATE_TEMPLATES,
+    }),
   };
 
   async run(): Promise<void> {
@@ -89,7 +93,15 @@ export default class Create extends BaseCommand<typeof Create> {
     }
 
     try {
-      if (
+      if (this.flags.boilerplates) {
+        this.sharedConfig.boilerplateName = this.flags.boilerplates
+          .toLowerCase()
+          .replace(/ /g, "-");
+        this.sharedConfig.appName = await getAppName(
+          this.sharedConfig.boilerplateName
+        );
+        await this.boilerplateFlow();
+      } else if (
         this.flags.yes ||
         (await cliux.inquire({
           type: "confirm",
