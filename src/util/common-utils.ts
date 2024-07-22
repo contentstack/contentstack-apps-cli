@@ -7,6 +7,7 @@ import {
   cliux,
   Stack,
   FsUtility,
+  HttpClient,
 } from "@contentstack/cli-utilities";
 import { projectsQuery } from "../graphql/queries";
 import { apiRequestHandler } from "./api-request-handler";
@@ -19,6 +20,7 @@ import {
 } from "../types";
 import { askProjectName } from "./inquirer";
 import { deployAppMsg } from "../messages";
+import config from "../config";
 
 export type CommonOptions = {
   log: LogFn;
@@ -396,6 +398,14 @@ const handleProjectNameConflict = async (
   }
   return projectName;
 };
+async function fetchBoilerplateDetails(): Promise<Record<string, any>[]> {
+  try {
+    const content = await new HttpClient().get(config.boilerplatesUrl);
+    return content?.data?.templates ?? [];
+  } catch (error) {
+    throw error;
+  }
+}
 
 export {
   getOrganizations,
@@ -418,4 +428,5 @@ export {
   disconnectApp,
   formatUrl,
   handleProjectNameConflict,
+  fetchBoilerplateDetails
 };
