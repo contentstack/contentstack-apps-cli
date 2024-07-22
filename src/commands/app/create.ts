@@ -52,7 +52,7 @@ export default class Create extends BaseCommand<typeof Create> {
     "$ <%= config.bin %> <%= command.id %> --name App-1 --app-type stack",
     "$ <%= config.bin %> <%= command.id %> --name App-2 --app-type stack -d ./boilerplate",
     "$ <%= config.bin %> <%= command.id %> --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json",
-    "$ <%= config.bin %> <%= command.id %> --name App-4 --app-type organization --org <UID> -boilerplates <boilerplate-name>",
+    "$ <%= config.bin %> <%= command.id %> --name App-4 --app-type organization --org <UID> --boilerplates <boilerplate-name>",
   ];
 
   static flags: FlagInput = {
