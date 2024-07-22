@@ -132,12 +132,6 @@ export default class Create extends BaseCommand<typeof Create> {
     await this.unZipBoilerplate(await this.cloneBoilerplate());
     tmp.setGracefulCleanup(); // NOTE If graceful cleanup is set, tmp will remove all controlled temporary objects on process exit
 
-    // To remove the default app name from flag and replace it with the actual folder name
-    this.sharedConfig.appName =
-      this.sharedConfig.folderPath.split("/").pop() ||
-      this.sharedConfig.appName;
-    this.tempAppData.name = this.sharedConfig.appName;
-
     this.manageManifestToggeling();
 
     // NOTE Step 2: Registering the app
@@ -322,7 +316,7 @@ export default class Create extends BaseCommand<typeof Create> {
           writeFileSync(
             resolve(
               this.sharedConfig.folderPath,
-              `${this.sharedConfig.folderPath}/manifest.json`
+              "manifest.json"
             ),
             JSON.stringify(this.appData),
             {
