@@ -98,7 +98,7 @@ EXAMPLES
 
   $ csdx app:create --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json
 
-  $ csdx app:create --name App-4 --app-type organization --org <UID> -boilerplates <boilerplate-name>
+  $ csdx app:create --name App-4 --app-type organization --org <UID> --boilerplates <boilerplate-name>
 ```
 
 _See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.3.0/src/commands/app/create.ts)_
