@@ -21,6 +21,7 @@ import {
 import { askProjectName } from "./inquirer";
 import { deployAppMsg } from "../messages";
 import config from "../config";
+import { find } from "lodash";
 
 export type CommonOptions = {
   log: LogFn;
@@ -406,6 +407,17 @@ async function fetchBoilerplateDetails(): Promise<Record<string, any>[]> {
     throw error;
   }
 }
+async function validateBoilerplate(boilerplateName: string): Promise<void> {
+  const boilerplates = await fetchBoilerplateDetails();
+  const isValid = find(
+    boilerplates,
+    (boilerplate) => boilerplate.name.toLowerCase()
+    .replace(/ /g, "-") === boilerplateName
+  );
+  if (!isValid) {
+    throw new Error("Invalid boilerplate. Please enter a valid boilerplate.");
+  }
+}
 
 export {
   getOrganizations,
@@ -428,5 +440,6 @@ export {
   disconnectApp,
   formatUrl,
   handleProjectNameConflict,
-  fetchBoilerplateDetails
+  fetchBoilerplateDetails,
+  validateBoilerplate,
 };
