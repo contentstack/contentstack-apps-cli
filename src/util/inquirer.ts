@@ -14,6 +14,7 @@ import { AppTarget } from "@contentstack/management/types/app/index";
 
 import messages, {
   $t,
+  appCreate,
   deployAppMsg,
   errors,
   uninstallAppMsg,
@@ -394,7 +395,7 @@ const selectedBoilerplate = async (): Promise<any> => {
       type: "search-list",
       name: "App",
       choices: boilerplates.map((bp) => bp.name),
-      message: "Select a boilerplate from search list",
+      message: appCreate.BOILERPLATE_TEMPLATES,
     })
     .then((name) => {
       return find(boilerplates, (boilerplate) => boilerplate.name === name);

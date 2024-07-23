@@ -58,6 +58,7 @@ const appCreate = {
   REGISTER_THE_APP_ON_DEVELOPER_HUB:
     "Registering the app with the name {appName} on the Developer Hub...",
   START_APP_COMMAND: "Start the app using the following command: {command}",
+  BOILERPLATE_TEMPLATES: "Choose a boilerplate from search list"
 };
 
 const getAppMsg = {
