@@ -75,7 +75,7 @@ Create a new app in Developer Hub and optionally clone a boilerplate locally.
 
 ```
 USAGE
-  $ csdx app:create [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>] [--boilerplates
+  $ csdx app:create [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>] [--boilerplate
     <value>]
 
 FLAGS
@@ -84,7 +84,7 @@ FLAGS
   -n, --name=<value>      [default: app-boilerplate] Name of the app to be created
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
-  --boilerplates=<value>  Choose a boilerplate from search list
+  --boilerplate=<value>   Choose a boilerplate from search list
 
 DESCRIPTION
   Create a new app in Developer Hub and optionally clone a boilerplate locally.
