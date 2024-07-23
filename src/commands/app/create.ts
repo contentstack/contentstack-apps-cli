@@ -34,6 +34,7 @@ import {
   getOrgAppUiLocation,
   sanitizePath,
   selectedBoilerplate,
+  validateBoilerplate,
 } from "../../util";
 
 export default class Create extends BaseCommand<typeof Create> {
@@ -52,6 +53,7 @@ export default class Create extends BaseCommand<typeof Create> {
     "$ <%= config.bin %> <%= command.id %> --name App-1 --app-type stack",
     "$ <%= config.bin %> <%= command.id %> --name App-2 --app-type stack -d ./boilerplate",
     "$ <%= config.bin %> <%= command.id %> --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json",
+    "$ <%= config.bin %> <%= command.id %> --name App-4 --app-type organization --org <UID> --boilerplates <boilerplate-name>",
   ];
 
   static flags: FlagInput = {
@@ -73,11 +75,15 @@ export default class Create extends BaseCommand<typeof Create> {
       char: "d",
       description: commonMsg.CURRENT_WORKING_DIR,
     }),
+    "boilerplate": flags.string({
+      description: appCreate.BOILERPLATE_TEMPLATES,
+    }),
   };
 
   async run(): Promise<void> {
     this.sharedConfig.org = this.flags.org;
     this.sharedConfig.appName = this.flags.name;
+    this.sharedConfig.boilerplateName = this.flags.boilerplate;
 
     await this.flagsPromptQueue();
 
@@ -97,18 +103,7 @@ export default class Create extends BaseCommand<typeof Create> {
           message: this.messages.CONFIRM_CLONE_BOILERPLATE,
         }))
       ) {
-        const boilerplate: BoilerplateAppType = await selectedBoilerplate();
-
-        if (boilerplate) {
-          this.sharedConfig.boilerplateName = boilerplate.name
-            .toLowerCase()
-            .replace(/ /g, "-");
-          this.sharedConfig.appBoilerplateGithubUrl = boilerplate.link;
-          this.sharedConfig.appName = await getAppName(
-            this.sharedConfig.boilerplateName
-          );
-          await this.boilerplateFlow();
-        }
+        await this.boilerplateFlow();
       } else {
         this.manageManifestToggeling();
         await this.registerTheAppOnDeveloperHub(false);
@@ -160,6 +155,22 @@ export default class Create extends BaseCommand<typeof Create> {
         this.sharedConfig.defaultAppName
       );
     }
+    if (isEmpty(this.sharedConfig.boilerplateName)) {
+      const boilerplate: BoilerplateAppType = await selectedBoilerplate();
+
+      if (boilerplate) {
+        this.sharedConfig.boilerplateName = boilerplate.name
+          .toLowerCase()
+          .replace(/ /g, "-");
+        this.sharedConfig.appBoilerplateGithubUrl = boilerplate.link;
+        this.sharedConfig.appName = await getAppName(
+          this.sharedConfig.boilerplateName
+        );
+      }
+    } else {
+      await validateBoilerplate(this.sharedConfig.boilerplateName);
+    }
+    this.sharedConfig.appName = this.sharedConfig.boilerplateName;
 
     //Auto select org in case of oauth
     this.sharedConfig.org =
@@ -314,10 +325,7 @@ export default class Create extends BaseCommand<typeof Create> {
         this.appData = merge(this.appData, pick(response, validKeys));
         if (saveManifest) {
           writeFileSync(
-            resolve(
-              this.sharedConfig.folderPath,
-              "manifest.json"
-            ),
+            resolve(this.sharedConfig.folderPath, "manifest.json"),
             JSON.stringify(this.appData),
             {
               encoding: "utf8",
