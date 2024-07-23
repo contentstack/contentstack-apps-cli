@@ -21,7 +21,7 @@ import {
 import { askProjectName } from "./inquirer";
 import { deployAppMsg } from "../messages";
 import config from "../config";
-import { find } from "lodash";
+import find from "lodash/find";
 
 export type CommonOptions = {
   log: LogFn;
