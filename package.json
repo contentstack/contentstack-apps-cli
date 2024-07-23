@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/apps-cli",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "App ClI",
   "author": "Contentstack CLI",
   "homepage": "https://github.com/contentstack/contentstack-apps-cli",
@@ -20,6 +20,7 @@
     "/oclif.manifest.json"
   ],
   "dependencies": {
+    "@apollo/client": "^3.7.9",
     "@contentstack/cli-command": "^1.2.18",
     "@contentstack/cli-launch": "^1.0.18",
     "@contentstack/cli-utilities": "^1.6.2",
