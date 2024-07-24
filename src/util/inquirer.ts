@@ -368,9 +368,7 @@ async function askConfirmation(): Promise<boolean> {
   });
 }
 
-const askProjectName = async (
-  projectName: string,
-): Promise<string> => {
+const askProjectName = async (projectName: string): Promise<string> => {
   return await cliux.inquire({
     type: "input",
     name: "name",
@@ -402,6 +400,11 @@ const selectedBoilerplate = async (): Promise<any> => {
     });
 };
 
+const validateAppName = (name: string) => {
+  if (name.length < 3 || name.length > 20) {
+    throw new Error($t(errors.INVALID_NAME, { min: "3", max: "20" }));
+  }
+};
 export {
   getOrg,
   getAppName,
@@ -418,4 +421,5 @@ export {
   selectProject,
   askProjectName,
   selectedBoilerplate,
+  validateAppName,
 };
