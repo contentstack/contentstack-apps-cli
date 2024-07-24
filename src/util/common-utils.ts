@@ -407,16 +407,19 @@ async function fetchBoilerplateDetails(): Promise<Record<string, any>[]> {
     throw error;
   }
 }
-async function validateBoilerplate(boilerplateName: string): Promise<void> {
+
+async function validateBoilerplate(boilerplateName: string) {
   const boilerplates = await fetchBoilerplateDetails();
-  const isValid = find(
+  const boilerplate = find(
     boilerplates,
-    (boilerplate) => boilerplate.name.toLowerCase()
-    .replace(/ /g, "-") === boilerplateName
+    (boilerplate) => boilerplate.name === boilerplateName
   );
-  if (!isValid) {
-    throw new Error("Invalid boilerplate. Please enter a valid boilerplate.");
+  if (!boilerplate) {
+    throw new Error(
+      "Invalid boilerplate! Please select a boilerplate from the following options: App Boilerplate, DAM App Boilerplate or Ecommerce App Boilerplate"
+    );
   }
+  return boilerplate;
 }
 
 export {
