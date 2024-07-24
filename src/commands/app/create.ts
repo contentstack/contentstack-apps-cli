@@ -53,7 +53,9 @@ export default class Create extends BaseCommand<typeof Create> {
     "$ <%= config.bin %> <%= command.id %> --name App-1 --app-type stack",
     "$ <%= config.bin %> <%= command.id %> --name App-2 --app-type stack -d ./boilerplate",
     "$ <%= config.bin %> <%= command.id %> --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json",
-    "$ <%= config.bin %> <%= command.id %> --name App-4 --app-type organization --org <UID> --boilerplates <boilerplate-name>",
+    "$ <%= config.bin %> <%= command.id %> --name App-4 --app-type organization --org <UID> --boilerplate <App Boilerplate>",
+    "$ <%= config.bin %> <%= command.id %> --name App-4 --app-type organization --org <UID> --boilerplate <DAM App Boilerplate>",
+    "$ <%= config.bin %> <%= command.id %> --name App-4 --app-type organization --org <UID> --boilerplate <Ecommerce App Boilerplate>",
   ];
 
   static flags: FlagInput = {
@@ -75,7 +77,7 @@ export default class Create extends BaseCommand<typeof Create> {
       char: "d",
       description: commonMsg.CURRENT_WORKING_DIR,
     }),
-    "boilerplate": flags.string({
+    boilerplate: flags.string({
       description: appCreate.BOILERPLATE_TEMPLATES,
     }),
   };
@@ -155,22 +157,26 @@ export default class Create extends BaseCommand<typeof Create> {
         this.sharedConfig.defaultAppName
       );
     }
-    if (isEmpty(this.sharedConfig.boilerplateName)) {
-      const boilerplate: BoilerplateAppType = await selectedBoilerplate();
+    let boilerplate: BoilerplateAppType | null = null;
 
-      if (boilerplate) {
-        this.sharedConfig.boilerplateName = boilerplate.name
-          .toLowerCase()
-          .replace(/ /g, "-");
-        this.sharedConfig.appBoilerplateGithubUrl = boilerplate.link;
-        this.sharedConfig.appName = await getAppName(
-          this.sharedConfig.boilerplateName
-        );
-      }
+    if (isEmpty(this.sharedConfig.boilerplateName)) {
+      boilerplate = await selectedBoilerplate();
     } else {
-      await validateBoilerplate(this.sharedConfig.boilerplateName);
+      boilerplate = (await validateBoilerplate(
+        this.sharedConfig.boilerplateName
+      )) as BoilerplateAppType;
     }
-    this.sharedConfig.appName = this.sharedConfig.boilerplateName;
+
+    if (boilerplate) {
+      const transformedName = boilerplate.name
+        .toLowerCase()
+        .replace(/ /g, "-")
+        .substring(0, 20);
+
+      this.sharedConfig.boilerplateName = transformedName;
+      this.sharedConfig.appBoilerplateGithubUrl = boilerplate.link;
+      this.sharedConfig.appName = transformedName;
+    }
 
     //Auto select org in case of oauth
     this.sharedConfig.org =
