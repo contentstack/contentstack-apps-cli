@@ -81,7 +81,7 @@ USAGE
 FLAGS
   -c, --config=<value>    Path of the external config
   -d, --data-dir=<value>  Current working directory.
-  -n, --name=<value>      [default: app-boilerplate] Name of the app to be created
+  -n, --name=<value>      Name of the app to be created
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
   --boilerplate=<value>   Provide a boilerplate from the following options: App Boilerplate, DAM App Boilerplate or

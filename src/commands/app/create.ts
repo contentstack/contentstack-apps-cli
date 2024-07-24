@@ -35,6 +35,7 @@ import {
   sanitizePath,
   selectedBoilerplate,
   validateBoilerplate,
+  validateAppName,
 } from "../../util";
 
 export default class Create extends BaseCommand<typeof Create> {
@@ -61,7 +62,6 @@ export default class Create extends BaseCommand<typeof Create> {
   static flags: FlagInput = {
     name: flags.string({
       char: "n",
-      default: "app-boilerplate",
       description: appCreate.NAME_DESCRIPTION,
     }),
     "app-type": flags.string({
@@ -152,13 +152,11 @@ export default class Create extends BaseCommand<typeof Create> {
    * @memberof Create
    */
   async flagsPromptQueue() {
-    if (isEmpty(this.sharedConfig.appName)) {
-      this.sharedConfig.appName = await getAppName(
-        this.sharedConfig.defaultAppName
-      );
+    if (this.sharedConfig.appName) {
+      validateAppName(this.sharedConfig.appName);
     }
-    let boilerplate: BoilerplateAppType | null = null;
 
+    let boilerplate: BoilerplateAppType | null = null;
     if (isEmpty(this.sharedConfig.boilerplateName)) {
       boilerplate = await selectedBoilerplate();
     } else {
@@ -168,14 +166,17 @@ export default class Create extends BaseCommand<typeof Create> {
     }
 
     if (boilerplate) {
-      const transformedName = boilerplate.name
-        .toLowerCase()
-        .replace(/ /g, "-")
-        .substring(0, 20);
+      let boilerplateName = this.sharedConfig.appName || boilerplate.name;
+      if (isEmpty(this.sharedConfig.appName)) {
+        boilerplateName = boilerplateName
+          .toLowerCase()
+          .replace(/ /g, "-")
+          .substring(0, 20);
+      }
 
-      this.sharedConfig.boilerplateName = transformedName;
+      this.sharedConfig.boilerplateName = boilerplateName;
       this.sharedConfig.appBoilerplateGithubUrl = boilerplate.link;
-      this.sharedConfig.appName = transformedName;
+      this.sharedConfig.appName = boilerplateName;
     }
 
     //Auto select org in case of oauth
