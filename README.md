@@ -81,10 +81,11 @@ USAGE
 FLAGS
   -c, --config=<value>    Path of the external config
   -d, --data-dir=<value>  Current working directory.
-  -n, --name=<value>      [default: app-boilerplate] Name of the app to be created
+  -n, --name=<value>      Name of the app to be created
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
-  --boilerplate=<value>   Choose a boilerplate from search list
+  --boilerplate=<value>   Provide a boilerplate from the following options: App Boilerplate, DAM App Boilerplate or
+                          Ecommerce App Boilerplate
 
 DESCRIPTION
   Create a new app in Developer Hub and optionally clone a boilerplate locally.
@@ -98,7 +99,11 @@ EXAMPLES
 
   $ csdx app:create --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json
 
-  $ csdx app:create --name App-4 --app-type organization --org <UID> --boilerplates <boilerplate-name>
+  $ csdx app:create --name App-4 --app-type organization --org <UID> --boilerplate <App Boilerplate>
+
+  $ csdx app:create --name App-4 --app-type organization --org <UID> --boilerplate <DAM App Boilerplate>
+
+  $ csdx app:create --name App-4 --app-type organization --org <UID> --boilerplate <Ecommerce App Boilerplate>
 ```
 
 _See code: [src/commands/app/create.ts](https://github.com/contentstack/apps-cli/blob/v1.3.0/src/commands/app/create.ts)_
