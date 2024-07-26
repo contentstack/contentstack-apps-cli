@@ -7,6 +7,7 @@ import {
   cliux,
   Stack,
   FsUtility,
+  HttpClient,
 } from "@contentstack/cli-utilities";
 import { projectsQuery } from "../graphql/queries";
 import { apiRequestHandler } from "./api-request-handler";
@@ -19,6 +20,8 @@ import {
 } from "../types";
 import { askProjectName } from "./inquirer";
 import { deployAppMsg } from "../messages";
+import config from "../config";
+import find from "lodash/find";
 
 export type CommonOptions = {
   log: LogFn;
@@ -396,6 +399,28 @@ const handleProjectNameConflict = async (
   }
   return projectName;
 };
+async function fetchBoilerplateDetails(): Promise<Record<string, any>[]> {
+  try {
+    const content = await new HttpClient().get(config.boilerplatesUrl);
+    return content?.data?.templates ?? [];
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function validateBoilerplate(boilerplateName: string) {
+  const boilerplates = await fetchBoilerplateDetails();
+  const boilerplate = find(
+    boilerplates,
+    (boilerplate) => boilerplate.name === boilerplateName
+  );
+  if (!boilerplate) {
+    throw new Error(
+      "Invalid boilerplate! Please select a boilerplate from the following options: App Boilerplate, DAM App Boilerplate or Ecommerce App Boilerplate"
+    );
+  }
+  return boilerplate;
+}
 
 export {
   getOrganizations,
@@ -418,4 +443,6 @@ export {
   disconnectApp,
   formatUrl,
   handleProjectNameConflict,
+  fetchBoilerplateDetails,
+  validateBoilerplate,
 };
