@@ -70,7 +70,7 @@ export default class Deploy extends AppCLIBaseCommand {
       const apolloClient = await this.getApolloClient();
       const projects = await getProjects(apolloClient);
       await this.handleAppDisconnect(projects);
-      
+
       flags["hosting-type"] = flags["hosting-type"] || (await getHostingType());
       const updateHostingPayload: UpdateHostingParams = {
         provider: "external",
@@ -89,14 +89,18 @@ export default class Deploy extends AppCLIBaseCommand {
           config["name"] = config["name"] || app?.name;
           this.flags["launch-project"] =
             this.flags["launch-project"] || (await askProjectType());
-          await this.handleHostingWithLaunch(config, updateHostingPayload, projects);
+          await this.handleHostingWithLaunch(
+            config,
+            updateHostingPayload,
+            projects
+          );
           break;
         default:
           this.log("Please provide a valid Hosting Type.", "error");
           return;
       }
 
-      if(this.flags["app-uid"]){
+      if (this.flags["app-uid"]) {
         await updateApp(
           flags,
           this.sharedConfig.org,
@@ -284,11 +288,10 @@ export default class Deploy extends AppCLIBaseCommand {
       if (!this.flags["yes"]) {
         throw new Error(deployAppMsg.APP_UPDATE_TERMINATION_MSG);
       }
-      await disconnectApp(
-        this.flags,
-        this.sharedConfig.org,
-        this.developerHubBaseUrl
-      );
+      await disconnectApp(this.flags, this.sharedConfig.org, {
+        marketplaceSdk: this.marketplaceAppSdk,
+        log: this.log,
+      });
     }
   }
 }
