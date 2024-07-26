@@ -21,18 +21,21 @@ import {
   flags,
   HttpClient,
   configHandler,
-  FlagInput
+  FlagInput,
 } from "@contentstack/cli-utilities";
 
 import { BaseCommand } from "../../base-command";
-import { AppManifest, AppType } from "../../types";
+import { AppManifest, AppType, BoilerplateAppType } from "../../types";
 import { appCreate, commonMsg } from "../../messages";
 import {
   getOrg,
   getAppName,
   getDirName,
   getOrgAppUiLocation,
-  sanitizePath
+  sanitizePath,
+  selectedBoilerplate,
+  validateBoilerplate,
+  validateAppName,
 } from "../../util";
 
 export default class Create extends BaseCommand<typeof Create> {
@@ -51,12 +54,14 @@ export default class Create extends BaseCommand<typeof Create> {
     "$ <%= config.bin %> <%= command.id %> --name App-1 --app-type stack",
     "$ <%= config.bin %> <%= command.id %> --name App-2 --app-type stack -d ./boilerplate",
     "$ <%= config.bin %> <%= command.id %> --name App-3 --app-type organization --org <UID> -d ./boilerplate -c ./external-config.json",
+    "$ <%= config.bin %> <%= command.id %> --name App-4 --app-type organization --org <UID> --boilerplate <App Boilerplate>",
+    "$ <%= config.bin %> <%= command.id %> --name App-4 --app-type organization --org <UID> --boilerplate <DAM App Boilerplate>",
+    "$ <%= config.bin %> <%= command.id %> --name App-4 --app-type organization --org <UID> --boilerplate <Ecommerce App Boilerplate>",
   ];
 
   static flags: FlagInput = {
     name: flags.string({
       char: "n",
-      default: "app-boilerplate",
       description: appCreate.NAME_DESCRIPTION,
     }),
     "app-type": flags.string({
@@ -72,11 +77,15 @@ export default class Create extends BaseCommand<typeof Create> {
       char: "d",
       description: commonMsg.CURRENT_WORKING_DIR,
     }),
+    boilerplate: flags.string({
+      description: appCreate.BOILERPLATE_TEMPLATES,
+    }),
   };
 
   async run(): Promise<void> {
     this.sharedConfig.org = this.flags.org;
     this.sharedConfig.appName = this.flags.name;
+    this.sharedConfig.boilerplateName = this.flags.boilerplate;
 
     await this.flagsPromptQueue();
 
@@ -143,10 +152,31 @@ export default class Create extends BaseCommand<typeof Create> {
    * @memberof Create
    */
   async flagsPromptQueue() {
-    if (isEmpty(this.sharedConfig.appName)) {
-      this.sharedConfig.appName = await getAppName(
-        this.sharedConfig.defaultAppName
-      );
+    if (this.sharedConfig.appName) {
+      validateAppName(this.sharedConfig.appName);
+    }
+
+    let boilerplate: BoilerplateAppType | null = null;
+    if (isEmpty(this.sharedConfig.boilerplateName)) {
+      boilerplate = await selectedBoilerplate();
+    } else {
+      boilerplate = (await validateBoilerplate(
+        this.sharedConfig.boilerplateName
+      )) as BoilerplateAppType;
+    }
+
+    if (boilerplate) {
+      let boilerplateName = this.sharedConfig.appName || boilerplate.name;
+      if (isEmpty(this.sharedConfig.appName)) {
+        boilerplateName = boilerplateName
+          .toLowerCase()
+          .replace(/ /g, "-")
+          .substring(0, 20);
+      }
+
+      this.sharedConfig.boilerplateName = boilerplateName;
+      this.sharedConfig.appBoilerplateGithubUrl = boilerplate.link;
+      this.sharedConfig.appName = boilerplateName;
     }
 
     //Auto select org in case of oauth
@@ -198,7 +228,11 @@ export default class Create extends BaseCommand<typeof Create> {
     const zip = new AdmZip(filepath);
     const dataDir = this.flags["data-dir"] ?? process.cwd();
     let targetPath = resolve(dataDir, this.sharedConfig.appName);
-    const sourcePath = resolve(dataDir, this.sharedConfig.boilerplateName);
+
+    // Get the directory inside the zip file
+    const zipEntries = zip.getEntries();
+    const firstEntry = zipEntries[0];
+    const sourcePath = resolve(dataDir, firstEntry.entryName.split("/")[0]);
 
     if (this.flags["data-dir"] && !existsSync(this.flags["data-dir"])) {
       mkdirSync(this.flags["data-dir"], { recursive: true });
@@ -235,10 +269,7 @@ export default class Create extends BaseCommand<typeof Create> {
    */
   manageManifestToggeling() {
     // NOTE Use boilerplate manifest if exist
-    const manifestPath = resolve(
-      this.sharedConfig.folderPath || "",
-      "manifest.json"
-    );
+    const manifestPath = resolve(this.sharedConfig.folderPath, "manifest.json");
 
     if (existsSync(manifestPath)) {
       this.sharedConfig.manifestPath = manifestPath;
