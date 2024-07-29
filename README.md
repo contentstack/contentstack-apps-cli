@@ -84,8 +84,7 @@ FLAGS
   -n, --name=<value>      Name of the app to be created
   --app-type=<option>     [default: stack] Type of app
                           <options: stack|organization>
-  --boilerplate=<value>   Provide a boilerplate from the following options: App Boilerplate, DAM App Boilerplate or
-                          Ecommerce App Boilerplate
+  --boilerplate=<value>   Provide a boilerplate. <options: App Boilerplate|DAM App Boilerplate|Ecommerce App Boilerplate>
 
 DESCRIPTION
   Create a new app in Developer Hub and optionally clone a boilerplate locally.
