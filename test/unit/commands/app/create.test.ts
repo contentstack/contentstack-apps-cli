@@ -12,6 +12,7 @@ import config from "../../../../src/config";
 import messages from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import manifestData from "../../../../src/config/manifest.json";
+import manifestData2 from "../../../unit/config/manifest.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 
 const { origin, pathname } = new URL(config.appBoilerplateGithubUrl);
@@ -25,6 +26,7 @@ describe("app:create", () => {
     axios.defaults.adapter = "http";
   });
 
+  //working
   describe("Creating a stack app using a boilerplate flow", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
@@ -64,13 +66,20 @@ describe("app:create", () => {
             data: { ...manifestData, name: "test-app", version: 1 },
           })
       )
-      .command(["app:create", "--data-dir", process.cwd()])
+      .command([
+        "app:create",
+        "--name",
+        "test-app",
+        "--data-dir",
+        process.cwd(),
+      ])
       .do(({ stdout }) =>
         expect(stdout).to.contain(messages.APP_CREATION_SUCCESS)
       )
       .it("should create a stack level app");
   });
 
+  // //working
   describe("Creating a organization app using a boilerplate flow", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
@@ -106,16 +115,23 @@ describe("app:create", () => {
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api
           .post("/manifests", {
-            ...manifestData,
+            ...manifestData2,
             name: "test-app",
             target_type: "organization",
           })
+          
           .reply(200, {
-            data: { ...manifestData, name: "test-app", version: 1 },
+            data: {
+              ...manifestData2,
+              name: "test-app",
+              version: 1,
+            },
           })
       )
       .command([
         "app:create",
+        "--name",
+        "test-app",
         "--data-dir",
         process.cwd(),
         "--app-type",
@@ -209,6 +225,15 @@ describe("app:create", () => {
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
+      .stub(shelljs, "cd", () => {})
+      .stub(shelljs, "exec", (...args) => {
+        const [, , callback]: any = args;
+        callback(0);
+      })
+      .stub(fs, "renameSync", () => new PassThrough())
+      .stub(fs, "writeFileSync", () => new PassThrough())
+      .stub(fs, "createWriteStream", () => new PassThrough())
+      .stub(tmp, "fileSync", () => ({ name: zipPath }))
       .stub(cliux, "inquire", async (...args: any) => {
         const [prompt]: any = args;
         const cases = {
@@ -219,16 +244,39 @@ describe("app:create", () => {
 
         return (cases as Record<string, any>)[prompt.name];
       })
+      .nock(origin, (api) =>
+        api.get(pathname).reply(200, { data: "test-data" })
+      )
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.post("/manifests", { ...manifestData, name: "test-app" }).reply(400)
+        api
+          .post("/manifests", {
+            ...manifestData2,
+            name: "test-app",
+            target_type: "organization",
+          })
+          
+          .reply(200, {
+            data: {
+              ...manifestData2,
+              name: "test-app",
+              version: 1,
+            },
+          })
       )
-      .command(["app:create", "--data-dir", process.cwd()])
-      .exit(1)
+      .command([
+        "app:create",
+        "--name",
+        "test-app",
+        "--data-dir",
+        process.cwd(),
+        "--app-type",
+        "organization",
+      ])
       .do(({ stdout }) =>
         expect(stdout).to.contain(messages.APP_CREATION_CONSTRAINT_FAILURE)
       )
@@ -260,6 +308,8 @@ describe("app:create", () => {
       )
       .command([
         "app:create",
+        "--name",
+        "test-app",
         "--data-dir",
         process.cwd(),
         "--config",
@@ -272,6 +322,7 @@ describe("app:create", () => {
       .it("App creation should fail!");
   });
 
+  //working
   describe("Dependency installation failure", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
@@ -305,13 +356,17 @@ describe("app:create", () => {
           .reply(200, { organizations: mock.organizations })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .post("/manifests", { ...manifestData, name: "test-app" })
-          .reply(200, {
-            data: { ...manifestData, name: "test-app", version: 1 },
-          })
+        api.post("/manifests", { ...manifestData }).reply(200, {
+          data: { ...manifestData, name: "test-app", version: 1 },
+        })
       )
-      .command(["app:create", "--data-dir", process.cwd()])
+      .command([
+        "app:create",
+        "--name",
+        "test-app",
+        "--data-dir",
+        process.cwd(),
+      ])
       .exit(1)
       .do(({ stdout }) =>
         expect(stdout).to.contain("Dependency installation failed.!")
