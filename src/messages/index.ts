@@ -58,6 +58,8 @@ const appCreate = {
   REGISTER_THE_APP_ON_DEVELOPER_HUB:
     "Registering the app with the name {appName} on the Developer Hub...",
   START_APP_COMMAND: "Start the app using the following command: {command}",
+  BOILERPLATE_TEMPLATES: "Provide a boilerplate. <options: App Boilerplate|DAM App Boilerplate|Ecommerce App Boilerplate>",
+  SELECT_BOILERPLATE: "Select one from the following boilerplates:"
 };
 
 const getAppMsg = {
