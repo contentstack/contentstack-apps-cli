@@ -14,6 +14,7 @@ import { AppTarget } from "@contentstack/management/types/app/index";
 
 import messages, {
   $t,
+  appCreate,
   deployAppMsg,
   errors,
   uninstallAppMsg,
@@ -27,6 +28,7 @@ import {
   fetchApps,
   sanitizePath,
   MarketPlaceOptions,
+  fetchBoilerplateDetails,
 } from "./common-utils";
 import { LaunchProjectRes } from "../types";
 
@@ -366,9 +368,7 @@ async function askConfirmation(): Promise<boolean> {
   });
 }
 
-const askProjectName = async (
-  projectName: string,
-): Promise<string> => {
+const askProjectName = async (projectName: string): Promise<string> => {
   return await cliux.inquire({
     type: "input",
     name: "name",
@@ -385,6 +385,26 @@ function inquireRequireValidation(input: any): string | boolean {
   return true;
 }
 
+const selectedBoilerplate = async (): Promise<any> => {
+  const boilerplates = await fetchBoilerplateDetails();
+
+  return await cliux
+    .inquire({
+      type: "search-list",
+      name: "App",
+      choices: boilerplates.map((bp) => bp.name),
+      message: appCreate.SELECT_BOILERPLATE,
+    })
+    .then((name) => {
+      return find(boilerplates, (boilerplate) => boilerplate.name === name);
+    });
+};
+
+const validateAppName = (name: string) => {
+  if (name.length < 3 || name.length > 20) {
+    throw new Error($t(errors.INVALID_NAME, { min: "3", max: "20" }));
+  }
+};
 export {
   getOrg,
   getAppName,
@@ -399,5 +419,7 @@ export {
   askProjectType,
   askConfirmation,
   selectProject,
-  askProjectName
+  askProjectName,
+  selectedBoilerplate,
+  validateAppName,
 };
