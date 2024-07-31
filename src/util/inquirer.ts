@@ -393,7 +393,7 @@ const selectedBoilerplate = async (): Promise<any> => {
       type: "search-list",
       name: "App",
       choices: boilerplates.map((bp) => bp.name),
-      message: appCreate.BOILERPLATE_TEMPLATES,
+      message: appCreate.SELECT_BOILERPLATE,
     })
     .then((name) => {
       return find(boilerplates, (boilerplate) => boilerplate.name === name);
