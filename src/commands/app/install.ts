@@ -28,6 +28,7 @@ export default class Install extends AppCLIBaseCommand {
     "stack-api-key": flags.string({
       description: commonMsg.STACK_API_KEY,
     }),
+    ...AppCLIBaseCommand.baseFlags,
   };
 
   async run(): Promise<void> {
