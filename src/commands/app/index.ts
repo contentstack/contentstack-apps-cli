@@ -9,12 +9,13 @@ export default class App extends Command {
 
   static examples = [
     "$ <%= config.bin %> <%= command.id %>:create",
-    "$ <%= config.bin %> <%= command.id %>:get",
-    "$ <%= config.bin %> <%= command.id %>:update",
     "$ <%= config.bin %> <%= command.id %>:delete",
+    "$ <%= config.bin %> <%= command.id %>:deploy",
+    "$ <%= config.bin %> <%= command.id %>:get",
     "$ <%= config.bin %> <%= command.id %>:install",
-    "$ <%= config.bin %> <%= command.id %>:uninstall",
     "$ <%= config.bin %> <%= command.id %>:reinstall",
+    "$ <%= config.bin %> <%= command.id %>:uninstall",
+    "$ <%= config.bin %> <%= command.id %>:update",
   ];
 
   async run(): Promise<void> {

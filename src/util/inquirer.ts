@@ -170,6 +170,10 @@ async function getInstalledApps(
  */
 function getDeveloperHubUrl(): string {
   const { cma } = configHandler.get("region") || {};
+  if (!cma) {
+    throw new Error("Region not configured. Please set the region with command $ csdx config:set:region");
+  }
+  
   let developerHubBaseUrl = cma.replace("api", "developerhub-api");
 
   if (developerHubBaseUrl.startsWith("http")) {
@@ -368,9 +372,7 @@ async function askConfirmation(): Promise<boolean> {
   });
 }
 
-const askProjectName = async (
-  projectName: string,
-): Promise<string> => {
+const askProjectName = async (projectName: string): Promise<string> => {
   return await cliux.inquire({
     type: "input",
     name: "name",
