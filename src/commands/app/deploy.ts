@@ -57,6 +57,7 @@ export default class Deploy extends AppCLIBaseCommand {
       char: "c",
       description: deployAppMsg.CONFIG_FILE,
     }),
+    ...AppCLIBaseCommand.baseFlags,
   };
 
   async run(): Promise<void> {

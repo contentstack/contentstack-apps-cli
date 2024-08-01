@@ -24,6 +24,7 @@ export default class Uninstall extends AppCLIBaseCommand {
       'uninstall-all': flags.boolean({
         description: uninstallAppMsg.UNINSTALL_ALL,
       }),
+      ...AppCLIBaseCommand.baseFlags,
     }
 
     async run(): Promise<void> {
