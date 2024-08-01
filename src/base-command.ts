@@ -72,17 +72,16 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 
     ux.registerSearchPlugin();
     this.registerConfig();
-    
+    // Init logger
+    const logger = new Logger(this.sharedConfig);
+    this.log = logger.log.bind(logger);
+
+    this.validateRegionAndAuth();
+
     this.developerHubBaseUrl =
       this.sharedConfig.developerHubBaseUrl || getDeveloperHubUrl();
     await this.initCmaSDK();
     await this.initMarketplaceSDK();
-
-    // Init logger
-    const logger = new Logger(this.sharedConfig);
-    this.log = logger.log.bind(logger);
-    
-    this.validateRegionAndAuth();
   }
 
   protected async catch(err: Error & { exitCode?: number }): Promise<any> {
@@ -131,7 +130,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
       host: this.developerHubBaseUrl,
     });
   }
-  
+
   async initMarketplaceSDK() {
     marketplaceSDKInitiator.init(this.context);
     this.marketplaceAppSdk = await marketplaceSDKClient({
