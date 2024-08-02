@@ -80,6 +80,7 @@ export default class Create extends BaseCommand<typeof Create> {
     boilerplate: flags.string({
       description: appCreate.BOILERPLATE_TEMPLATES,
     }),
+    ...BaseCommand.baseFlags,
   };
 
   async run(): Promise<void> {
@@ -232,7 +233,7 @@ export default class Create extends BaseCommand<typeof Create> {
     // Get the directory inside the zip file
     const zipEntries = zip.getEntries();
     const firstEntry = zipEntries[0];
-    const sourcePath = resolve(dataDir, firstEntry.entryName.split("/")[0]);
+    const sourcePath = resolve(sanitizePath(dataDir), sanitizePath(firstEntry.entryName.split("/")[0]));
 
     if (this.flags["data-dir"] && !existsSync(this.flags["data-dir"])) {
       mkdirSync(this.flags["data-dir"], { recursive: true });
