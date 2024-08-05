@@ -2,10 +2,10 @@
   "description": "",
   "icon": "",
   "name": "test-app",
-  "organization_uid": "",
+  "organization_uid": "test-uid-1",
   "target_type": "",
   "visibility": "private",
-  "uid": "",
+  "uid": "app-uid-1",
   "hosting": {
     "provider": "external",
     "deployment_url": "http://localhost:3000"

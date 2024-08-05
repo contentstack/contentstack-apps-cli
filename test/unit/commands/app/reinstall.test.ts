@@ -225,7 +225,7 @@ describe("app:reinstall", () => {
       .it("should reinstall a stack app");
   });
 
-  describe.skip("App is already latest version", () => {
+  describe("App is already latest version", () => {
     test
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
@@ -246,11 +246,9 @@ describe("app:reinstall", () => {
           .reply(200, { organizations: mock.organizations })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-          .reply(200, {
-            data: mock.apps,
-          })
+        api.get(`/manifests/${mock.apps[1].uid}`).reply(200, {
+          data: mock.apps[1],
+        })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api
