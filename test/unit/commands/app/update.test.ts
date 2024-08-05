@@ -16,15 +16,30 @@ const developerHubBaseUrl = getDeveloperHubUrl();
 describe("app:update", () => {
   describe("Update app with `--app-manifest` flag", () => {
     test
-      .stdout({ print: process.env.PRINT === "true" || false })
+      .stdout({ print: true })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
       .stub(fs, "writeFileSync", () => new PassThrough())
+      .stub(cliux, "inquire", async (...args: any) => {
+        const [prompt]: any = args;
+        const cases = {
+          Organization: mock.organizations[0].name,
+          App: mock.apps[0].name,
+        };
+        return (cases as Record<string, any>)[prompt.name];
+      })
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations })
       )
+      .nock(`https://${developerHubBaseUrl}`, (api) =>
+        api
+            .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+            .reply(200, {
+            data: mock.apps,
+            })
+        )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.get("/manifests/app-uid-1").reply(200, {
           data: { ...manifestData, name: "test-app", version: 1 },
@@ -63,7 +78,15 @@ describe("app:update", () => {
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
-      .stub(cliux, "inquire", async () => "App 2")
+      // .stub(cliux, "inquire", async () => "App 2")
+      .stub(cliux, "inquire", async (...args: any) => {
+        const [prompt]: any = args;
+        const cases = {
+          Organization: mock.organizations[0].name,
+          App: mock.apps[0].name,
+        };
+        return (cases as Record<string, any>)[prompt.name];
+      })
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -98,6 +121,14 @@ describe("app:update", () => {
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
+      .stub(cliux, "inquire", async (...args: any) => {
+        const [prompt]: any = args;
+        const cases = {
+          Organization: mock.organizations[0].name,
+          App: mock.apps[0].name,
+        };
+        return (cases as Record<string, any>)[prompt.name];
+      })
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -128,6 +159,14 @@ describe("app:update", () => {
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
+      .stub(cliux, "inquire", async (...args: any) => {
+        const [prompt]: any = args;
+        const cases = {
+          Organization: mock.organizations[0].name,
+          App: mock.apps[0].name,
+        };
+        return (cases as Record<string, any>)[prompt.name];
+      })
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -158,6 +197,14 @@ describe("app:update", () => {
       .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
+      .stub(cliux, "inquire", async (...args: any) => {
+        const [prompt]: any = args;
+        const cases = {
+          Organization: mock.organizations[0].name,
+          App: mock.apps[0].name,
+        };
+        return (cases as Record<string, any>)[prompt.name];
+      })
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
