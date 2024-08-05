@@ -118,7 +118,7 @@ export default class Reinstall extends AppCLIBaseCommand {
       this.displayStackUrl();
     } catch (error: any) {
       this.log(error?.errorMessage || error?.message || error, "error");
-      process.exit(1);
+      this.exit(1);
     }
   }
 
