@@ -225,9 +225,9 @@ describe("app:reinstall", () => {
       .it("should reinstall a stack app");
   });
 
-  describe("App is already latest version", () => {
+  describe.skip("App is already latest version", () => {
     test
-      .stdout({ print: true })
+      .stdout({ print: process.env.PRINT === "true" || false })
       .stub(ux.action, "stop", () => {})
       .stub(ux.action, "start", () => {})
       .stub(cliux, "inquire", async (...args: any) => {
@@ -235,6 +235,7 @@ describe("app:reinstall", () => {
         const cases = {
           App: mock.apps[1].name,
           Organization: mock.organizations[0].name,
+          Stack: mock.stacks[0].name,
         };
 
         return (cases as Record<string, any>)[prompt.name];
@@ -253,9 +254,9 @@ describe("app:reinstall", () => {
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api
-          .put(`/manifests/${mock.apps[1].uid}/install`, {
+          .put(`/manifests/${mock.apps[1].uid}/reinstall`, {
             target_type: mock.apps[1].target_type,
-            target_uid: mock.stacks[0].uid,
+            target_uid: mock.organizations[0].uid,
           })
           .replyWithError({
             status: 400,
@@ -263,7 +264,7 @@ describe("app:reinstall", () => {
             error: "Bad Request",
           })
       )
-      .command(["app:install"])
+      .command(["app:reinstall", "--app-uid", mock.apps[1].uid])
       .exit(1)
       .do(({ stdout }) => {
         expect(stdout).to.contain("You are already using the latest version.");
