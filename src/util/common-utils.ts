@@ -10,7 +10,6 @@ import {
   HttpClient,
 } from "@contentstack/cli-utilities";
 import { projectsQuery } from "../graphql/queries";
-import { apiRequestHandler } from "./api-request-handler";
 import {
   AppLocation,
   Extension,
@@ -166,34 +165,23 @@ function installApp(
     });
 }
 
-async function reinstallApp(params: {
-  flags: FlagInput;
-  type: string;
-  developerHubBaseUrl: string;
-  orgUid: string;
-  manifestUid: string;
-}): Promise<void> {
-  const { type, developerHubBaseUrl, flags, orgUid, manifestUid } = params;
-  const payload = {
-    target_type: type,
-    target_uid: (flags["stack-api-key"] as any) || orgUid,
-  };
-
-  const url = `https://${developerHubBaseUrl}/manifests/${manifestUid}/reinstall`;
-  try {
-    const result = await apiRequestHandler({
-      orgUid,
-      payload,
-      url,
-      method: "PUT",
+function reinstallApp(
+  flags: FlagInput,
+  orgUid: string,
+  type: string,
+  options: MarketPlaceOptions
+) {
+  const { marketplaceSdk } = options;
+  return marketplaceSdk
+    .marketplace(orgUid)
+    .app(flags["app-uid"] as any)
+    .reinstall({
+      targetUid: (flags["stack-api-key"] as any) || orgUid,
+      targetType: type as any,
     });
-    return result;
-  } catch (err) {
-    throw err;
-  }
 }
 
-function fetchStack(flags: FlagInput, options: CommonOptions) {
+function fetchStack(flags: FlagInput, options: CommonOptions): Promise<any> {
   const { managementSdk } = options;
   return managementSdk
     .stack({ api_key: flags["stack-api-key"] as any })
@@ -363,21 +351,14 @@ function setupConfig(configPath: string) {
 async function disconnectApp(
   flags: FlagInput,
   orgUid: string,
-  developerHubBaseUrl: string
-) {
-  const appUid: any = flags["app-uid"];
-  const url = `https://${developerHubBaseUrl}/manifests/${appUid}/hosting/disconnect`;
-  try {
-    const result = await apiRequestHandler({
-      orgUid,
-      payload: { provider: "launch" },
-      url,
-      method: "PATCH",
-    });
-    return result;
-  } catch (err) {
-    throw err;
-  }
+  options: MarketPlaceOptions
+): Promise<any> {
+  const { marketplaceSdk } = options;
+  return marketplaceSdk
+    .marketplace(orgUid)
+    .app(flags["app-uid"] as any)
+    .hosting()
+    .disconnect({ provider: "launch" });
 }
 
 function formatUrl(url: string): string {

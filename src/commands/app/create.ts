@@ -108,6 +108,15 @@ export default class Create extends BaseCommand<typeof Create> {
       ) {
         await this.boilerplateFlow();
       } else {
+        if(this.sharedConfig.folderPath === undefined) {
+          const dataDir = this.flags["data-dir"] ?? process.cwd();
+          let targetPath = resolve(dataDir, this.sharedConfig.defaultAppName);
+          if (existsSync(targetPath)) {
+            this.log(this.messages.DIR_EXIST, "warn");
+            targetPath = await getDirName(targetPath);
+          }
+          this.sharedConfig.folderPath = targetPath;
+        }
         this.manageManifestToggeling();
         await this.registerTheAppOnDeveloperHub(false);
       }

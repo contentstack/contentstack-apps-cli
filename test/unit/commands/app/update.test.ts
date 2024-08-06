@@ -27,12 +27,12 @@ describe("app:update", () => {
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.get("/manifests/app-uid-1").reply(200, {
-          data: { ...manifestData, name: "test-app", version: 1 },
+          data: { ...manifestData },
         })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api.put("/manifests/app-uid-1").reply(200, {
-          data: { ...manifestData, name: "test-app", version: 1 },
+          data: { ...manifestData},
         })
       )
       .command([

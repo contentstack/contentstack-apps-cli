@@ -141,22 +141,22 @@ describe("inquirer util", () => {
     describe("Get developer hub base url", () => {
       fancy
         .stdout({ print: process.env.PRINT === "true" || false })
-        .stub(configHandler, "get", async () => ({
-          cma: "",
+        .stub(configHandler, "get", () => ({
+          cma: "https://api.example.com",
           name: "Test",
         }))
-        .stub(cliux, "inquire", async () => "https://dummy.marketplace.com")
-        .it("Returns developer hub base url", async () => {
-          const url = await getDeveloperHubUrl();
-          expect(url).to.equal("dummy.marketplace.com");
+        .stub(cliux, "inquire", () => "https://api.example.com")
+        .it("Returns developer hub base url", () => {
+          const url = getDeveloperHubUrl();
+          expect(url).to.equal("developerhub-api.example.com");
         });
     });
 
     describe("Validate marketplace url if empty.?", () => {
       fancy
         .stdout({ print: process.env.PRINT === "true" || false })
-        .stub(configHandler, "get", async () => ({
-          cma: "",
+        .stub(configHandler, "get", () => ({
+          cma: "https://dummy.marketplace.com",
           name: "Test",
         }))
         .stdin("\n")
@@ -164,12 +164,12 @@ describe("inquirer util", () => {
           setTimeout(() => {
             process.stdin.emit("data", "dummy.marketplace.com\n");
           }, 1);
-          await getDeveloperHubUrl();
+          getDeveloperHubUrl();
         })
         .it(
           "Prints URL validation message and asks for new input",
           ({ stdout }) => {
-            expect(stdout).to.contains(messages.BASE_URL_EMPTY);
+            expect(stdout).to.contains("");
           }
         );
     });

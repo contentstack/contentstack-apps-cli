@@ -35,12 +35,12 @@
   ],
   "installations": [
       {
-        "uid": "test-installation-uid-1",
-        "target": { "uid": "stack_api_key_1" }
+        "target": { "uid": "stack_api_key_1" },
+        "uid": "test-installation-uid-1"
       },
       {
-        "uid": "test-installation-uid-2",
-        "target": { "uid": "stack_api_key_2" }
+        "target": { "uid": "stack_api_key_2"},
+        "uid": "test-installation-uid-2"
       }
   ],
   "deploy_custom_host":  {

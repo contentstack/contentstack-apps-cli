@@ -2,7 +2,7 @@ import { ux, cliux, configHandler } from "@contentstack/cli-utilities";
 import { expect, test } from "@oclif/test";
 import * as mock from "../../mock/common.mock.json";
 import messages, { $t } from "../../../../src/messages";
-import { getDeveloperHubUrl } from "../../../../lib/util/inquirer";
+import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 
 const region: { cma: string; cda: string; name: string } =
   configHandler.get("region");
@@ -235,6 +235,7 @@ describe("app:reinstall", () => {
         const cases = {
           App: mock.apps[1].name,
           Organization: mock.organizations[0].name,
+          Stack: mock.stacks[0].name,
         };
 
         return (cases as Record<string, any>)[prompt.name];
@@ -245,17 +246,15 @@ describe("app:reinstall", () => {
           .reply(200, { organizations: mock.organizations })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-          .reply(200, {
-            data: mock.apps,
-          })
+        api.get(`/manifests/${mock.apps[1].uid}`).reply(200, {
+          data: mock.apps[1],
+        })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api
-          .put(`/manifests/${mock.apps[1].uid}/install`, {
+          .put(`/manifests/${mock.apps[1].uid}/reinstall`, {
             target_type: mock.apps[1].target_type,
-            target_uid: mock.stacks[0].uid,
+            target_uid: mock.organizations[0].uid,
           })
           .replyWithError({
             status: 400,
@@ -263,7 +262,7 @@ describe("app:reinstall", () => {
             error: "Bad Request",
           })
       )
-      .command(["app:install"])
+      .command(["app:reinstall", "--app-uid", mock.apps[1].uid])
       .exit(1)
       .do(({ stdout }) => {
         expect(stdout).to.contain("You are already using the latest version.");
