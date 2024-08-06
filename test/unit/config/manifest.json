@@ -1,9 +1,28 @@
 {
-  "version": 1,
+  "description": "",
+  "icon": "",
   "name": "test-app",
-  "uid": "app-uid-1",
-  "target_type": "stack",
+  "organization_uid": "test-uid-1",
+  "target_type": "",
   "visibility": "private",
-  "description": "test app",
-  "organization_uid": "test-uid-1"
+  "uid": "app-uid-1",
+  "hosting": {
+    "provider": "external",
+    "deployment_url": "http://localhost:3000"
+  },
+  "version": 1,
+  "ui_location": {
+    "locations": [
+      {
+        "type": "cs.org.config",
+        "meta": [
+          {
+            "path": "/app-configuration",
+            "signed": true,
+            "enabled": true
+          }
+        ]
+      }
+    ]
+  }
 }
