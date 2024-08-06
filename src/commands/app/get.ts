@@ -27,6 +27,7 @@ export default class Get extends AppCLIBaseCommand {
       char: "d",
       description: commonMsg.CURRENT_WORKING_DIR,
     }),
+    ...AppCLIBaseCommand.baseFlags,
   };
 
   async run(): Promise<void> {

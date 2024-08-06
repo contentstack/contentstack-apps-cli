@@ -80,6 +80,7 @@ export default class Create extends BaseCommand<typeof Create> {
     boilerplate: flags.string({
       description: appCreate.BOILERPLATE_TEMPLATES,
     }),
+    ...BaseCommand.baseFlags,
   };
 
   async run(): Promise<void> {
