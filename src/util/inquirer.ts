@@ -409,6 +409,25 @@ const validateAppName = (name: string) => {
     throw new Error($t(errors.INVALID_NAME, { min: "3", max: "20" }));
   }
 };
+
+function getLaunchHubUrl(): string {
+  const { cma } = configHandler.get('region') || {};
+  if (!cma) {
+    throw new Error('Region not configured. Please set the region with command $ csdx config:set:region');
+  }
+
+  let launchHubBaseUrl = cma.replace('api', 'launch-api');
+
+  if (launchHubBaseUrl.startsWith('http')) {
+    launchHubBaseUrl = launchHubBaseUrl.split('//')[1];
+  }
+
+  launchHubBaseUrl = launchHubBaseUrl.startsWith('dev11') ? launchHubBaseUrl.replace('dev11', 'dev') : launchHubBaseUrl;
+  launchHubBaseUrl = launchHubBaseUrl.endsWith('io') ? launchHubBaseUrl.replace('io', 'com') : launchHubBaseUrl;
+
+  return `https://${launchHubBaseUrl}`;
+}
+
 export {
   getOrg,
   getAppName,
@@ -426,4 +445,5 @@ export {
   askProjectName,
   selectedBoilerplate,
   validateAppName,
+  getLaunchHubUrl,
 };
