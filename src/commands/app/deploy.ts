@@ -22,6 +22,7 @@ import {
   disconnectApp,
   formatUrl,
   handleProjectNameConflict,
+  getLaunchHubUrl,
 } from "../../util";
 
 export default class Deploy extends AppCLIBaseCommand {
@@ -167,9 +168,7 @@ export default class Deploy extends AppCLIBaseCommand {
    * @returns {Promise<ApolloClient>} The Apollo Client instance.
    */
   async getApolloClient(projectUid = ""): Promise<ApolloClient<any>> {
-    const baseUrl =
-      config.launchBaseUrl ||
-      (config.launchHubUrls as Record<string, string>)[this.cmaAPIUrl];
+    const baseUrl = config.launchBaseUrl || getLaunchHubUrl();
     const manageApiBaseUrl = `${baseUrl}/${config.manageApiEndpoint}`;
     return await new GraphqlApiClient({
       headers: {
