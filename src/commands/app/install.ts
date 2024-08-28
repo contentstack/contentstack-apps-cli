@@ -128,8 +128,9 @@ export default class Install extends AppCLIBaseCommand {
         error?.status === 400
       ) {
         this.displayReInstallMsg();
+      } else {
+        this.exit(1);
       }
-      this.exit(1);
     }
   }
 
