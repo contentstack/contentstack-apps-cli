@@ -117,8 +117,12 @@ export default class Reinstall extends AppCLIBaseCommand {
 
       this.displayStackUrl();
     } catch (error: any) {
-      this.log(error?.errorMessage || error?.message || error, "error");
-      this.exit(1);
+      if (error?.errorMessage !== "You are already using the latest version.") {
+        this.log(error?.errorMessage || error?.message || error, "error");
+        this.exit(1);
+      } else {
+        this.log(error?.errorMessage || error?.message || error, "error");
+      }
     }
   }
 
