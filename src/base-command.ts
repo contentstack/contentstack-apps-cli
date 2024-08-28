@@ -79,7 +79,8 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
     this.validateRegionAndAuth();
 
     this.developerHubBaseUrl =
-      this.sharedConfig.developerHubBaseUrl || getDeveloperHubUrl();
+      this.sharedConfig.developerHubBaseUrl || this.developerHubUrl;
+    if (!this.developerHubBaseUrl) this.developerHubBaseUrl = getDeveloperHubUrl();
     await this.initCmaSDK();
     await this.initMarketplaceSDK();
   }
