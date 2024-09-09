@@ -1,0 +1,1 @@
+{"urlPath":"/manifests/app-uid-1","params":{"organization_uid":"test-uid-1"},"description":"","icon":"","name":"test-app","organization_uid":"test-uid-1","target_type":"","visibility":"private","uid":"app-uid-1","version":1,"ui_location":{"locations":[{"type":"cs.org.config","meta":[{"path":"/app-configuration","signed":true,"enabled":true}]}]}}

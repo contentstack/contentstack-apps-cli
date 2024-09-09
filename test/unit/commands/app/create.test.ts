@@ -1,363 +1,277 @@
-import fs from "fs";
-import tmp from "tmp";
-import axios from "axios";
-import { join, resolve } from "path";
-import shelljs from "shelljs";
-import { PassThrough } from "stream";
-
-import { expect, test } from "@oclif/test";
-import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
-
-import config from "../../../../src/config";
-import messages from "../../../../src/messages";
-import * as mock from "../../mock/common.mock.json";
-import manifestData from "../../../../src/config/manifest.json";
-import orgManifestData from "../../../unit/config/org_manifest.json";
-import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
+import { expect } from 'chai';
+import { PassThrough } from 'stream';
+import nock from 'nock';
+import fs from 'fs';
+import tmp from 'tmp';
+import shelljs from 'shelljs';
+import { join, resolve } from 'path';
+import fancy from 'fancy-test';
+import sinon from 'sinon';
+import { runCommand } from '@oclif/test';
+import { cliux, ux, configHandler } from '@contentstack/cli-utilities';
+import messages from '../../../../src/messages';
+import config from '../../../../src/config';
+import * as mock from '../../mock/common.mock.json';
+import manifestData from '../../../../src/config/manifest.json';
+import orgManifestData from '../../../unit/config/org_manifest.json';
+import { getDeveloperHubUrl } from '../../../../src/util/inquirer';
+import axios from 'axios';
 
 const { origin, pathname } = new URL(config.appBoilerplateGithubUrl);
-const zipPath = join(process.cwd(), "test", "unit", "mock", "boilerplate.zip");
-const region: { cma: string; name: string; cda: string } =
-  configHandler.get("region");
+const zipPath = join(process.cwd(), 'test', 'unit', 'mock', 'boilerplate.zip');
+const region: { cma: string; name: string; cda: string } = configHandler.get('region');
 const developerHubBaseUrl = getDeveloperHubUrl();
 
-describe("app:create", () => {
+class MockWriteStream extends PassThrough implements fs.WriteStream {
+  close() {}
+  bytesWritten = 0;
+  path = '/mock/path';
+  pending = false;
+}
+
+describe('app:create', () => {
+  let sandbox: sinon.SinonSandbox;
+  let writeStreamMock: MockWriteStream;
+  fancy
   beforeEach(() => {
-    axios.defaults.adapter = "http";
+    sandbox = sinon.createSandbox();
+    axios.defaults.adapter = 'http';
+
+    writeStreamMock = new MockWriteStream();
+    sandbox.stub(fs, 'renameSync').callsFake(() => {});
+    sandbox.stub(fs, 'writeFileSync').callsFake(() => {});
+    sandbox.stub(fs, 'createWriteStream').callsFake(() => writeStreamMock);
+    sandbox.stub(tmp, 'fileSync').callsFake(() => ({
+      name: zipPath,
+      fd: 1,
+      removeCallback: sandbox.stub(),
+    }));
+
+    sandbox.stub(cliux, 'inquire').callsFake((prompt: any) => {
+      const cases: Record<string, any> = {
+        appName: 'test-app',
+        cloneBoilerplate: true,
+        Organization: 'test org 1',
+      };
+      return Promise.resolve(cases[prompt.name]);
+    });
+
+    nock(origin).get(pathname).reply(200, { data: 'test-data' });
+
+    nock(region.cma)
+      .get('/v3/organizations?limit=100&asc=name&include_count=true&skip=0')
+      .reply(200, { organizations: mock.organizations });
   });
 
-  describe("Creating a stack app using a boilerplate flow", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(shelljs, "cd", () => {})
-      .stub(shelljs, "exec", (...args) => {
-        const [, , callback]: any = args;
-        callback(0);
-      })
-      .stub(fs, "renameSync", () => new PassThrough())
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(fs, "createWriteStream", () => new PassThrough())
-      .stub(tmp, "fileSync", () => ({ name: zipPath }))
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          appName: "test-app",
-          cloneBoilerplate: true,
-          Organization: "test org 1",
-        };
-
-        return (cases as Record<string, any>)[prompt.name];
-      })
-      .nock(origin, (api) =>
-        api.get(pathname).reply(200, { data: "test-data" })
-      )
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .post("/manifests", { ...manifestData, name: "test-app" })
-          .reply(200, {
-            data: { ...manifestData, name: "test-app", version: 1 },
-          })
-      )
-      .command([
-        "app:create",
-        "--name",
-        "test-app",
-        "--data-dir",
-        process.cwd(),
-      ])
-      .do(({ stdout }) =>
-        expect(stdout).to.contain(messages.APP_CREATION_SUCCESS)
-      )
-      .it("should create a stack level app");
+  afterEach(() => {
+    sandbox.restore();
+    nock.cleanAll();
   });
 
-  describe("Creating a organization app using a boilerplate flow", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(shelljs, "cd", () => {})
-      .stub(shelljs, "exec", (...args) => {
-        const [, , callback]: any = args;
-        callback(0);
-      })
-      .stub(fs, "renameSync", () => new PassThrough())
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(fs, "createWriteStream", () => new PassThrough())
-      .stub(tmp, "fileSync", () => ({ name: zipPath }))
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          appName: "test-app",
-          cloneBoilerplate: true,
-          Organization: "test org 1",
-        };
+  describe('Creating a stack app using a boilerplate flow', () => {
+    beforeEach(() => {
+      nock(`https://${developerHubBaseUrl}`)
+        .post('/manifests', { ...manifestData, name: 'test-app' })
+        .reply(200, {
+          data: { ...manifestData, name: 'test-app', version: 1 },
+        });
+    });
 
-        return (cases as Record<string, any>)[prompt.name];
-      })
-      .nock(origin, (api) =>
-        api.get(pathname).reply(200, { data: "test-data" })
-      )
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .post("/manifests", {
+    it('should create a stack-level app', async () => {
+      sandbox.stub(ux.action, 'stop').callsFake(() => {});
+      sandbox.stub(ux.action, 'start').callsFake(() => {});
+      sandbox.stub(shelljs, 'cd').callsFake(() => ({ stdout: '', stderr: '', code: 0 } as any));
+      sandbox.stub(shelljs, 'exec').callsFake((_cmd: string, _opts: any, callback?: (code: number, stdout: string, stderr: string) => void) => {
+        if (callback) callback(0, '', '');
+        return { stdout: '', stderr: '', code: 0 } as any;
+      });
+
+      const { stdout } = await runCommand(
+        ['app:create', '--name', 'test-app', '--data-dir', process.cwd()],
+        { root: process.cwd() }
+      );
+      expect(stdout).to.contain(messages.APP_CREATION_SUCCESS);
+      
+    });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
+    });
+
+  });
+
+  describe('Creating an organization app using a boilerplate flow', () => {
+    beforeEach(() => {
+      nock(`https://${developerHubBaseUrl}`)
+        .post('/manifests', {
+          ...orgManifestData,
+          name: 'test-app',
+          target_type: 'organization',
+        })
+        .reply(200, {
+          data: {
             ...orgManifestData,
-            name: "test-app",
-            target_type: "organization",
-          })
+            name: 'test-app',
+            version: 1,
+          },
+        });
+    });
 
-          .reply(200, {
-            data: {
-              ...orgManifestData,
-              name: "test-app",
-              version: 1,
-            },
-          })
-      )
-      .command([
-        "app:create",
-        "--name",
-        "test-app",
-        "--data-dir",
-        process.cwd(),
-        "--app-type",
-        "organization",
-      ])
-      .do(({ stdout }) =>
-        expect(stdout).to.contain(messages.APP_CREATION_SUCCESS)
-      )
-      .it("should create a organization level app");
+    it('should create an organization-level app', async () => {
+      try {
+        const { stdout } = await runCommand(
+          ['app:create', '--name', 'test-app', '--data-dir', process.cwd(), '--app-type', 'organization'],
+          { root: process.cwd() }
+        );
+        expect(stdout).to.contain(messages.APP_CREATION_SUCCESS);
+      } catch (err) {
+        console.error('Error during command execution:', err);
+        throw err;
+      }
+    });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
+    });
   });
 
-  describe("Creating an app without boilerplate", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(fs, "renameSync", () => new PassThrough())
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async (...args) => {
-        const [prompt]: any = args;
-        const cases = {
-          appName: "test-app",
-          cloneBoilerplate: false,
-          Organization: "test org 1",
-        };
+  describe('Creating an app without boilerplate', () => {
+    beforeEach(() => {
+      nock(region.cma)
+        .get('/v3/organizations?limit=100&asc=name&include_count=true&skip=0')
+        .reply(200, { organizations: mock.organizations });
+      nock(`https://${developerHubBaseUrl}`)
+        .post('/manifests', (body) => {
+          console.log('Received request body:', body);
+          return body.name === 'test-app' && body.target_type === 'stack';
+        })
+        .reply(200, {
+          data: { ...manifestData, name: 'test-app', version: 1 },
+        });
 
-        return (cases as Record<string, any>)[prompt.name];
-      })
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .post("/manifests", (body) => {
-            return body.name === "test-app" && body.target_type === "stack";
-          })
-          .reply(200, {
-            data: { ...manifestData, name: "test-app", version: 1 },
-          })
-      )
-      .command([
-        "app:create",
-        "--name",
-        "test-app",
-        "--data-dir",
-        process.cwd(),
-      ])
-      .do(({ stdout }) =>
-        expect(stdout).to.contain(messages.APP_CREATION_SUCCESS)
-      )
-      .it("should create a stack level app");
+    });
+
+    it('should create a stack-level app', async () => {
+      try {
+        const { stdout } = await runCommand(
+          ['app:create', '--name', 'test-app', '--data-dir', process.cwd()],
+          { root: process.cwd() }
+        );
+        expect(stdout).to.contain(messages.APP_CREATION_SUCCESS);
+      } catch (err) {
+        console.error('Error during command execution:', err);
+        throw err;
+      }
+    });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
+    });
+
   });
 
   describe("Boilerplate clone failure", () => {
-    test
-      .stderr({ print: false })
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(
-        fs,
-        "createWriteStream",
-        () =>
-          new PassThrough({
-            final(callback) {
-              callback(new Error("Failed to write"));
-            },
-          })
+    fancy
+      .nock(origin, (api) =>
+        api
+          .get(pathname)
+          .reply(200)
       )
-      .stub(tmp, "fileSync", () => ({ name: zipPath }))
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          appName: "test-app",
-          cloneBoilerplate: true,
-          Organization: "test org 1",
-        };
-
-        return (cases as Record<string, any>)[prompt.name];
-      })
-      .nock(origin, (api) => api.get(pathname).reply(200))
       .nock(region.cma, (api) =>
         api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+          .get('/v3/organizations?limit=100&asc=name&include_count=true&skip=0')
           .reply(200, { organizations: mock.organizations })
       )
-      .command(["app:create", "--data-dir", process.cwd()])
-      .exit(1)
-      .do(({ stdout }) => {
-        expect(stdout).to.includes(messages.FILE_GENERATION_FAILURE);
-      })
-      .it("Boilerplate clone exits with status code 1");
+      .it("Boilerplate clone exits with status code 1", async () => {
+        const result = await runCommand<string>(
+          ["app:create", "--data-dir", process.cwd(), '--code=1'],
+          { root: process.cwd() }
+        );
+        const { error, stdout } = result;
+        expect(stdout).to.include(messages.FILE_GENERATION_FAILURE);
+        expect(error?.oclif?.exit).to.equal(1);
+    });
   });
 
   describe("App creation should fail and rollback", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          appName: "test-app",
-          cloneBoilerplate: false,
-          Organization: "test org 1",
-        };
-        return (cases as Record<string, any>)[prompt.name];
-      })
+    fancy
       .nock(region.cma, (api) =>
         api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+          .get('/v3/organizations?limit=100&asc=name&include_count=true&skip=0')
           .reply(200, { organizations: mock.organizations })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api
-          .post("/manifests", (body) => {
-            return body.name === "test-app" && body.target_type === "stack";
+          .post('/manifests', (body) => {
+            return body.name === 'test-app' && body.target_type === 'stack';
           })
           .reply(400, {
-            errorMessage: "App creation failed due to constraints.",
+            data: { errorMessage: "App creation failed due to constraints." },
           })
       )
-      .command(["app:create", "--data-dir", process.cwd()])
-      .exit(1)
-      .do(({ stdout }) => {
-        expect(stdout).to.contain(messages.APP_CREATION_CONSTRAINT_FAILURE);
-      })
-      .it("App creation should fail and rollback");
+      .it('App creation should fail and rollback', async () => {
+        const { stdout, stderr } = await runCommand(
+          ['app:create', '--data-dir', process.cwd()],
+          { root: process.cwd() }
+        );
+        expect(stderr).to.equal(1)
+        expect(stdout).to.contain(messages.APP_CREATE_FAILURE_AND_ROLLBACK);
+      });
   });
-
   describe("Pass external config using '--config' flag", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          appName: "test-app",
-          cloneBoilerplate: false,
-          Organization: "test org 1",
-        };
-
-        return (cases as Record<string, any>)[prompt.name];
-      })
+    fancy
       .nock(region.cma, (api) =>
         api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+          .get('/v3/organizations?limit=100&asc=name&include_count=true&skip=0')
           .reply(200, { organizations: mock.organizations })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api
-          .post("/manifests", (body) => {
-            return body.name === "test-app" && body.target_type === "stack";
+          .post('/manifests', (body) => {
+            return body.name === 'test-app' && body.target_type === 'stack';
           })
           .reply(400, {
             errorMessage: "App creation failed due to constraints.",
           })
       )
-      .command([
-        "app:create",
-        "--data-dir",
-        process.cwd(),
-        "--config",
-        resolve(process.cwd(), "test", "unit", "mock", "config.json"),
-      ])
-      .exit(1)
-      .do(({ stdout }) => {
-        // Ensure the error message is what you expect
+      .it("App creation should fail!", async () => {
+        const { stdout, stderr } = await runCommand(
+          ['app:create', '--data-dir', process.cwd(), '--config', resolve(process.cwd(), 'test', 'unit', 'mock', 'config.json')],
+          { root: process.cwd() }
+        );
+  
+        expect(stderr).to.equal(1);
         expect(stdout).to.contain(messages.APP_CREATION_CONSTRAINT_FAILURE);
-      })
-      .it("App creation should fail!");
+      });
   });
-
   describe("Dependency installation failure", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(shelljs, "cd", () => {})
-      .stub(shelljs, "exec", (...args) => {
-        const [, , callback]: any = args;
-        callback("Dependency installation failed.!");
-      })
-      .stub(fs, "renameSync", () => new PassThrough())
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(fs, "createWriteStream", () => new PassThrough())
-      .stub(tmp, "fileSync", () => ({ name: zipPath }))
-      .stub(cliux, "inquire", async (...args) => {
-        const [prompt]: any = args;
-        const cases = {
-          appName: "test-app",
-          cloneBoilerplate: true,
-          Organization: "test org 1",
-        };
-
-        return (cases as Record<string, any>)[prompt.name];
-      })
+    fancy
       .nock(origin, (api) =>
         api.get(pathname).reply(200, { data: "test-data" })
       )
       .nock(region.cma, (api) =>
         api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+          .get('/v3/organizations?limit=100&asc=name&include_count=true&skip=0')
           .reply(200, { organizations: mock.organizations })
       )
       .nock(`https://${developerHubBaseUrl}`, (api) =>
         api
-          .post("/manifests", (body) => {
-            return body.name === "test-app" && body.target_type === "stack";
+          .post('/manifests', (body) => {
+            return body.name === 'test-app' && body.target_type === 'stack';
           })
           .reply(200, {
-            data: { ...manifestData, name: "test-app", version: 1 },
+            data: { ...manifestData, name: 'test-app', version: 1 },
           })
       )
-      .command([
-        "app:create",
-        "--name",
-        "test-app",
-        "--data-dir",
-        process.cwd(),
-      ])
-      .exit(1)
-      .do(({ stdout }) =>
-        expect(stdout).to.contain("Dependency installation failed.!")
-      )
-      .it("dependency install step should fail");
+      .it("dependency install step should fail", async () => {
+        const { stdout, stderr } = await runCommand(
+          ['app:create', '--name', 'test-app', '--data-dir', process.cwd()],
+          { root: process.cwd() }
+        );
+  
+        // Check that the stderr and stdout contain the expected failure message
+        expect(stderr).to.contain('Dependency installation failed!');
+        expect(stdout).to.contain('Dependency installation failed!');
+      });
   });
 });
