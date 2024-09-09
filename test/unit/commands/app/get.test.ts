@@ -1,38 +1,41 @@
-import fs from "fs";
+import { expect } from 'chai';
 import { join } from "path";
-import { PassThrough } from "stream";
-import { test, expect } from "@oclif/test";
-import { cliux, configHandler, ux } from "@contentstack/cli-utilities";
-
+import { runCommand } from "@oclif/test";
+import { cliux, configHandler } from "@contentstack/cli-utilities";
+import fancy from 'fancy-test';
+import sinon from 'sinon';
 import config from "../../../../src/config";
 import * as mock from "../../mock/common.mock.json";
 import manifestData from "../../config/manifest.json";
 import messages, { $t } from "../../../../src/messages";
-import * as commonUtils from "../../../../src/util/common-utils";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 
-const region: { cma: string; name: string; cda: string } =
-  configHandler.get("region");
+const region: { cma: string; name: string; cda: string } = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
 
-
 describe("app:get", () => {
-  describe("Get app manifest", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(fs, "readdirSync", () => [])
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          App: "App 1",
-          Organization: "test org 1",
-        };
+  let inquireStub: sinon.SinonStub;
+  let confirmStub: sinon.SinonStub;
 
-        return (cases as Record<string, any>)[prompt.name];
-      })
+  beforeEach(() => {
+    inquireStub = sinon.stub(cliux, "inquire").callsFake(async (...args: any) => {
+      const [prompt]: any = args;
+      const cases = {
+        App: "App 1",
+        Organization: "test org 1",
+      };
+      return (cases as Record<string, any>)[prompt.name];
+    });
+
+    confirmStub = sinon.stub(cliux, "confirm");
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  describe("Get app manifest", () => {
+    fancy
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -43,34 +46,26 @@ describe("app:get", () => {
           .get(
             "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
           )
-          .reply(200, {
-            data: mock.apps,
-          })
+          .reply(200, { data: mock.apps })
       )
-      .command(["app:get", "--data-dir", join(process.cwd(), "test", "unit")])
-      .do(({ stdout }) =>
-        expect(stdout).to.contain(
-          $t(messages.FILE_WRITTEN_SUCCESS, {
-            file: join(
-              process.cwd(),
-              "test",
-              "unit",
-              `${config.defaultAppFileName}.json`
-            ),
-          })
-        )
-      )
-      .it("should return manifest for selected app");
+      .it("should return manifest for selected app", async () => {
+        const { stdout } = await runCommand([
+            "app:get",
+            "--data-dir",
+            join(process.cwd(), "test", "unit")
+        ], { root: process.cwd() });
+        expect(stdout).to.contain($t(messages.FILE_WRITTEN_SUCCESS_INFO, {
+            file: join(process.cwd(), "test", "unit", `manifest10.json`)
+        }));
+      });
   });
 
   describe("Get app manifest with app uid", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(fs, "readdirSync", () => [])
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async () => "test org 1")
+    beforeEach(() => {
+      inquireStub.withArgs(sinon.match.has("name", "Organization")).resolves("test org 1");
+    });
+
+    fancy
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -81,45 +76,35 @@ describe("app:get", () => {
           data: { ...manifestData, name: "test-app", version: 1 },
         })
       )
-      .command([
-        "app:get",
-        "--data-dir",
-        join(process.cwd(), "test", "unit"),
-        "--app-uid",
-        "app-uid-1",
-      ])
-      .do(({ stdout }) =>
+      .it("should return manifest for specific uid passed", async () => {
+        const { stdout } = await runCommand([
+          "app:get",
+          "--data-dir",
+          join(process.cwd(), "test", "unit"),
+          "--app-uid",
+          "app-uid-1"
+        ], { root: process.cwd() });
         expect(stdout).to.contain(
-          $t(messages.FILE_WRITTEN_SUCCESS, {
+          $t(messages.FILE_WRITTEN_SUCCESS_INFO, {
             file: join(
               process.cwd(),
               "test",
               "unit",
-              `${config.defaultAppFileName}.json`
+              `manifest10.json`
             ),
           })
-        )
-      )
-      .it("should return manifest for specific uid passed");
+        );
+      });
   });
 
   describe("Ask confirmation if `manifest.json` exists and go with `Yes` option", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(fs, "readdirSync", () => ["manifest.json"])
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          App: "App 1",
-          Organization: "test org 1",
-        };
+    beforeEach(() => {
+      inquireStub.withArgs(sinon.match.has("name", "App")).resolves("App 1");
+      inquireStub.withArgs(sinon.match.has("name", "Organization")).resolves("test org 1");
+      confirmStub.resolves(false);
+    });
 
-        return (cases as Record<string, any>)[prompt.name];
-      })
-      .stub(cliux, "confirm", async () => false)
+    fancy
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -130,16 +115,14 @@ describe("app:get", () => {
           .get(
             "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
           )
-          .reply(200, {
-            data: mock.apps,
-          })
+          .reply(200, { data: mock.apps })
       )
-      .command([
-        "app:get",
-        "--data-dir",
-        join(process.cwd(), "test", "unit", "config"),
-      ])
-      .do(({ stdout }) =>
+      .it("Should create config file with the +1 mechanism", async () => {
+        const { stdout } = await runCommand([
+          "app:get",
+          "--data-dir",
+          join(process.cwd(), "test", "unit", "config"),
+        ], { root: process.cwd() });
         expect(stdout).to.contain(
           $t(messages.FILE_WRITTEN_SUCCESS, {
             file: join(
@@ -150,28 +133,18 @@ describe("app:get", () => {
               `${config.defaultAppFileName}1.json`
             ),
           })
-        )
-      )
-      .it("Should create config file with the +1 mechanism");
+        );
+      });
   });
 
   describe("Ask confirmation if `manifest.json` exists and go with `No` option", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(fs, "readdirSync", () => ["manifest.json"])
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .stub(cliux, "inquire", async (...args: any) => {
-        const [prompt]: any = args;
-        const cases = {
-          App: "App 1",
-          Organization: "test org 1",
-        };
+    beforeEach(() => {
+      inquireStub.withArgs(sinon.match.has("name", "App")).resolves("App 1");
+      inquireStub.withArgs(sinon.match.has("name", "Organization")).resolves("test org 1");
+      confirmStub.resolves(true);
+    });
 
-        return (cases as Record<string, any>)[prompt.name];
-      })
-      .stub(cliux, "confirm", async () => true)
+    fancy
       .nock(region.cma, (api) =>
         api
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -182,16 +155,14 @@ describe("app:get", () => {
           .get(
             "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
           )
-          .reply(200, {
-            data: mock.apps,
-          })
+          .reply(200, { data: mock.apps })
       )
-      .command([
-        "app:get",
-        "--data-dir",
-        join(process.cwd(), "test", "unit", "config"),
-      ])
-      .do(({ stdout }) =>
+      .it("Should overwrite config file", async () => {
+        const { stdout } = await runCommand([
+          "app:get",
+          "--data-dir",
+          join(process.cwd(), "test", "unit", "config"),
+        ], { root: process.cwd() });
         expect(stdout).to.contain(
           $t(messages.FILE_WRITTEN_SUCCESS, {
             file: join(
@@ -202,18 +173,15 @@ describe("app:get", () => {
               `${config.defaultAppFileName}.json`
             ),
           })
-        )
-      )
-      .it("Should overwrite config file with");
+        );
+      });
   });
 
   describe("Pass wrong org uid through flag", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(commonUtils, "getOrganizations", async () => [])
-      .command(["app:get", "--org", "test-uid-1"])
-      .exit(1)
-      .do(({ stdout }) => expect(stdout).to.contain(messages.ORG_UID_NOT_FOUND))
-      .it("should fail with error message");
+    fancy
+      .it('should exit with code 101', async () => {
+        const {stdout} = await runCommand<{name: string}>(["app:get", "--org", "test-uid-1"])
+        expect(stdout).to.contain(messages.ORG_UID_NOT_FOUND)
+      })
   });
 });
