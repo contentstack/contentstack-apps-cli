@@ -47,8 +47,8 @@ export default class Install extends AppCLIBaseCommand {
 
       // get organization to be used
       this.sharedConfig.org =
-        this.manifestData?.organization_uid !== ""
-          ? this.manifestData.organization_uid
+        this.manifestData?.organization_uid
+          ? this.manifestData?.organization_uid !== ""
           : await getOrg(this.flags, {
               managementSdk: this.managementSdk,
               log: this.log,
