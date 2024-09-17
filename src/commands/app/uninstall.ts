@@ -33,7 +33,13 @@ export default class Uninstall extends AppCLIBaseCommand {
         this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
         
         // get organization to be used
-        this.sharedConfig.org = this.manifestData?.organization_uid ?? (await getOrg(this.flags, {managementSdk: this.managementSdk, log: this.log}));
+        const organizationUid = this.manifestData?.organization_uid;
+        if (!organizationUid) {
+          this.sharedConfig.org = await getOrg(this.flags, {
+            managementSdk: this.managementSdk,
+            log: this.log,
+          });
+        }
 
         // fetch app details
         if (!this.flags['app-uid']) {
