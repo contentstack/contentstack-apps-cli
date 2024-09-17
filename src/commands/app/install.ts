@@ -1,6 +1,6 @@
 import { cliux, flags, FlagInput } from "@contentstack/cli-utilities";
 
-import {AppCLIBaseCommand} from "../../app-cli-base-command";
+import { AppCLIBaseCommand } from "../../app-cli-base-command";
 import { $t, commonMsg, installAppMsg } from "../../messages";
 import {
   getOrg,
@@ -47,11 +47,12 @@ export default class Install extends AppCLIBaseCommand {
 
       // get organization to be used
       this.sharedConfig.org =
-        this.manifestData?.organization_uid ??
-        (await getOrg(this.flags, {
-          managementSdk: this.managementSdk,
-          log: this.log,
-        }));
+        this.manifestData?.organization_uid !== ""
+          ? this.manifestData.organization_uid
+          : await getOrg(this.flags, {
+              managementSdk: this.managementSdk,
+              log: this.log,
+            });
 
       // fetch app details
       if (!this.flags["app-uid"]) {
