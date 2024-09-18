@@ -42,12 +42,13 @@ export default class Reinstall extends AppCLIBaseCommand {
         });
       }
 
-      this.sharedConfig.org =
-        this.manifestData?.organization_uid ??
-        (await getOrg(this.flags, {
+      this.sharedConfig.org = this.manifestData?.organization_uid;
+      if (!this.sharedConfig.org) {
+        this.sharedConfig.org = await getOrg(this.flags, {
           managementSdk: this.managementSdk,
           log: this.log,
-        }));
+        });
+      }
 
       if (!this.flags["app-uid"]) {
         app = await getApp(this.flags, this.sharedConfig.org, {
