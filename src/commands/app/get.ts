@@ -35,8 +35,8 @@ export default class Get extends AppCLIBaseCommand {
       let appData;
       this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
 
-      const organizationUid = this.manifestData?.organization_uid;
-      if (!organizationUid) {
+      this.sharedConfig.org = this.manifestData?.organization_uid;
+      if (!this.sharedConfig.org) {
         this.sharedConfig.org = await getOrg(this.flags, {
           managementSdk: this.managementSdk,
           log: this.log,

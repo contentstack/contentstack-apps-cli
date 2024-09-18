@@ -135,9 +135,9 @@ export default class Deploy extends AppCLIBaseCommand {
    * @returns A Promise that resolves to the organization UID.
    */
   async getOrganization(): Promise<string> {
-    const organizationUid = this.manifestData?.organization_uid;
-    if (organizationUid) {
-      return organizationUid;
+    this.sharedConfig.org = this.manifestData?.organization_uid;
+    if (this.sharedConfig.org) {
+      return this.sharedConfig.org;
     }
     return await getOrg(this.flags, {
       managementSdk: this.managementSdk,
