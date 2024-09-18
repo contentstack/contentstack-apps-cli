@@ -79,8 +79,8 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
     this.validateRegionAndAuth();
 
     this.developerHubBaseUrl = this.sharedConfig.developerHubBaseUrl;
-    if (this.developerHubUrl && this.developerHubUrl.startsWith("https://")) {
-      this.developerHubBaseUrl = this.developerHubUrl.replace("https://", "");
+    if (this.developerHubUrl?.startsWith("https")) {
+      this.developerHubBaseUrl = this.developerHubUrl?.split("//")[1];
     }
     if (!this.developerHubBaseUrl)
       this.developerHubBaseUrl = getDeveloperHubUrl();
