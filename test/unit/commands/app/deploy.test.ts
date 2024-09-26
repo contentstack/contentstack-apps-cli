@@ -21,7 +21,7 @@ describe("app:deploy", () => {
       const cases: Record<string, any> = {
         App: mock.apps[1].name,
         Organization: mock.organizations[0].name,
-        "hosting types": "Custom Hosting",
+        "hosting types": "custom-hosting",
         appUrl: "https://example.com",
       };
       return Promise.resolve(cases[prompt.name]);
@@ -74,7 +74,7 @@ describe("app:deploy", () => {
           "--app-uid",
           mock.apps[1].uid,
           "--hosting-type",
-          "Custom Hosting",
+          "custom-hosting",
           "--app-url",
           "https://example.com",
         ],
