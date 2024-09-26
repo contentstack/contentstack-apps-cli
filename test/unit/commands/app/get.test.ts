@@ -1,128 +1,111 @@
-import { expect } from 'chai';
+import { expect } from "chai";
+import nock from "nock";
+import fs from "fs";
 import { join } from "path";
+import sinon from "sinon";
 import { runCommand } from "@oclif/test";
 import { cliux, configHandler } from "@contentstack/cli-utilities";
-import fancy from 'fancy-test';
-import sinon from 'sinon';
-import config from "../../../../src/config";
-import * as mock from "../../mock/common.mock.json";
-import manifestData from "../../config/manifest.json";
 import messages, { $t } from "../../../../src/messages";
+import * as commonUtils from "../../../../src/util/common-utils";
+import * as mock from "../../mock/common.mock.json";
+import manifestData from "../../../../src/config/manifest.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
+import config from "../../../../src/config";
 
-const region: { cma: string; name: string; cda: string } = configHandler.get("region");
+const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:get", () => {
-  let inquireStub: sinon.SinonStub;
-  let confirmStub: sinon.SinonStub;
+  let sandbox: sinon.SinonSandbox;
 
   beforeEach(() => {
-    inquireStub = sinon.stub(cliux, "inquire").callsFake(async (...args: any) => {
-      const [prompt]: any = args;
-      const cases = {
+    sandbox = sinon.createSandbox();
+
+    sandbox.stub(fs, "readdirSync").callsFake(() => []);
+    sandbox.stub(fs, "writeFileSync").callsFake(() => {});
+    sandbox.stub(cliux, "inquire").callsFake(async (prompt: any) => {
+      const cases: Record<string, any> = {
         App: "App 1",
         Organization: "test org 1",
       };
-      return (cases as Record<string, any>)[prompt.name];
+      return Promise.resolve(cases[prompt.name]);
     });
 
-    confirmStub = sinon.stub(cliux, "confirm");
+    nock(region.cma)
+      .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+      .reply(200, { organizations: mock.organizations });
+
+    nock(`https://${developerHubBaseUrl}`)
+      .get(
+        "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
+      )
+      .reply(200, { data: mock.apps });
   });
 
   afterEach(() => {
-    sinon.restore();
+    sandbox.restore();
+    nock.cleanAll();
   });
 
   describe("Get app manifest", () => {
-    fancy
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get(
-            "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
-          )
-          .reply(200, { data: mock.apps })
-      )
-      .it("should return manifest for selected app", async () => {
-        const { stdout } = await runCommand([
-            "app:get",
-            "--data-dir",
-            join(process.cwd(), "test", "unit")
-        ], { root: process.cwd() });
-        expect(stdout).to.contain($t(messages.FILE_WRITTEN_SUCCESS_INFO, {
-            file: join(process.cwd(), "test", "unit", `manifest10.json`)
-        }));
-      });
+    it("should return manifest for selected app", async () => {
+      const { stdout } = await runCommand([
+        "app:get",
+        "--data-dir",
+        join(process.cwd(), "test", "unit"),
+      ]);
+      expect(stdout).to.contain(
+        $t(messages.FILE_WRITTEN_SUCCESS, {
+          file: join(
+            process.cwd(),
+            "test",
+            "unit",
+            `${config.defaultAppFileName}.json`
+          ),
+        })
+      );
+    });
   });
 
   describe("Get app manifest with app uid", () => {
     beforeEach(() => {
-      inquireStub.withArgs(sinon.match.has("name", "Organization")).resolves("test org 1");
+      nock(`https://${developerHubBaseUrl}`)
+        .get("/manifests/app-uid-1")
+        .reply(200, {
+          data: { ...manifestData, name: "test-app", version: 1 },
+        });
     });
 
-    fancy
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.get("/manifests/app-uid-1").reply(200, {
-          data: { ...manifestData, name: "test-app", version: 1 },
+    it("should return manifest for specific uid passed", async () => {
+      const { stdout } = await runCommand([
+        "app:get",
+        "--data-dir",
+        join(process.cwd(), "test", "unit"),
+        "--app-uid",
+        "app-uid-1",
+      ]);
+      expect(stdout).to.contain(
+        $t(messages.FILE_WRITTEN_SUCCESS, {
+          file: join(
+            process.cwd(),
+            "test",
+            "unit",
+            `${config.defaultAppFileName}.json`
+          ),
         })
-      )
-      .it("should return manifest for specific uid passed", async () => {
-        const { stdout } = await runCommand([
-          "app:get",
-          "--data-dir",
-          join(process.cwd(), "test", "unit"),
-          "--app-uid",
-          "app-uid-1"
-        ], { root: process.cwd() });
-        expect(stdout).to.contain(
-          $t(messages.FILE_WRITTEN_SUCCESS_INFO, {
-            file: join(
-              process.cwd(),
-              "test",
-              "unit",
-              `manifest10.json`
-            ),
-          })
-        );
-      });
+      );
+    });
   });
 
-  describe("Ask confirmation if `manifest.json` exists and go with `Yes` option", () => {
-    beforeEach(() => {
-      inquireStub.withArgs(sinon.match.has("name", "App")).resolves("App 1");
-      inquireStub.withArgs(sinon.match.has("name", "Organization")).resolves("test org 1");
-      confirmStub.resolves(false);
-    });
-
-    fancy
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get(
-            "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
-          )
-          .reply(200, { data: mock.apps })
-      )
-      .it("Should create config file with the +1 mechanism", async () => {
+  describe("Handle existing manifest.json", () => {
+    describe("Confirm overwrite", () => {
+      it("should create config file with the +1 mechanism", async () => {
+        sandbox.stub(cliux, "confirm").callsFake(async () => false);
         const { stdout } = await runCommand([
           "app:get",
           "--data-dir",
           join(process.cwd(), "test", "unit", "config"),
-        ], { root: process.cwd() });
+        ]);
         expect(stdout).to.contain(
           $t(messages.FILE_WRITTEN_SUCCESS, {
             file: join(
@@ -135,34 +118,14 @@ describe("app:get", () => {
           })
         );
       });
-  });
 
-  describe("Ask confirmation if `manifest.json` exists and go with `No` option", () => {
-    beforeEach(() => {
-      inquireStub.withArgs(sinon.match.has("name", "App")).resolves("App 1");
-      inquireStub.withArgs(sinon.match.has("name", "Organization")).resolves("test org 1");
-      confirmStub.resolves(true);
-    });
-
-    fancy
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get(
-            "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
-          )
-          .reply(200, { data: mock.apps })
-      )
-      .it("Should overwrite config file", async () => {
+      it("should overwrite config file2", async () => {
+        sandbox.stub(cliux, "confirm").callsFake(async () => true);
         const { stdout } = await runCommand([
           "app:get",
           "--data-dir",
           join(process.cwd(), "test", "unit", "config"),
-        ], { root: process.cwd() });
+        ]);
         expect(stdout).to.contain(
           $t(messages.FILE_WRITTEN_SUCCESS, {
             file: join(
@@ -170,18 +133,22 @@ describe("app:get", () => {
               "test",
               "unit",
               "config",
-              `${config.defaultAppFileName}.json`
+              "manifest.json"
             ),
           })
         );
       });
+    });
   });
 
   describe("Pass wrong org uid through flag", () => {
-    fancy
-      .it('should exit with code 101', async () => {
-        const {stdout} = await runCommand<{name: string}>(["app:get", "--org", "test-uid-1"])
-        expect(stdout).to.contain(messages.ORG_UID_NOT_FOUND)
-      })
+    beforeEach(() => {
+      sandbox.stub(commonUtils, "getOrganizations").callsFake(async () => []);
+    });
+
+    it("should fail with error message", async () => {
+      const { stdout } = await runCommand(["app:get", "--org", "test-uid-1"]);
+      expect(stdout).to.contain(messages.ORG_UID_NOT_FOUND);
+    });
   });
 });
