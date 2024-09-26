@@ -5,7 +5,6 @@ import fs from "fs";
 import tmp from "tmp";
 import shelljs from "shelljs";
 import { join, resolve } from "path";
-import fancy from "fancy-test";
 import sinon from "sinon";
 import { runCommand } from "@oclif/test";
 import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
@@ -33,7 +32,6 @@ class MockWriteStream extends PassThrough implements fs.WriteStream {
 describe("app:create", () => {
   let sandbox: sinon.SinonSandbox;
   let writeStreamMock: MockWriteStream;
-  fancy;
   beforeEach(() => {
     sandbox = sinon.createSandbox();
     axios.defaults.adapter = "http";
