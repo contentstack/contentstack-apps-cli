@@ -6,7 +6,6 @@ import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
-import axios from "axios";
 
 const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
@@ -16,7 +15,6 @@ describe("app:reinstall", () => {
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
-    axios.defaults.adapter = "http";
 
     sandbox.stub(ux.action, "stop").callsFake(() => {});
     sandbox.stub(ux.action, "start").callsFake(() => {});
