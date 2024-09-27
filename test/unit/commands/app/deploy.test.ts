@@ -54,6 +54,11 @@ describe("app:deploy", () => {
         $t(messages.APP_DEPLOYED, { app: mock.apps[1].name })
       );
     });
+
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
+    });
   });
 
   describe("Deploy an app with custom hosting using flags in command", () => {
@@ -84,6 +89,11 @@ describe("app:deploy", () => {
         $t(messages.APP_DEPLOYED, { app: mock.apps[1].name })
       );
     });
+
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
+    });
   });
 
   describe("Deploy an app with Hosting with Launch with existing project", () => {
@@ -98,6 +108,10 @@ describe("app:deploy", () => {
       expect(stdout).to.contain(
         $t(messages.APP_DEPLOYED, { app: mock.apps2[1].name })
       );
+    });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
     });
   });
 });

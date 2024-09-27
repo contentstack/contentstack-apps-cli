@@ -57,6 +57,10 @@ describe("app:reinstall", () => {
           .replace("{target}", mock.organizations[0].uid)
       );
     });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
+    });
   });
 
   describe("Reinstall an app on a stack", () => {
@@ -64,14 +68,6 @@ describe("app:reinstall", () => {
       nock(`https://${developerHubBaseUrl}`)
         .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
         .reply(200, { data: mock.apps });
-      sandbox.stub(cliux, "inquire").callsFake(async (prompt: any) => {
-        const cases: Record<string, any> = {
-          App: mock.apps[0].name,
-          Organization: mock.organizations[0].name,
-          Stack: mock.stacks[0].name,
-        };
-        return cases[prompt.name];
-      });
       nock(region.cma)
         .get(
           `/v3/organizations/${mock.organizations[0].uid}/stacks?limit=100&asc=name&include_count=true&skip=0`
@@ -87,6 +83,14 @@ describe("app:reinstall", () => {
     });
 
     it("should reinstall a stack app", async () => {
+      sandbox.stub(cliux, "inquire").callsFake(async (prompt: any) => {
+        const cases: Record<string, any> = {
+          App: mock.apps[0].name,
+          Organization: mock.organizations[0].name,
+          Stack: mock.stacks[0].name,
+        };
+        return cases[prompt.name];
+      });
       const { stdout } = await runCommand(["app:reinstall"]);
       expect(stdout).to.contain(
         messages.APP_REINSTALLED_SUCCESSFULLY.replace(
@@ -94,6 +98,11 @@ describe("app:reinstall", () => {
           mock.apps[0].name
         ).replace("{target}", mock.stacks[0].name)
       );
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
     });
   });
 
@@ -137,6 +146,10 @@ describe("app:reinstall", () => {
         })
       );
     });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
+    });
   });
 
   describe("Show error when stack is not selected", () => {
@@ -176,6 +189,10 @@ describe("app:reinstall", () => {
         "warn: As App 1 is a stack app, it can only be reinstalled in a stack. Please select a stack.\ninfo: Reinstalling App 1 on stack stack_api_key_1.\ninfo: App 1 reinstalled successfully in Stack 1.\ninfo: Please use the following URL to start using the stack: https://app.contentstack.com/#!/stack/stack_api_key_1/dashboard\n"
       );
     });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
+    });
   });
 
   describe("App is already latest version", () => {
@@ -210,10 +227,6 @@ describe("app:reinstall", () => {
         });
     });
 
-    afterEach(() => {
-      nock.cleanAll();
-    });
-
     it("should fail with an error that already using the latest version", async () => {
       const { stdout } = await runCommand([
         "app:reinstall",
@@ -224,6 +237,10 @@ describe("app:reinstall", () => {
       expect(stdout).to.contain(
         "info: Reinstalling App 2 on organization test-uid-1.\nerror: You are already using the latest version.\n"
       );
+    });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
     });
   });
 });
