@@ -60,6 +60,10 @@ describe("app:install", () => {
           .replace("{target}", mock.organizations[0].uid)
       );
     });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
+    });
   });
 
   describe("Install an app on a stack", () => {
@@ -94,6 +98,10 @@ describe("app:install", () => {
           mock.apps[0].name
         ).replace("{target}", mock.stacks[0].name)
       );
+    });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
     });
   });
 
@@ -134,6 +142,10 @@ describe("app:install", () => {
         ).replace("{target}", mock.stacks[0].name)
       );
     });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
+    });
   });
 
   describe("App is already installed", () => {
@@ -158,6 +170,10 @@ describe("app:install", () => {
     it("should fail with an error that app is already installed", async () => {
       const { stdout } = await runCommand(["app:install"]);
       expect(stdout).to.contain("Installation for app is already done");
+    });
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
     });
   });
 });
