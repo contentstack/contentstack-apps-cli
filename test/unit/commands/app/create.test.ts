@@ -50,7 +50,7 @@ describe("app:create", () => {
       .reply(200, { organizations: mock.organizations });
   });
   afterEach(() => {
-    sinon.restore();
+    sandbox.restore();
     nock.cleanAll();
   });
 
