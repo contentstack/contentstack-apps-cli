@@ -2,7 +2,6 @@ import { expect } from "chai";
 import nock from "nock";
 import { join } from "path";
 import sinon from "sinon";
-import { runCommand } from "@oclif/test";
 import messages, { $t } from "../../../src/messages";
 import * as mock from "../mock/common.mock.json";
 import fs from "fs";
@@ -158,14 +157,19 @@ describe("Utility Functions", () => {
     });
 
     describe("Validate marketplace URL if empty", () => {
+      beforeEach(() => {
+        sandbox.stub(configHandler, "get").returns({
+          cma: "",
+          name: "Test",
+        });
+      });
       it("should print URL validation message and ask for new input", async () => {
-        sandbox.stub(cliux, "inquire").resolves("invalid-url");
         try {
-          await runCommand("app:create", {
-            root: process.cwd(),
-          });
-        } catch (err: any) {
-          expect(err.message).to.contain("Please enter a valid URL");
+          await getDeveloperHubUrl();
+        } catch (error: any) {
+          expect(error.message).to.equal(
+            "Region not configured. Please set the region with command $ csdx config:set:region"
+          );
         }
       });
     });
