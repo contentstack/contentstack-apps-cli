@@ -4,7 +4,7 @@ import fs from "fs";
 import { join } from "path";
 import sinon from "sinon";
 import { runCommand } from "@oclif/test";
-import { cliux, configHandler } from "@contentstack/cli-utilities";
+import { cliux, configHandler, ux } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import * as commonUtils from "../../../../src/util/common-utils";
 import * as mock from "../../mock/common.mock.json";
@@ -20,26 +20,9 @@ describe("app:get", () => {
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
-
-    sandbox.stub(fs, "readdirSync").callsFake(() => []);
+    sandbox.stub(ux.action, "stop").callsFake(() => {});
+    sandbox.stub(ux.action, "start").callsFake(() => {});
     sandbox.stub(fs, "writeFileSync").callsFake(() => {});
-    sandbox.stub(cliux, "inquire").callsFake(async (prompt: any) => {
-      const cases: Record<string, any> = {
-        App: "App 1",
-        Organization: "test org 1",
-      };
-      return Promise.resolve(cases[prompt.name]);
-    });
-
-    nock(region.cma)
-      .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-      .reply(200, { organizations: mock.organizations });
-
-    nock(`https://${developerHubBaseUrl}`)
-      .get(
-        "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
-      )
-      .reply(200, { data: mock.apps });
   });
 
   afterEach(() => {
@@ -48,13 +31,35 @@ describe("app:get", () => {
   });
 
   describe("Get app manifest", () => {
+    beforeEach(() => {
+      sandbox.stub(fs, "readdirSync").returns([]);
+      sandbox.stub(cliux, "inquire").callsFake(async (...args) => {
+        const [prompt] = args as any;
+        const cases: Record<string, any> = {
+          App: "App 1",
+          Organization: "test org 1",
+        };
+        return cases[prompt.name];
+      });
+
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .get(
+          "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
+        )
+        .reply(200, { data: mock.apps });
+    });
+
     it("should return manifest for selected app", async () => {
-      const { stdout } = await runCommand([
+      const result = await runCommand([
         "app:get",
         "--data-dir",
         join(process.cwd(), "test", "unit"),
       ]);
-      expect(stdout).to.contain(
+      expect(result.stdout).to.contain(
         $t(messages.FILE_WRITTEN_SUCCESS, {
           file: join(
             process.cwd(),
@@ -69,6 +74,13 @@ describe("app:get", () => {
 
   describe("Get app manifest with app uid", () => {
     beforeEach(() => {
+      sandbox.stub(fs, "readdirSync").returns([]);
+      sandbox.stub(cliux, "inquire").resolves("test org 1");
+
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: mock.organizations });
+
       nock(`https://${developerHubBaseUrl}`)
         .get("/manifests/app-uid-1")
         .reply(200, {
@@ -97,53 +109,87 @@ describe("app:get", () => {
     });
   });
 
-  describe("Handle existing manifest.json", () => {
-    describe("Confirm overwrite", () => {
-      it("should create config file with the +1 mechanism", async () => {
-        sandbox.stub(cliux, "confirm").callsFake(async () => false);
-        const { stdout } = await runCommand([
-          "app:get",
-          "--data-dir",
-          join(process.cwd(), "test", "unit", "config"),
-        ]);
-        expect(stdout).to.contain(
-          $t(messages.FILE_WRITTEN_SUCCESS, {
-            file: join(
-              process.cwd(),
-              "test",
-              "unit",
-              "config",
-              `${config.defaultAppFileName}1.json`
-            ),
-          })
-        );
-      });
+  describe("Ask confirmation if `manifest.json` exists and go with `Yes` option", () => {
+    beforeEach(() => {
+      sandbox
+        .stub(fs, "readdirSync")
+        .returns(["manifest.json"] as unknown as fs.Dirent[]);
+      sandbox.stub(cliux, "confirm").resolves(false);
+      sandbox.stub(cliux, "inquire").resolves("test org 1");
 
-      it("should overwrite config file2", async () => {
-        sandbox.stub(cliux, "confirm").callsFake(async () => true);
-        const { stdout } = await runCommand([
-          "app:get",
-          "--data-dir",
-          join(process.cwd(), "test", "unit", "config"),
-        ]);
-        expect(stdout).to.contain(
-          $t(messages.FILE_WRITTEN_SUCCESS, {
-            file: join(
-              process.cwd(),
-              "test",
-              "unit",
-              "config",
-              "manifest.json"
-            ),
-          })
-        );
-      });
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .get(
+          "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
+        )
+        .reply(200, { data: mock.apps });
+    });
+
+    it("Should create config file with the +1 mechanism", async () => {
+      const { stdout } = await runCommand([
+        "app:get",
+        "--data-dir",
+        join(process.cwd(), "test", "unit", "config"),
+      ]);
+      expect(stdout).to.contain(
+        $t(messages.FILE_WRITTEN_SUCCESS, {
+          file: join(
+            process.cwd(),
+            "test",
+            "unit",
+            "config",
+            `${config.defaultAppFileName}1.json`
+          ),
+        })
+      );
+    });
+  });
+
+  describe("Ask confirmation if `manifest.json` exists and go with `No` option", () => {
+    beforeEach(() => {
+      sandbox
+        .stub(fs, "readdirSync")
+        .returns(["manifest.json"] as unknown as fs.Dirent[]);
+      sandbox.stub(cliux, "confirm").resolves(true);
+      sandbox.stub(cliux, "inquire").resolves("test org 1");
+
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .get(
+          "/manifests?limit=50&asc=name&include_count=true&skip=0&target_type=stack"
+        )
+        .reply(200, { data: mock.apps });
+    });
+
+    it("Should overwrite config file", async () => {
+      const { stdout } = await runCommand([
+        "app:get",
+        "--data-dir",
+        join(process.cwd(), "test", "unit", "config"),
+      ]);
+      expect(stdout).to.contain(
+        $t(messages.FILE_WRITTEN_SUCCESS, {
+          file: join(
+            process.cwd(),
+            "test",
+            "unit",
+            "config",
+            `${config.defaultAppFileName}.json`
+          ),
+        })
+      );
     });
   });
 
   describe("Pass wrong org uid through flag", () => {
     beforeEach(() => {
-      sandbox.stub(commonUtils, "getOrganizations").callsFake(async () => []);
+      sandbox.stub(commonUtils, "getOrganizations").resolves([]);
     });
 
     it("should fail with error message", async () => {
