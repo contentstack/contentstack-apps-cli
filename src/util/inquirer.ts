@@ -306,7 +306,7 @@ function populateMissingDataInInstallations(
 
 async function getHostingType() {
   const hostingTypes = [
-    { name: "Hosting with Launch", value: "hosting-with-Launch" },
+    { name: "Hosting with Launch", value: "hosting-with-launch" },
     { name: "Custom Hosting", value: "custom-hosting" },
   ];
 
