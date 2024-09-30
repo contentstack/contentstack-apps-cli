@@ -96,10 +96,6 @@ describe("app:create", () => {
       );
       expect(stdout).to.contain(messages.APP_CREATION_SUCCESS);
     });
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
-    });
   });
 
   describe("Creating an organization app using a boilerplate flow", () => {
@@ -145,10 +141,6 @@ describe("app:create", () => {
       );
       expect(stdout).to.contain(messages.APP_CREATION_SUCCESS);
     });
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
-    });
   });
 
   describe("Creating an app without boilerplate", () => {
@@ -184,10 +176,6 @@ describe("app:create", () => {
         throw err;
       }
     });
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
-    });
   });
 
   describe("Boilerplate clone failure", () => {
@@ -211,11 +199,6 @@ describe("app:create", () => {
         "Nonexistent flag: --code=1\nSee more help with --help"
       );
       expect(error?.oclif?.exit).to.equal(2);
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
     });
   });
 
@@ -245,11 +228,6 @@ describe("app:create", () => {
       );
       const { error } = result;
       expect(error?.oclif?.exit).to.equal(1);
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
     });
   });
 
@@ -285,11 +263,6 @@ describe("app:create", () => {
       );
       const { error } = result;
       expect(error?.oclif?.exit).to.equal(1);
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
     });
   });
 
@@ -342,11 +315,6 @@ describe("app:create", () => {
         process.cwd(),
       ]);
       expect(error?.oclif?.exit).to.equal(1);
-    });
-
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
     });
   });
 });

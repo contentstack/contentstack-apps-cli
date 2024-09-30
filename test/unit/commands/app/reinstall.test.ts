@@ -57,10 +57,6 @@ describe("app:reinstall", () => {
           .replace("{target}", mock.organizations[0].uid)
       );
     });
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
-    });
   });
 
   describe("Reinstall an app on a stack", () => {
@@ -100,10 +96,6 @@ describe("app:reinstall", () => {
       );
     });
 
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
-    });
   });
 
   describe("Stack API Key and App ID provided through flags", () => {
@@ -146,10 +138,6 @@ describe("app:reinstall", () => {
         })
       );
     });
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
-    });
   });
 
   describe("Show error when stack is not selected", () => {
@@ -188,10 +176,6 @@ describe("app:reinstall", () => {
       expect(stdout).to.contain(
         "warn: As App 1 is a stack app, it can only be reinstalled in a stack. Please select a stack.\ninfo: Reinstalling App 1 on stack stack_api_key_1.\ninfo: App 1 reinstalled successfully in Stack 1.\ninfo: Please use the following URL to start using the stack: https://app.contentstack.com/#!/stack/stack_api_key_1/dashboard\n"
       );
-    });
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
     });
   });
 
@@ -237,10 +221,6 @@ describe("app:reinstall", () => {
       expect(stdout).to.contain(
         "info: Reinstalling App 2 on organization test-uid-1.\nerror: You are already using the latest version.\n"
       );
-    });
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
     });
   });
 });

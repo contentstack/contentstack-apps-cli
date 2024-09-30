@@ -63,10 +63,6 @@ describe("app:uninstall", () => {
         $t(messages.APP_UNINSTALLED, { app: mock.apps[1].name })
       );
     });
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
-    });
   });
 
   describe("Uninstall an app from a stack", () => {
@@ -93,10 +89,6 @@ describe("app:uninstall", () => {
       expect(stdout).to.contain(
         $t(messages.APP_UNINSTALLED, { app: mock.apps[0].name })
       );
-    });
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
     });
   });
 
@@ -126,10 +118,6 @@ describe("app:uninstall", () => {
       ]);
       expect(stdout).to.contain("App with id wrong-uid not installed");
       expect(error?.oclif?.exit).to.equal(1);
-    });
-    afterEach(() => {
-      sandbox.restore();
-      nock.cleanAll();
     });
   });
 });
