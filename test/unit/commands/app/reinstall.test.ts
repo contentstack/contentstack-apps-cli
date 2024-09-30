@@ -174,7 +174,7 @@ describe("app:reinstall", () => {
     it("should display an error message when trying to reinstall a stack app without selecting a stack", async () => {
       const { stdout } = await runCommand(["app:reinstall"]);
       expect(stdout).to.contain(
-        "warn: As App 1 is a stack app, it can only be reinstalled in a stack. Please select a stack.\ninfo: Reinstalling App 1 on stack stack_api_key_1.\ninfo: App 1 reinstalled successfully in Stack 1.\ninfo: Please use the following URL to start using the stack: https://app.contentstack.com/#!/stack/stack_api_key_1/dashboard\n"
+        "warn: As App 1 is a stack app, it can only be reinstalled in a stack. Please select a stack.\ninfo: Reinstalling App 1 on stack stack_api_key_1.\ninfo: App 1 reinstalled successfully in Stack 1.\n"
       );
     });
   });
