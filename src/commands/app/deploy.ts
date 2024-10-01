@@ -31,10 +31,10 @@ export default class Deploy extends AppCLIBaseCommand {
   static examples = [
     "$ <%= config.bin %> <%= command.id %>",
     "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1>",
-    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Custom Hosting> --app-url <https://localhost:3000>",
-    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <existing>",
-    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <new>",
-    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <new> --config <config-path>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <custom-hosting> --app-url <https://localhost:3000>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <hosting-with-launch> --launch-project <existing>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <hosting-with-launch> --launch-project <new>",
+    "$ <%= config.bin %> <%= command.id %> --org <UID> --app-uid <APP-UID-1> --hosting-type <hosting-with-launch> --launch-project <new> --config <config-path>",
   ];
 
   static flags: FlagInput = {
@@ -43,7 +43,7 @@ export default class Deploy extends AppCLIBaseCommand {
     }),
     "hosting-type": Flags.string({
       multiple: false,
-      options: ["Hosting with Launch", "Custom Hosting"],
+      options: ["hosting-with-launch", "custom-hosting"],
       description: deployAppMsg.HOSTING_TYPE,
     }),
     "app-url": Flags.string({
@@ -80,12 +80,12 @@ export default class Deploy extends AppCLIBaseCommand {
       };
 
       switch (flags["hosting-type"]) {
-        case "Custom Hosting":
+        case "custom-hosting":
           flags["app-url"] = flags["app-url"] || (await getAppUrl());
           this.flags["app-url"] = formatUrl(flags["app-url"]);
           updateHostingPayload["deployment_url"] = this.flags["app-url"];
           break;
-        case "Hosting with Launch":
+        case "hosting-with-Launch":
           updateHostingPayload["provider"] = "launch";
           const config = setupConfig(flags["config"]);
           config["name"] = config["name"] || app?.name;
