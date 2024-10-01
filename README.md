@@ -20,7 +20,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.3.4 darwin-arm64 node-v18.12.1
+@contentstack/apps-cli/1.3.4 darwin-arm64 node-v22.2.0
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -142,7 +142,7 @@ Deploy an app
 
 ```
 USAGE
-  $ csdx app:deploy [--app-uid <value>] [--hosting-type Hosting with Launch|Custom Hosting] [--app-url <value>]
+  $ csdx app:deploy [--app-uid <value>] [--hosting-type hosting-with-launch|custom-hosting] [--app-url <value>]
     [--launch-project existing|new] [-c <value>] [--org <value>]
 
 FLAGS
@@ -150,7 +150,7 @@ FLAGS
   --app-uid=<value>          Provide the app UID of an existing app.
   --app-url=<value>          Please enter the URL of the app you want to deploy.
   --hosting-type=<option>    Choose a valid Hosting Type.
-                             <options: Hosting with Launch|Custom Hosting>
+                             <options: hosting-with-launch|custom-hosting>
   --launch-project=<option>  Choose a new or an existing Launch project.
                              <options: existing|new>
   --org=<value>              Provide the organization UID to fetch the app details for the operation.
@@ -163,13 +163,13 @@ EXAMPLES
 
   $ csdx app:deploy --org <UID> --app-uid <APP-UID-1>
 
-  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Custom Hosting> --app-url <https://localhost:3000>
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <custom-hosting> --app-url <https://localhost:3000>
 
-  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <existing>
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <hosting-with-launch> --launch-project <existing>
 
-  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <new>
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <hosting-with-launch> --launch-project <new>
 
-  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <Hosting with Launch> --launch-project <new> --config <config-path>
+  $ csdx app:deploy --org <UID> --app-uid <APP-UID-1> --hosting-type <hosting-with-launch> --launch-project <new> --config <config-path>
 ```
 
 _See code: [src/commands/app/deploy.ts](https://github.com/contentstack/apps-cli/blob/v1.3.4/src/commands/app/deploy.ts)_

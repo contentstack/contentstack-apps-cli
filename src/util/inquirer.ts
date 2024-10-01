@@ -306,8 +306,8 @@ function populateMissingDataInInstallations(
 
 async function getHostingType() {
   const hostingTypes = [
-    { name: "Hosting with Launch", value: "Hosting with Launch" },
-    { name: "Custom Hosting", value: "Custom Hosting" },
+    { name: "Hosting with Launch", value: "hosting-with-launch" },
+    { name: "Custom Hosting", value: "custom-hosting" },
   ];
 
   return cliux.inquire<string>({
