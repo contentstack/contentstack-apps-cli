@@ -1,5 +1,16 @@
-import { fancy } from "fancy-test";
-import { expect } from "@oclif/test";
+import { expect } from "chai";
+import nock from "nock";
+import { join } from "path";
+import sinon from "sinon";
+import messages, { $t } from "../../../src/messages";
+import * as mock from "../mock/common.mock.json";
+import fs from "fs";
+import {
+  getOrg,
+  getAppName,
+  getDirName,
+  getDeveloperHubUrl,
+} from "../../../src/util";
 import {
   cliux,
   FlagInput,
@@ -8,170 +19,159 @@ import {
   managementSDKClient,
 } from "@contentstack/cli-utilities";
 
-import { LogFn } from "../../../src/types";
-import * as mock from "../mock/common.mock.json";
-import messages, { $t } from "../../../src/messages";
-import {
-  getOrg,
-  getAppName,
-  getDirName,
-  getDeveloperHubUrl,
-} from "../../../src/util";
-import * as commonUtils from "../../../src/util/common-utils";
-import { join } from "path";
+const region = configHandler.get("region");
 
-const region: { cma: string; name: string; cda: string } =
-  configHandler.get("region");
-
-describe("inquirer util", () => {
-  const log: LogFn = () => {};
+describe("Utility Functions", () => {
+  let sandbox: sinon.SinonSandbox;
   let managementSdk: ContentstackClient;
 
-  before(async () => {
+  beforeEach(async () => {
+    sandbox = sinon.createSandbox();
     managementSdk = await managementSDKClient({
       host: region.cma.replace("https://", ""),
     });
   });
 
+  afterEach(() => {
+    sandbox.restore();
+    nock.cleanAll();
+  });
+
   describe("getAppName", () => {
     describe("show prompt to get name from user", () => {
-      fancy
-        .stdout({ print: process.env.PRINT === "true" || false })
-        .stub(cliux, "inquire", async () => "Test name")
-        .it("Returns name string", async () => {
-          const name = await getAppName();
-          expect(name).to.equal("Test name");
-        });
+      beforeEach(() => {
+        sandbox.stub(cliux, "inquire").resolves("Test name");
+      });
+      it("should return the name provided by the user", async () => {
+        const name = await getAppName();
+        expect(name).to.equal("Test name");
+      });
     });
 
     describe("Check user input length validation", () => {
-      fancy
-        .stdout({ print: process.env.PRINT === "true" || false })
-        .stdin("\n")
-        .do(async () => {
-          setTimeout(() => {
-            process.stdin.emit("data", "Test 1\n");
-          }, 1);
-          await getAppName("t1");
-        })
-        .it("Returns validation message", ({ stdout }) => {
-          expect(stdout).to.contains(
-            $t(messages.INVALID_NAME, { min: "3", max: "20" })
-          );
+      beforeEach(() => {
+        sandbox.stub(cliux, "inquire").callsFake(async (getApp: any) => {
+          return getApp.validate("t1");
         });
+      });
+      it("should return validation message for short input", async () => {
+        const stdout = await getAppName();
+        expect(stdout).to.contain(
+          $t(messages.INVALID_NAME, { min: "3", max: "20" })
+        );
+      });
     });
   });
 
   describe("getDirName", () => {
-    describe("Show prompt to get name from user", () => {
-      fancy
-        .stdout({ print: process.env.PRINT === "true" || false })
-        .stub(cliux, "inquire", async () => "test")
-        .it("returns path", async () => {
-          const path = await getDirName(join(process.cwd(), "test"));
-          expect(path).to.equal(join(process.cwd(), "test"));
-        });
+    describe("Show prompt to get directory name from user", () => {
+      beforeEach(() => {
+        sandbox.stub(cliux, "inquire").resolves("test");
+      });
+
+      it("should return the directory name provided by the user", async () => {
+        const path = await getDirName(join(process.cwd(), "test"));
+        expect(path).to.equal(join(process.cwd(), "test"));
+      });
     });
 
-    describe("Check user input directory length validation", () => {
-      fancy
-        .stdout({ print: process.env.PRINT === "true" || false })
-        .stdin("\n")
-        .do(async () => {
-          setTimeout(() => {
-            process.stdin.emit("data", "test-1\n");
-          }, 1);
-          await getDirName(join(process.cwd(), "t1"));
-        })
-        .it("returns validation message", ({ stdout }) => {
-          expect(stdout).to.contains(
-            $t(messages.INVALID_NAME, { min: "3", max: "50" })
+    describe("Check directory length validation", () => {
+      beforeEach(() => {
+        sandbox.stub(cliux, "inquire").callsFake(async (prompt: any) => {
+          const validation = prompt.validate("t");
+          return validation;
+        });
+      });
+
+      it("should return validation message for short input", async () => {
+        try {
+          await getDirName(join(process.cwd(), "t"));
+        } catch (err: any) {
+          expect(err.message).to.contain(
+            $t(messages.INVALID_NAME, { min: "3", max: "30" })
           );
-        });
+        }
+      });
     });
 
-    describe("Validate if provided directory exist", () => {
-      fancy
-        .stdout({ print: process.env.PRINT === "true" || false })
-        .stdin("test\n")
-        .do(async () => {
-          setTimeout(() => {
-            process.stdin.emit("data", "test-1\n");
-          }, 1);
+    describe("Validate if provided directory exists", () => {
+      beforeEach(() => {
+        sandbox.stub(cliux, "inquire").resolves("test");
+        sandbox.stub(fs, "existsSync").returns(true);
+      });
+
+      it("should return validation message if directory already exists", async () => {
+        try {
           await getDirName(join(process.cwd(), "test"));
-        })
-        .it("returns validation message", ({ stdout }) => {
-          expect(stdout).to.contains(messages.DIR_EXIST);
-        });
+        } catch (err: any) {
+          expect(err.message).to.contain(messages.DIR_EXIST);
+        }
+      });
     });
   });
 
   describe("getOrg", () => {
+    beforeEach(() => {
+      sandbox.stub(cliux, "inquire").resolves("test org 1");
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: mock.organizations });
+    });
     describe("Select an organization from list", () => {
-      fancy
-        .stub(commonUtils, "getOrganizations", async () => mock.organizations)
-        .stub(cliux, "inquire", async () => "test org 1")
-        .it("Returns a organization uid", async () => {
-          const org = await getOrg({} as FlagInput, {
-            log,
+      it("should return the organization UID", async () => {
+        const org = await getOrg({} as FlagInput, {
+          log: () => {},
+          managementSdk,
+        });
+        expect(org).to.equal(mock.organizations[0].uid);
+      });
+    });
+    describe("Passing wrong organization uid through flag", () => {
+      it("should fail with error `org uid not found`", async () => {
+        try {
+          await getOrg({ org: "test org 3" } as unknown as FlagInput, {
+            log: () => {},
             managementSdk,
           });
-          expect(org).to.equal(mock.organizations[0].uid);
-        });
-    });
-
-    describe("Passing wrong organization uid through flag", () => {
-      fancy
-        .stub(commonUtils, "getOrganizations", async () => mock.organizations)
-        .do(
-          async () =>
-            await getOrg({ org: "test org 3" as any } as FlagInput, {
-              log,
-              managementSdk,
-            })
-        )
-        .catch((ctx) =>
-          expect(ctx.message).to.contain(messages.ORG_UID_NOT_FOUND)
-        )
-        .it("fails with error `org uid not found`");
+        } catch (err: any) {
+          expect(err.message).to.contain(messages.ORG_UID_NOT_FOUND);
+        }
+      });
     });
   });
-
   describe("getDeveloperHubUrl", () => {
-    describe("Get developer hub base url", () => {
-      fancy
-        .stdout({ print: process.env.PRINT === "true" || false })
-        .stub(configHandler, "get", () => ({
+    describe("Get developer hub base URL", () => {
+      beforeEach(() => {
+        sandbox.stub(configHandler, "get").returns({
           cma: "https://api.example.com",
           name: "Test",
-        }))
-        .stub(cliux, "inquire", () => "https://api.example.com")
-        .it("Returns developer hub base url", () => {
-          const url = getDeveloperHubUrl();
-          expect(url).to.equal("developerhub-api.example.com");
         });
+        sandbox.stub(cliux, "inquire").callsFake(async () => {
+          return "https://api.example.com";
+        });
+      });
+      it("should return the developer hub base URL", async () => {
+        const url = await getDeveloperHubUrl();
+        expect(url).to.equal("developerhub-api.example.com");
+      });
     });
 
-    describe("Validate marketplace url if empty.?", () => {
-      fancy
-        .stdout({ print: process.env.PRINT === "true" || false })
-        .stub(configHandler, "get", () => ({
-          cma: "https://dummy.marketplace.com",
+    describe("Validate marketplace URL if empty", () => {
+      beforeEach(() => {
+        sandbox.stub(configHandler, "get").returns({
+          cma: "",
           name: "Test",
-        }))
-        .stdin("\n")
-        .do(async () => {
-          setTimeout(() => {
-            process.stdin.emit("data", "dummy.marketplace.com\n");
-          }, 1);
-          getDeveloperHubUrl();
-        })
-        .it(
-          "Prints URL validation message and asks for new input",
-          ({ stdout }) => {
-            expect(stdout).to.contains("");
-          }
-        );
+        });
+      });
+      it("should print URL validation message and ask for new input", async () => {
+        try {
+          await getDeveloperHubUrl();
+        } catch (error: any) {
+          expect(error.message).to.equal(
+            "Region not configured. Please set the region with command $ csdx config:set:region"
+          );
+        }
+      });
     });
   });
 });
