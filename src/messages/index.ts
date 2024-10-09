@@ -16,6 +16,8 @@ const errors = {
     "Provided app UID is not matching with the app manifest.json app UID",
   APP_CREATION_CONSTRAINT_FAILURE:
     "App could not be registered. Please go through the constraints on the app name and try running the command again.",
+  APP_CREATE_FAILURE_AND_ROLLBACK:
+    "App creation should fail and rollback",
   APP_INVALID_ORG:
     "App could not be registered. Please verify the inputs and try again.",
   DUPLICATE_APP_NAME:
@@ -27,6 +29,7 @@ const errors = {
 const commonMsg = {
   CONFIG: "Path of the external config",
   MAX_RETRY_LIMIT: "Maximum retry limit reached.",
+  MAX_RETRY_LIMIT_WARN: "warn: Maximum retry limit reached.\n",
   PROVIDE_ORG_UID: "Provide the organization UID to fetch the app details for the operation.",
   CURRENT_WORKING_DIR: "Current working directory.",
   SKIP_CONFIRMATION: "Use this flag to skip the confirmation.",
@@ -59,13 +62,16 @@ const appCreate = {
     "Registering the app with the name {appName} on the Developer Hub...",
   START_APP_COMMAND: "Start the app using the following command: {command}",
   BOILERPLATE_TEMPLATES: "Provide a boilerplate. <options: App Boilerplate|DAM App Boilerplate|Ecommerce App Boilerplate>",
-  SELECT_BOILERPLATE: "Select one from the following boilerplates:"
+  SELECT_BOILERPLATE: "Select one from the following boilerplates:",
+  DEPENDENCY_INSTALLATION_FAILURE: "Dependency installation failed.",
+  APP_CREATION_FAILED: "Failed to create app"
 };
 
 const getAppMsg = {
   CHOOSE_APP: "Choose an app",
   APP_UID_NOT_FOUND: "App UID was not found!",
   FILE_WRITTEN_SUCCESS: "App data has been written to {file} successfully.",
+  FILE_WRITTEN_SUCCESS_INFO: "info: App data has been written to {file} successfully.",
   APPS_NOT_FOUND: "No apps found!",
   FILE_ALREADY_EXISTS:
     "{file} already exists. Do you want to overwrite this file? (y/n) (Selecting 'n' creates a new file)",
@@ -112,6 +118,8 @@ const reinstallAppMsg = {
   MISSING_STACK_API_KEY: "As {app} is a stack app, it can only be reinstalled in a stack. Please select a stack.",
   REINSTALLING_APP_NOTICE: "Reinstalling {app} on {type} {target}.",
   APP_UID: "Provide the app UID of an existing app to be reinstalled.",
+  APP_ALREADY_LATEST_VERSION: "The application is already up to date; no new version is available.",
+  APP_IS_LATEST_VERSION: "The app is already running the latest version and does not require an update."
 }
 
 const deployAppMsg = {

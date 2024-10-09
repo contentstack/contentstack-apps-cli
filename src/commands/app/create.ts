@@ -108,7 +108,7 @@ export default class Create extends BaseCommand<typeof Create> {
       ) {
         await this.boilerplateFlow();
       } else {
-        if(this.sharedConfig.folderPath === undefined) {
+        if (this.sharedConfig.folderPath === undefined) {
           const dataDir = this.flags["data-dir"] ?? process.cwd();
           let targetPath = resolve(dataDir, this.sharedConfig.defaultAppName);
           if (existsSync(targetPath)) {
@@ -242,7 +242,10 @@ export default class Create extends BaseCommand<typeof Create> {
     // Get the directory inside the zip file
     const zipEntries = zip.getEntries();
     const firstEntry = zipEntries[0];
-    const sourcePath = resolve(sanitizePath(dataDir), sanitizePath(firstEntry.entryName.split("/")[0]));
+    const sourcePath = resolve(
+      sanitizePath(dataDir),
+      sanitizePath(firstEntry.entryName.split("/")[0])
+    );
 
     if (this.flags["data-dir"] && !existsSync(this.flags["data-dir"])) {
       mkdirSync(this.flags["data-dir"], { recursive: true });

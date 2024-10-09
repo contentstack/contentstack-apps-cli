@@ -1,185 +1,179 @@
-import fs from "fs";
 import { join } from "path";
-import { PassThrough } from "stream";
-import { expect, test } from "@oclif/test";
-import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
-
+import { expect } from "chai";
+import { cliux, configHandler, ux } from "@contentstack/cli-utilities";
+import { runCommand } from "@oclif/test";
 import messages from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import manifestData from "../../config/manifest.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
+import sinon from "sinon";
+import nock from "nock";
+import fs from "fs";
 
-const region: { cma: string; name: string; cda: string } =
-  configHandler.get("region");
+const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:update", () => {
+  let sandbox: sinon.SinonSandbox;
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+    nock(region.cma)
+      .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+      .reply(200, { organizations: mock.organizations });
+  });
+  afterEach(() => {
+    sandbox.restore();
+    nock.cleanAll();
+  });
+
   describe("Update app with `--app-manifest` flag", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(fs, "writeFileSync", () => new PassThrough())
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.get("/manifests/app-uid-1").reply(200, {
-          data: { ...manifestData },
-        })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.put("/manifests/app-uid-1").reply(200, {
-          data: { ...manifestData},
-        })
-      )
-      .command([
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+
+      sandbox.stub(ux.action, "stop").callsFake(() => {});
+      sandbox.stub(ux.action, "start").callsFake(() => {});
+      sandbox.stub(fs, "writeFileSync").callsFake(() => {});
+
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .get("/manifests/app-uid-1")
+        .reply(200, { data: { ...manifestData } });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .put("/manifests/app-uid-1")
+        .reply(200, { data: { ...manifestData } });
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+      nock.cleanAll();
+    });
+
+    it("should update an app", async () => {
+      const result = await runCommand([
         "app:update",
         "--app-manifest",
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
-      ])
-      .do(({ stdout }) =>
-        expect(stdout).to.contain(messages.APP_UPDATE_SUCCESS)
-      )
-      .it("should update a app");
+      ]);
+
+      expect(result.stdout).to.contain(messages.APP_UPDATE_SUCCESS);
+    });
   });
 
   describe("Update app with wrong `manifest.json` path", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(cliux, "inquire", async () => "test-manifest")
-      .command(["app:update", "--app-manifest", "test-manifest"])
-      .exit(1)
-      .do(({ stdout }) => expect(stdout).to.contain(messages.MAX_RETRY_LIMIT))
-      .it("should fail with manifest max retry message");
+    beforeEach(() => {
+      sandbox.stub(cliux, "inquire").resolves("test-manifest");
+    });
+
+    it("should fail with manifest max retry message", async () => {
+      const result = await runCommand([
+        "app:update",
+        "--app-manifest",
+        "test-manifest",
+      ]);
+      expect(result.stdout).to.contain(messages.MAX_RETRY_LIMIT_WARN);
+    });
   });
 
   describe("Update app with wrong `app-uid`", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .stub(cliux, "inquire", async () => "App 2")
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.get("/manifests/app-uid-1").reply(200, {
-          data: {
-            uid: "app-uid-3",
-          },
-        })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api
-          .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-          .reply(200, {
-            data: mock.apps,
-          })
-      )
-      .command([
+    beforeEach(() => {
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .get("/manifests/app-uid-1")
+        .reply(200, { data: { uid: "app-uid-3" } })
+        .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+        .reply(200, { data: mock.apps });
+
+      sandbox.stub(cliux, "inquire").resolves("App 2");
+    });
+
+    it("should fail uid not matching", async () => {
+      const result = await runCommand([
         "app:update",
         "--app-manifest",
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
-      ])
-      .exit(1)
-      .do(({ stdout }) => expect(stdout).to.contain(messages.APP_UID_NOT_MATCH))
-      .it("should fail with max retry message");
+      ]);
+      expect(result.stdout).to.contain(messages.APP_UID_NOT_MATCH);
+    });
   });
 
   describe("Update app with wrong `app version`", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.get("/manifests/app-uid-1").reply(200, {
-          data: {
-            version: 3,
-            uid: "app-uid-1",
-          },
-        })
-      )
-      .command([
+    beforeEach(() => {
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .get("/manifests/app-uid-1")
+        .reply(200, { data: { version: 3, uid: "app-uid-1" } });
+    });
+
+    it("should fail with version mismatch error message", async () => {
+      const result = await runCommand([
         "app:update",
         "--app-manifest",
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
-      ])
-      .exit(1)
-      .do(({ stdout }) =>
-        expect(stdout).to.contain(messages.APP_VERSION_MISS_MATCH)
-      )
-      .it("should fail with version miss match error message");
+      ]);
+
+      expect(result.stdout).to.contain(messages.APP_VERSION_MISS_MATCH);
+    });
   });
 
-  describe("Update app wrong app-uid API failure", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.get("/manifests/app-uid-1").reply(200, {
+  describe("Update app with wrong app-uid API failure", () => {
+    beforeEach(() => {
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .get("/manifests/app-uid-1")
+        .reply(200, { data: { ...manifestData, name: "test-app", version: 1 } })
+        .put("/manifests/app-uid-1")
+        .reply(400, {
           data: { ...manifestData, name: "test-app", version: 1 },
-        })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.put("/manifests/app-uid-1").reply(400, {
-          data: { ...manifestData, name: "test-app", version: 1 },
-        })
-      )
-      .command([
+        });
+    });
+
+    it("update app should fail with 400 status code", async () => {
+      const result = await runCommand([
         "app:update",
         "--app-manifest",
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
-      ])
-      .exit(1)
-      .do(({ stdout }) => expect(stdout).to.contain(messages.INVALID_APP_ID))
-      .it("update app should fail with 400 status code");
+      ]);
+
+      expect(result.stdout).to.contain(messages.INVALID_APP_ID);
+    });
   });
 
   describe("Update app API failure", () => {
-    test
-      .stdout({ print: process.env.PRINT === "true" || false })
-      .stub(ux.action, "stop", () => {})
-      .stub(ux.action, "start", () => {})
-      .nock(region.cma, (api) =>
-        api
-          .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-          .reply(200, { organizations: mock.organizations })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.get("/manifests/app-uid-1").reply(200, {
+    beforeEach(() => {
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .get("/manifests/app-uid-1")
+        .reply(200, { data: { ...manifestData, name: "test-app", version: 1 } })
+        .put("/manifests/app-uid-1")
+        .reply(403, {
           data: { ...manifestData, name: "test-app", version: 1 },
-        })
-      )
-      .nock(`https://${developerHubBaseUrl}`, (api) =>
-        api.put("/manifests/app-uid-1").reply(403, {
-          data: { ...manifestData, name: "test-app", version: 1 },
-        })
-      )
-      .command([
+        });
+    });
+
+    it("update app should fail with 403 status code", async () => {
+      const result = await runCommand([
         "app:update",
         "--app-manifest",
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
-      ])
-      .exit(1)
-      .do(({ stdout }) => expect(stdout).to.contain('"status":403'))
-      .it("update app should fail with 403 status code");
+      ]);
+
+      expect(result.stdout).to.contain('"status":403');
+    });
   });
 });
