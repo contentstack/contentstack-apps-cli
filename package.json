@@ -37,7 +37,7 @@
     "@oclif/test": "^4.0.10",
     "@types/adm-zip": "^0.5.5",
     "@types/chai": "^4.3.20",
-    "@types/lodash": "^4.17.10",
+    "@types/lodash": "^4.17.13",
     "@types/mocha": "^10.0.9",
     "@types/node": "^20.16.11",
     "@types/shelljs": "^0.8.15",
