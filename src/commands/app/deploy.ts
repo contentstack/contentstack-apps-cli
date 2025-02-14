@@ -253,11 +253,11 @@ export default class Deploy extends AppCLIBaseCommand {
       "build-command": config["build-command"],
       "out-dir": config["out-dir"],
       branch: config["branch"],
-      "variable-type": config["variableType"],
+      "variable-type": config["variable-type"],
       alias: config["alias"],
       "redeploy-atest": config["redeploy-latest"],
       "redeploy-last-upload": config["redeploy-last-upload"],
-      "env-variables": config["envVariables"],
+      "env-variables": config["env-variables"],
     };
 
     for (const [key, value] of Object.entries(configMappings)) {
