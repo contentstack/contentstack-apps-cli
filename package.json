@@ -52,7 +52,8 @@
     "shx": "^0.3.4",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "fancy-test": "3.0.16"
   },
   "oclif": {
     "bin": "csdx",
