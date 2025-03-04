@@ -1,9 +1,14 @@
 {
   "name": "app name",
-  "type":  "GitHub",
+  "type": "GitHub",
   "environment": "Default",
   "framework": "NextJs",
   "build-command": "npm run build",
   "out-dir": "./.next",
-  "branch": "master"
+  "branch": "master",
+  "variable-type": "variable-type",
+  "alias": "alias",
+  "redeploy-atest": "redeploy-latest",
+  "redeploy-last-upload": "redeploy-last-upload",
+  "env-variables": "env-variables"
 }
