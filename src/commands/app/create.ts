@@ -16,7 +16,6 @@ import {
   createWriteStream,
 } from "fs";
 import {
-  ux,
   cliux,
   flags,
   HttpClient,
@@ -145,9 +144,9 @@ export default class Create extends BaseCommand<typeof Create> {
     await this.registerTheAppOnDeveloperHub();
 
     // NOTE Step 3: Install dependencies
-    ux.action.start(this.messages.INSTALL_DEPENDENCIES);
+    cliux.loader(this.messages.INSTALL_DEPENDENCIES);
     await this.installDependencies();
-    ux.action.stop();
+    cliux.loader("done");
     this.log(
       this.$t(this.messages.START_APP_COMMAND, {
         command: `cd "${this.sharedConfig.folderPath}" && npm run start`,
@@ -205,7 +204,7 @@ export default class Create extends BaseCommand<typeof Create> {
    * @memberof Create
    */
   async cloneBoilerplate(): Promise<string> {
-    ux.action.start(this.messages.CLONE_BOILERPLATE);
+    cliux.loader(this.messages.CLONE_BOILERPLATE);
     const tmpObj = tmp.fileSync();
     const filePath = tmpObj.name;
 
@@ -220,7 +219,7 @@ export default class Create extends BaseCommand<typeof Create> {
       writer
         .on("finish", function () {
           resolve(filePath);
-          ux.action.stop();
+          cliux.loader("done");
         })
         .on("error", () => {
           reject(this.messages.FILE_GENERATION_FAILURE);
@@ -259,9 +258,9 @@ export default class Create extends BaseCommand<typeof Create> {
     this.sharedConfig.folderPath = targetPath;
 
     await new Promise<void>((resolve, reject) => {
-      ux.action.start(this.messages.UNZIP);
+      cliux.loader(this.messages.UNZIP);
       zip.extractAllToAsync(dataDir, true, false, (error) => {
-        ux.action.stop();
+        cliux.loader("done");
 
         if (!error) {
           renameSync(sourcePath, targetPath);
@@ -306,7 +305,7 @@ export default class Create extends BaseCommand<typeof Create> {
    * @memberof Create
    */
   async registerTheAppOnDeveloperHub(saveManifest: boolean = true, retry = 0) {
-    ux.action.start(
+    cliux.loader(
       this.$t(this.messages.REGISTER_THE_APP_ON_DEVELOPER_HUB, {
         appName: this.sharedConfig.appName,
       })
@@ -316,7 +315,7 @@ export default class Create extends BaseCommand<typeof Create> {
       .app()
       .create(this.appData as AppData)
       .then((response) => {
-        ux.action.stop();
+        cliux.loader("done");
 
         if (this.sharedConfig.nameChanged) {
           renameSync(
@@ -356,7 +355,7 @@ export default class Create extends BaseCommand<typeof Create> {
         this.log(this.messages.APP_CREATION_SUCCESS, "info");
       })
       .catch(async (error) => {
-        ux.action.stop("Failed");
+        cliux.loader("Failed");
         switch (error.status) {
           case 400:
             this.log(this.messages.APP_CREATION_CONSTRAINT_FAILURE, "error");
@@ -399,13 +398,13 @@ export default class Create extends BaseCommand<typeof Create> {
    */
   rollbackBoilerplate() {
     if (existsSync(this.sharedConfig.folderPath)) {
-      ux.action.start(this.messages.ROLLBACK_BOILERPLATE);
+      cliux.loader(this.messages.ROLLBACK_BOILERPLATE);
       rmSync(this.sharedConfig.folderPath, {
         force: true,
         recursive: true,
         maxRetries: 3,
       });
-      ux.action.stop();
+      cliux.loader("done");
     }
   }
 
