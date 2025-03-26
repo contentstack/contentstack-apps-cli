@@ -6,7 +6,6 @@ import {
   Flags,
   FlagInput,
   Interfaces,
-  cliux as ux,
   ContentstackClient,
   managementSDKClient,
   managementSDKInitiator,
@@ -70,7 +69,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
     this.flags = flags as Flags<T>;
     this.args = args as Args<T>;
 
-    ux.registerSearchPlugin();
+    cliux.registerSearchPlugin();
     this.registerConfig();
     // Init logger
     const logger = new Logger(this.sharedConfig);
