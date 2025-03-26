@@ -30,8 +30,8 @@ describe("app:update", () => {
     beforeEach(() => {
       sandbox = sinon.createSandbox();
 
-      sandbox.stub(ux.action, "stop").callsFake(() => {});
-      sandbox.stub(ux.action, "start").callsFake(() => {});
+      sandbox.stub(cliux, "loader").callsFake(() => {});
+      sandbox.stub(cliux, "loader").callsFake(() => {});
       sandbox.stub(fs, "writeFileSync").callsFake(() => {});
 
       nock(region.cma)
