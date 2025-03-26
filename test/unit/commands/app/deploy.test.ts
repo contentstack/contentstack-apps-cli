@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import nock from "nock";
 import { runCommand } from "@oclif/test";
-import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
+import { cliux, configHandler } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
@@ -15,8 +15,8 @@ describe("app:deploy", () => {
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
-    sandbox.stub(ux.action, "stop").callsFake(() => {});
-    sandbox.stub(ux.action, "start").callsFake(() => {});
+    sandbox.stub(cliux, "loader").callsFake(() => {});
+    sandbox.stub(cliux, "loader").callsFake(() => {});
     sandbox.stub(cliux, "inquire").callsFake((prompt: any) => {
       const cases: Record<string, any> = {
         App: mock.apps[1].name,
@@ -98,6 +98,6 @@ describe("app:deploy", () => {
       expect(stdout).to.contain(
         $t(messages.APP_DEPLOYED, { app: mock.apps2[1].name })
       );
-    })
+    });
   });
 });
