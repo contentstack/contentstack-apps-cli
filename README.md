@@ -2,6 +2,7 @@
 <!-- Insert Apps CLI version here -->
 
 # @contentstack/apps-cli
+
 Contentstack lets you develop apps in your organization using the Developer Hub portal. With the Apps CLI plugin, Contentstack CLI allows you to perform the CRUD operations on your app in Developer Hub and then use the app in your organization or stack by installing or uninstalling your app as required.
 
 ## How to install this plugin
@@ -20,7 +21,7 @@ $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.5.0 darwin-arm64 node-v22.14.0
+@contentstack/apps-cli/1.5.0 darwin-arm64 node-v22.13.1
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
@@ -29,6 +30,7 @@ USAGE
 <!-- usagestop -->
 
 # Commands
+
 <!-- commands -->
 * [`csdx app`](#csdx-app)
 * [`csdx app:create`](#csdx-appcreate)
@@ -77,18 +79,18 @@ Create a new app in Developer Hub and optionally clone a boilerplate locally.
 
 ```
 USAGE
-  $ csdx app:create [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>] [--boilerplate
-    <value>] [--org <value>]
+  $ csdx app:create [--org <value>] [-n <value>] [--app-type stack|organization] [-c <value>] [-d <value>]
+    [--boilerplate <value>]
 
 FLAGS
-  -c, --config=<value>    Path of the external config
-  -d, --data-dir=<value>  Current working directory.
-  -n, --name=<value>      Name of the app to be created
-  --app-type=<option>     [default: stack] Type of app
-                          <options: stack|organization>
-  --boilerplate=<value>   Provide a boilerplate. <options: App Boilerplate|DAM App Boilerplate|Ecommerce App
-                          Boilerplate>
-  --org=<value>           Provide the organization UID to fetch the app details for the operation.
+  -c, --config=<value>       Path of the external config
+  -d, --data-dir=<value>     Current working directory.
+  -n, --name=<value>         Name of the app to be created
+      --app-type=<option>    [default: stack] Type of app
+                             <options: stack|organization>
+      --boilerplate=<value>  Provide a boilerplate. <options: App Boilerplate|DAM App Boilerplate|Ecommerce App
+                             Boilerplate>
+      --org=<value>          Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Create a new app in Developer Hub and optionally clone a boilerplate locally.
@@ -117,7 +119,7 @@ Delete app from marketplace
 
 ```
 USAGE
-  $ csdx app:delete [--app-uid <value>] [--org <value>]
+  $ csdx app:delete [--org <value>] [--app-uid <value>]
 
 FLAGS
   --app-uid=<value>  Provide the app UID of an existing app.
@@ -142,18 +144,18 @@ Deploy an app
 
 ```
 USAGE
-  $ csdx app:deploy [--app-uid <value>] [--hosting-type hosting-with-launch|custom-hosting] [--app-url <value>]
-    [--launch-project existing|new] [-c <value>] [--org <value>]
+  $ csdx app:deploy [--org <value>] [--app-uid <value>] [--hosting-type hosting-with-launch|custom-hosting]
+    [--app-url <value>] [--launch-project existing|new] [-c <value>]
 
 FLAGS
-  -c, --config=<value>       [optional] Please enter the path of the config file.
-  --app-uid=<value>          Provide the app UID of an existing app.
-  --app-url=<value>          Please enter the URL of the app you want to deploy.
-  --hosting-type=<option>    Choose a valid Hosting Type.
-                             <options: hosting-with-launch|custom-hosting>
-  --launch-project=<option>  Choose a new or an existing Launch project.
-                             <options: existing|new>
-  --org=<value>              Provide the organization UID to fetch the app details for the operation.
+  -c, --config=<value>           [optional] Please enter the path of the config file.
+      --app-uid=<value>          Provide the app UID of an existing app.
+      --app-url=<value>          Please enter the URL of the app you want to deploy.
+      --hosting-type=<option>    Choose a valid Hosting Type.
+                                 <options: hosting-with-launch|custom-hosting>
+      --launch-project=<option>  Choose a new or an existing Launch project.
+                                 <options: existing|new>
+      --org=<value>              Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Deploy an app
@@ -180,14 +182,14 @@ Get details of an app in developer hub
 
 ```
 USAGE
-  $ csdx app:get [--app-uid <value>] [--app-type stack|organization] [-d <value>] [--org <value>]
+  $ csdx app:get [--org <value>] [--app-uid <value>] [--app-type stack|organization] [-d <value>]
 
 FLAGS
-  -d, --data-dir=<value>  Current working directory.
-  --app-type=<option>     [default: stack] Type of app
-                          <options: stack|organization>
-  --app-uid=<value>       Provide the app UID of an existing app.
-  --org=<value>           Provide the organization UID to fetch the app details for the operation.
+  -d, --data-dir=<value>   Current working directory.
+      --app-type=<option>  [default: stack] Type of app
+                           <options: stack|organization>
+      --app-uid=<value>    Provide the app UID of an existing app.
+      --org=<value>        Provide the organization UID to fetch the app details for the operation.
 
 DESCRIPTION
   Get details of an app in developer hub
@@ -210,7 +212,7 @@ Install an app from the marketplace
 
 ```
 USAGE
-  $ csdx app:install [--app-uid <value>] [--stack-api-key <value>] [--org <value>]
+  $ csdx app:install [--org <value>] [--app-uid <value>] [--stack-api-key <value>]
 
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
@@ -236,7 +238,7 @@ Reinstall an app from the marketplace
 
 ```
 USAGE
-  $ csdx app:reinstall [--app-uid <value>] [--stack-api-key <value>] [--org <value>]
+  $ csdx app:reinstall [--org <value>] [--app-uid <value>] [--stack-api-key <value>]
 
 FLAGS
   --app-uid=<value>        Provide the app UID of an existing app.
@@ -262,7 +264,7 @@ Uninstall an app
 
 ```
 USAGE
-  $ csdx app:uninstall [--app-uid <value>] [--installation-uid <value>] [--uninstall-all] [--org <value>]
+  $ csdx app:uninstall [--org <value>] [--app-uid <value>] [--installation-uid <value>] [--uninstall-all]
 
 FLAGS
   --app-uid=<value>           Provide the app UID of an existing app.
@@ -289,7 +291,7 @@ Update the existing app in developer hub
 
 ```
 USAGE
-  $ csdx app:update [--app-manifest <value>] [--org <value>]
+  $ csdx app:update [--org <value>] [--app-manifest <value>]
 
 FLAGS
   --app-manifest=<value>  Path to the app manifest.json file:
