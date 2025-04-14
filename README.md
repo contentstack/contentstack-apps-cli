@@ -2,6 +2,7 @@
 <!-- Insert Apps CLI version here -->
 
 # @contentstack/apps-cli
+
 Contentstack lets you develop apps in your organization using the Developer Hub portal. With the Apps CLI plugin, Contentstack CLI allows you to perform the CRUD operations on your app in Developer Hub and then use the app in your organization or stack by installing or uninstalling your app as required.
 
 ## How to install this plugin
@@ -29,6 +30,7 @@ USAGE
 <!-- usagestop -->
 
 # Commands
+
 <!-- commands -->
 * [`csdx app`](#csdx-app)
 * [`csdx app:create`](#csdx-appcreate)
