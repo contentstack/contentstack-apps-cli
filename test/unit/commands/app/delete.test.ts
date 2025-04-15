@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { runCommand } from "@oclif/test";
-import { cliux, configHandler, ux } from "@contentstack/cli-utilities";
+import { cliux, configHandler } from "@contentstack/cli-utilities";
 import sinon from "sinon";
 import * as mock from "../../mock/common.mock.json";
 import messages, { $t } from "../../../../src/messages";
@@ -77,8 +77,8 @@ describe("app:delete", () => {
 
   describe("app:delete error handling", () => {
     beforeEach(() => {
-      sandbox.stub(ux.action, "stop").callsFake(() => {});
-      sandbox.stub(ux.action, "start").callsFake(() => {});
+      sandbox.stub(cliux, "loader").callsFake(() => {});
+      sandbox.stub(cliux, "loader").callsFake(() => {});
       sandbox.stub(cliux, "inquire").callsFake(async (prompt: any) => {
         const cases: Record<string, any> = {
           Organization: "test org 1",
