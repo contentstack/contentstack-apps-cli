@@ -15,8 +15,8 @@ describe("app:uninstall", () => {
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
-    sandbox.stub(ux.action, "stop").callsFake(() => {});
-    sandbox.stub(ux.action, "start").callsFake(() => {});
+    sandbox.stub(cliux, "loader").callsFake(() => {});
+    sandbox.stub(cliux, "loader").callsFake(() => {});
 
     nock(region.cma)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")

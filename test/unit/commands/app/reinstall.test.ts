@@ -2,7 +2,7 @@ import { expect } from "chai";
 import nock from "nock";
 import sinon from "sinon";
 import { runCommand } from "@oclif/test";
-import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
+import { cliux, configHandler } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
@@ -16,8 +16,8 @@ describe("app:reinstall", () => {
   beforeEach(() => {
     sandbox = sinon.createSandbox();
 
-    sandbox.stub(ux.action, "stop").callsFake(() => {});
-    sandbox.stub(ux.action, "start").callsFake(() => {});
+    sandbox.stub(cliux, "loader").callsFake(() => {});
+    sandbox.stub(cliux, "loader").callsFake(() => {});
 
     nock(region.cma)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -95,7 +95,6 @@ describe("app:reinstall", () => {
         ).replace("{target}", mock.stacks[0].name)
       );
     });
-
   });
 
   describe("Stack API Key and App ID provided through flags", () => {
