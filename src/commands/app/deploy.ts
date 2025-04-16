@@ -1,8 +1,6 @@
-import { ApolloClient } from "@apollo/client/core";
 import { Flags, FlagInput } from "@contentstack/cli-utilities";
-import config from "@contentstack/cli-launch/dist/config";
-import { GraphqlApiClient } from "@contentstack/cli-launch/dist/util";
-import Launch from "@contentstack/cli-launch/dist/commands/launch/index";
+import { GraphqlApiClient, Launch, config, ApolloClient } from "@contentstack/cli-launch";
+
 
 import { LaunchProjectRes, UpdateHostingParams } from "../../types";
 import { commonMsg, deployAppMsg } from "../../messages";
