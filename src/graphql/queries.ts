@@ -1,4 +1,4 @@
-import { gql, DocumentNode } from "@apollo/client/core";
+import { gql, DocumentNode } from "@contentstack/cli-launch";
 
 const projectsQuery: DocumentNode = gql`
   query Projects($query: QueryProjectsInput!) {
