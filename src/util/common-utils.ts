@@ -1,5 +1,5 @@
 import map from "lodash/map";
-import { ApolloClient } from "@apollo/client/core";
+import { ApolloClient } from "@contentstack/cli-launch";
 import {
   ContentstackClient,
   FlagInput,
