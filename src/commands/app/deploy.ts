@@ -1,8 +1,6 @@
-import { ApolloClient } from "@apollo/client/core";
 import { Flags, FlagInput } from "@contentstack/cli-utilities";
-import config from "@contentstack/cli-launch/dist/config";
-import { GraphqlApiClient } from "@contentstack/cli-launch/dist/util";
-import Launch from "@contentstack/cli-launch/dist/commands/launch/index";
+import { GraphqlApiClient, Launch, config, ApolloClient } from "@contentstack/cli-launch";
+
 
 import { LaunchProjectRes, UpdateHostingParams } from "../../types";
 import { commonMsg, deployAppMsg } from "../../messages";
@@ -85,7 +83,7 @@ export default class Deploy extends AppCLIBaseCommand {
           this.flags["app-url"] = formatUrl(flags["app-url"]);
           updateHostingPayload["deployment_url"] = this.flags["app-url"];
           break;
-        case "hosting-with-Launch":
+        case "hosting-with-launch":
           updateHostingPayload["provider"] = "launch";
           const config = setupConfig(flags["config"]);
           config["name"] = config["name"] || app?.name;
@@ -253,6 +251,11 @@ export default class Deploy extends AppCLIBaseCommand {
       "build-command": config["build-command"],
       "out-dir": config["out-dir"],
       branch: config["branch"],
+      "variable-type": config["variable-type"],
+      alias: config["alias"],
+      "redeploy-atest": config["redeploy-latest"],
+      "redeploy-last-upload": config["redeploy-last-upload"],
+      "env-variables": config["env-variables"],
     };
 
     for (const [key, value] of Object.entries(configMappings)) {

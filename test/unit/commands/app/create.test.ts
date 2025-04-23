@@ -7,7 +7,7 @@ import shelljs from "shelljs";
 import { join, resolve } from "path";
 import sinon from "sinon";
 import { runCommand } from "@oclif/test";
-import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
+import { cliux, configHandler } from "@contentstack/cli-utilities";
 import messages from "../../../../src/messages";
 import config from "../../../../src/config";
 import * as mock from "../../mock/common.mock.json";
@@ -61,8 +61,8 @@ describe("app:create", () => {
         .reply(200, {
           data: { ...manifestData, name: "test-app", version: 1 },
         });
-      sandbox.stub(ux.action, "stop").callsFake(() => {});
-      sandbox.stub(ux.action, "start").callsFake(() => {});
+      sandbox.stub(cliux, "loader").callsFake(() => {});
+      sandbox.stub(cliux, "loader").callsFake(() => {});
       sandbox.stub(fs, "writeFileSync").callsFake(() => {});
       sandbox.stub(cliux, "inquire").callsFake((prompt: any) => {
         const cases: Record<string, any> = {
@@ -271,8 +271,8 @@ describe("app:create", () => {
       sandbox = sinon.createSandbox();
       axios.defaults.adapter = "http";
 
-      sandbox.stub(ux.action, "stop").callsFake(() => {});
-      sandbox.stub(ux.action, "start").callsFake(() => {});
+      sandbox.stub(cliux, "loader").callsFake(() => {});
+      sandbox.stub(cliux, "loader").callsFake(() => {});
       sandbox
         .stub(shelljs, "cd")
         .callsFake(() => ({ stdout: "", stderr: "", code: 0 } as any));
