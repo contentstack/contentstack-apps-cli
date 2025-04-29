@@ -272,7 +272,11 @@ async function fetchInstalledApps(
 }
 
 // To remove the relative path
-const sanitizePath = (str: string) => str?.replace(/^(\.\.(\/|\\|$))+/, "");
+const sanitizePath = (str: string) =>
+  str
+    ?.replace(/^([\/\\]){2,}/, "./") // Normalize leading slashes/backslashes to ''
+    .replace(/[\/\\]+/g, "/") // Replace multiple slashes/backslashes with a single '/'
+    .replace(/(\.\.(\/|\\|$))+/g, ""); // Remove directory traversal (../ or ..\)
 
 async function updateApp(
   flags: FlagInput,
