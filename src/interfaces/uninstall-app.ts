@@ -1,7 +1,18 @@
-import { ContentstackClient, FlagInput } from "@contentstack/cli-utilities";
+import {
+  ContentstackClient,
+  ContentstackMarketplaceClient,
+  FlagInput,
+} from "@contentstack/cli-utilities";
 import { CommonOptions } from "../util";
-import { AppTarget } from "@contentstack/management/types/app/index"
+import { AppTarget } from "@contentstack/management/types/app/index";
 
 export interface UninstallApp {
-  run(flags: FlagInput, org: string, managementSdk: ContentstackClient, options: CommonOptions, appType: AppTarget): Promise<void>;
+  run(
+    flags: FlagInput,
+    org: string,
+    managementSdk: ContentstackClient,
+    options: CommonOptions,
+    appType: AppTarget,
+    marketplaceSdk: ContentstackMarketplaceClient
+  ): Promise<void>;
 }

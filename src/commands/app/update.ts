@@ -7,7 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 
 import { $t, appUpdate } from "../../messages";
 import { fetchApp, getApp, getOrg } from "../../util";
-import {AppCLIBaseCommand} from "../../app-cli-base-command";
+import { AppCLIBaseCommand } from "../../app-cli-base-command";
 
 export default class Update extends AppCLIBaseCommand {
   private orgUid!: string;
@@ -163,7 +163,7 @@ export default class Update extends AppCLIBaseCommand {
     app = Object.assign(app, this.manifestData);
     await app
       .update()
-      .then((response) => {
+      .then((response: App) => {
         const validKeys = [
           "uid",
           "name",
@@ -192,7 +192,7 @@ export default class Update extends AppCLIBaseCommand {
         );
         this.log(this.messages.APP_UPDATE_SUCCESS, "info");
       })
-      .catch((er) => {
+      .catch((er: Error & { status?: number }) => {
         switch (er.status) {
           case 400:
             this.log(this.messages.INVALID_APP_ID, "error");
