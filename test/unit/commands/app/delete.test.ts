@@ -78,7 +78,6 @@ describe("app:delete", () => {
   describe("app:delete error handling", () => {
     beforeEach(() => {
       sandbox.stub(cliux, "loader").callsFake(() => {});
-      sandbox.stub(cliux, "loader").callsFake(() => {});
       sandbox.stub(cliux, "inquire").callsFake(async (prompt: any) => {
         const cases: Record<string, any> = {
           Organization: "test org 1",
