@@ -278,16 +278,16 @@ const sanitizePath = (str: string) =>
 async function updateApp(
   flags: FlagInput,
   orgUid: string,
-  options: CommonOptions,
+  options: MarketPlaceOptions,
   updateReqPayload: UpdateHostingParams
 ) {
-  const { managementSdk } = options;
+  const { marketplaceSdk } = options;
   const appUid: any = flags["app-uid"];
   const payload = {
     uid: appUid,
     hosting: updateReqPayload,
   };
-  let app = managementSdk.organization(orgUid).app(appUid as string);
+  let app = marketplaceSdk.marketplace(orgUid).app(appUid as string);
   app = Object.assign(app, payload);
   await app.update();
 }
