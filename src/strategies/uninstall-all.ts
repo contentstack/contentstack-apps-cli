@@ -47,7 +47,7 @@ export class UninstallAll implements UninstallApp {
     appType: AppTarget,
     marketplaceSdk: ContentstackMarketplaceClient
   ): Promise<string[]> {
-    let installationUids: string = await getInstallation(
+    const installationUids: string = await getInstallation(
       flags,
       org,
       managementSdk,

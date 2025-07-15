@@ -40,11 +40,13 @@
     "@types/node": "^20.17.30",
     "@types/shelljs": "^0.8.15",
     "@types/tmp": "^0.2.6",
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0",
     "axios": "^1.8.4",
     "chai": "^4.5.0",
     "dotenv": "^16.5.0",
     "eslint": "^8.57.1",
-    "eslint-config-oclif": "^6.0.46",
+    "eslint-config-oclif": "^6.0.62",
     "eslint-config-oclif-typescript": "^3.1.14",
     "fancy-test": "3.0.16",
     "mocha": "^10.8.2",
@@ -53,8 +55,7 @@
     "shx": "^0.4.0",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
-    "typescript": "^5.8.3",
-    "fancy-test": "3.0.16"
+    "typescript": "^5.8.3"
   },
   "oclif": {
     "bin": "csdx",

@@ -29,7 +29,7 @@ export default class Uninstall extends AppCLIBaseCommand {
 
   async run(): Promise<void> {
     try {
-      let app, appType;
+      let app;
       this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"];
 
       // get organization to be used
@@ -55,7 +55,7 @@ export default class Uninstall extends AppCLIBaseCommand {
       }
 
       this.flags["app-uid"] = app?.uid;
-      appType = app?.["target_type"];
+      const appType = app?.["target_type"];
 
       const factory = new UninstallAppFactory();
       const strategy = factory.getStrategyInstance(this.flags["uninstall-all"]);

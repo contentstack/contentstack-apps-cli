@@ -240,7 +240,7 @@ async function getInstallation(
   if (appType === "stack") {
     cliux.loader("Loading App Installations");
   }
-  let { items: installations } = (await fetchAppInstallations(flags, orgUid, {
+  const { items: installations } = (await fetchAppInstallations(flags, orgUid, {
     log,
     marketplaceSdk,
   })) || { items: [] };
@@ -271,7 +271,7 @@ async function getInstallation(
         .map((installation) => installation.uid)
         .join(",");
     }
-    let _selectedInstallation: string[] = await cliux.inquire({
+    const _selectedInstallation: string[] = await cliux.inquire({
       type: "checkbox",
       name: "appInstallation",
       choices: installationsArray,
@@ -304,8 +304,8 @@ function populateMissingDataInInstallations(
   installations: InstallationItem[],
   stacks: Stack[]
 ): InstallationItem[] {
-  let result = installations.map((installation) => {
-    let stack = stacks
+  const result = installations.map((installation) => {
+    const stack = stacks
       .filter((stack) => stack.api_key === installation.target.uid)
       ?.pop();
     installation.name = stack?.name || installation.target.uid;

@@ -15,7 +15,20 @@ describe("app:deploy", () => {
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
-    sandbox.stub(cliux, "loader").callsFake(() => {});
+
+    // Stub authentication
+    sandbox.stub(configHandler, "get").returns({
+      cma: "https://api.contentstack.io",
+      cda: "https://cdn.contentstack.io",
+      region: "us",
+    });
+    sandbox
+      .stub(
+        require("../../../../src/base-command").BaseCommand.prototype,
+        "validateRegionAndAuth"
+      )
+      .callsFake(() => {});
+
     sandbox.stub(cliux, "loader").callsFake(() => {});
     sandbox.stub(cliux, "inquire").callsFake((prompt: any) => {
       const cases: Record<string, any> = {
@@ -26,6 +39,51 @@ describe("app:deploy", () => {
       };
       return Promise.resolve(cases[prompt.name]);
     });
+
+    // Stub utilities used in deploy command
+    sandbox
+      .stub(require("../../../../src/util/common-utils"), "getProjects")
+      .resolves([]);
+    sandbox
+      .stub(require("../../../../src/util/common-utils"), "updateApp")
+      .resolves();
+    sandbox
+      .stub(require("../../../../src/util/common-utils"), "disconnectApp")
+      .resolves();
+    sandbox
+      .stub(require("../../../../src/util/common-utils"), "setupConfig")
+      .returns({});
+    sandbox
+      .stub(require("../../../../src/util/common-utils"), "formatUrl")
+      .returns("https://example.com");
+    sandbox
+      .stub(
+        require("../../../../src/util/common-utils"),
+        "handleProjectNameConflict"
+      )
+      .resolves("test-project");
+
+    sandbox
+      .stub(require("../../../../src/util/inquirer"), "getHostingType")
+      .resolves("custom-hosting");
+    sandbox
+      .stub(require("../../../../src/util/inquirer"), "getAppUrl")
+      .resolves("https://example.com");
+    sandbox
+      .stub(require("../../../../src/util/inquirer"), "askProjectType")
+      .resolves("existing");
+    sandbox
+      .stub(require("../../../../src/util/inquirer"), "askConfirmation")
+      .resolves(false);
+    sandbox
+      .stub(require("../../../../src/util/inquirer"), "selectProject")
+      .resolves(null);
+    sandbox
+      .stub(require("../../../../src/util/inquirer"), "askProjectName")
+      .resolves("test-project");
+
+    // Stub Launch.run
+    sandbox.stub(require("@contentstack/cli-launch").Launch, "run").resolves();
 
     nock(region.cma)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")

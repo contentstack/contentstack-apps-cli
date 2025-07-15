@@ -1,6 +1,42 @@
 {
+  "env": {
+      "node": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+      "project": "tsconfig.json",
+      "sourceType": "module"
+  },
+  "plugins": [
+      "@typescript-eslint"
+  ],
   "extends": [
-    "oclif",
-    "oclif-typescript"
-  ]
+      "plugin:@typescript-eslint/recommended"
+  ],
+  "ignorePatterns": [
+      "lib/**/*",
+      "test/**/*"
+  ],
+  "rules": {
+      "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+              "args": "none"
+          }
+      ],
+      "@typescript-eslint/prefer-namespace-keyword": "error",
+      "quotes": "off",
+      "semi": "off",
+      "@typescript-eslint/no-redeclare": "off",
+      "eqeqeq": [
+          "error",
+          "smart"
+      ],
+      "id-match": "error",
+      "no-eval": "error",
+      "no-var": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-require-imports": "warn",
+      "prefer-const": "error"
+  }
 }
