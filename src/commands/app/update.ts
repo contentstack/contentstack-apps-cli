@@ -2,7 +2,7 @@ import pick from "lodash/pick";
 import merge from "lodash/merge";
 import isEmpty from "lodash/isEmpty";
 import { flags, FlagInput } from "@contentstack/cli-utilities";
-import { App } from "@contentstack/management/types/app";
+import { App } from "@contentstack/marketplace-sdk/types/marketplace/app";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
 import { $t, appUpdate } from "../../messages";

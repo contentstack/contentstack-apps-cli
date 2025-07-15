@@ -10,7 +10,7 @@ import {
   ContentstackClient,
   ContentstackMarketplaceClient,
 } from "@contentstack/cli-utilities";
-import { AppTarget } from "@contentstack/management/types/app/index";
+import { AppTarget } from "@contentstack/marketplace-sdk/types/marketplace/app";
 
 import messages, {
   $t,
