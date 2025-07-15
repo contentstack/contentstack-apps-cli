@@ -10,7 +10,7 @@ import {
   getInstallation,
   uninstallApp,
 } from "../util";
-import { AppTarget } from "@contentstack/management/types/app/index";
+import { AppTarget } from "@contentstack/marketplace-sdk/types/marketplace/app";
 
 export class UninstallAll implements UninstallApp {
   public async run(

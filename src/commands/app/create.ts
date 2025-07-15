@@ -6,7 +6,7 @@ import * as shell from "shelljs";
 import merge from "lodash/merge";
 import isEmpty from "lodash/isEmpty";
 import { dirname, resolve } from "path";
-import { AppData } from "@contentstack/management/types/app";
+import { AppData } from "@contentstack/marketplace-sdk/types/marketplace/app";
 import {
   rmSync,
   mkdirSync,
