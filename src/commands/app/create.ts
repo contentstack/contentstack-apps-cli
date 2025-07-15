@@ -48,6 +48,8 @@ export default class Create extends BaseCommand<typeof Create> {
   static description =
     "Create a new app in Developer Hub and optionally clone a boilerplate locally.";
 
+  static strict = true;
+
   static examples = [
     "$ <%= config.bin %> <%= command.id %>",
     "$ <%= config.bin %> <%= command.id %> --name App-1 --app-type stack",

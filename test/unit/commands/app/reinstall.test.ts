@@ -17,7 +17,6 @@ describe("app:reinstall", () => {
     sandbox = sinon.createSandbox();
 
     sandbox.stub(cliux, "loader").callsFake(() => {});
-    sandbox.stub(cliux, "loader").callsFake(() => {});
 
     nock(region.cma)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
@@ -107,9 +106,6 @@ describe("app:reinstall", () => {
       });
       nock(region.cma).get(`/v3/stacks`).reply(200, { stack: mock.stacks[0] });
       nock(`https://${developerHubBaseUrl}`)
-        .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-        .reply(200, { data: mock.apps });
-      nock(`https://${developerHubBaseUrl}`)
         .get(`/manifests/${mock.apps[0].uid}`)
         .reply(200, {
           data: mock.apps[0],
@@ -183,7 +179,7 @@ describe("app:reinstall", () => {
       sandbox.stub(cliux, "inquire").callsFake(async (...args: any) => {
         const [prompt]: any = args;
         const cases = {
-          App: mock.apps[0].name,
+          App: mock.apps[1].name,
           Organization: mock.organizations[0].name,
           Stack: mock.stacks[0].name,
         };

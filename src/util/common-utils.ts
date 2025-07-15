@@ -234,7 +234,7 @@ async function fetchInstalledApps(
 ) {
   const { marketplaceSdk, log } = options;
   const apps = (await fetchApps(flags, orgUid, options)) || [];
-  let batchRequests = [];
+  const batchRequests = [];
   // Make calls in batch. 10 requests per batch allowed.
   while (apps.length) {
     batchRequests.push(apps.splice(0, 10));
