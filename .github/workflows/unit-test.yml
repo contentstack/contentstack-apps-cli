@@ -22,7 +22,7 @@ jobs:
           npm install -g @contentstack/cli
 
       - name: Configure Region
-        run: csdx config:set:region us
+        run: csdx config:set:region AWS-NA
 
       - name: Run tests
         run: npm run test
