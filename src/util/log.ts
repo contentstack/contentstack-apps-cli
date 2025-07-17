@@ -137,7 +137,7 @@ export default class Logger {
           'authtoken":"blt....'
         );
       } catch (error) {
-        console.error(error);
+        throw error;
       }
 
       return item;
