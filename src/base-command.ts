@@ -127,7 +127,7 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
         ];
         this.sharedConfig = merge(this.sharedConfig, omit(config, omitKeys));
       } catch (error) {
-        console.error(error);
+        throw error;
       }
     }
   }
