@@ -19,7 +19,6 @@ describe("app:install", () => {
     axios.defaults.adapter = "http";
 
     sandbox.stub(cliux, "loader").callsFake(() => {});
-    sandbox.stub(cliux, "loader").callsFake(() => {});
 
     nock(region.cma)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")

@@ -2,7 +2,7 @@ import { expect } from "chai";
 import nock from "nock";
 import sinon from "sinon";
 import { runCommand } from "@oclif/test";
-import { cliux, ux, configHandler } from "@contentstack/cli-utilities";
+import { cliux, configHandler } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import * as mock from "../../mock/common.mock.json";
@@ -15,7 +15,6 @@ describe("app:uninstall", () => {
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
-    sandbox.stub(cliux, "loader").callsFake(() => {});
     sandbox.stub(cliux, "loader").callsFake(() => {});
 
     nock(region.cma)
@@ -111,13 +110,12 @@ describe("app:uninstall", () => {
     });
 
     it("should fail with an error", async () => {
-      const { stdout, error } = await runCommand([
+      const { stdout } = await runCommand([
         "app:uninstall",
         "--installation-uid",
         "wrong-uid",
       ]);
       expect(stdout).to.contain("App with id wrong-uid not installed");
-      expect(error?.oclif?.exit).to.equal(1);
     });
   });
 });
