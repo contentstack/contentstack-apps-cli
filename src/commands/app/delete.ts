@@ -42,7 +42,7 @@ export default class Delete extends AppCLIBaseCommand {
       const { items: appInstallations }: any = await fetchAppInstallations(
         this.flags,
         this.sharedConfig.org,
-        { managementSdk: this.managementAppSdk, log: this.log }
+        { marketplaceSdk: this.marketplaceAppSdk, log: this.log }
       );
       if (appInstallations.length === 0) {
         const userConfirmation =
