@@ -17,11 +17,23 @@ describe("app:deploy", () => {
     sandbox = sinon.createSandbox();
 
     // Stub authentication
-    sandbox.stub(configHandler, "get").returns({
-      cma: "https://api.contentstack.io",
-      cda: "https://cdn.contentstack.io",
-      region: "us",
+    sandbox.stub(configHandler, "get").callsFake((key: string) => {
+      if (key === "region") {
+        return {
+          cma: "https://api.contentstack.io",
+          cda: "https://cdn.contentstack.io",
+          region: "us",
+        };
+      }
+      if (key === "authtoken") {
+        return "mock-auth-token";
+      }
+      if (key === "authorisationType") {
+        return "BASIC";
+      }
+      return undefined;
     });
+
     sandbox
       .stub(
         require("../../../../src/base-command").BaseCommand.prototype,

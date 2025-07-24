@@ -36,6 +36,31 @@ describe("app:create", () => {
     sandbox = sinon.createSandbox();
     axios.defaults.adapter = "http";
 
+    // Stub authentication
+    sandbox.stub(configHandler, "get").callsFake((key: string) => {
+      if (key === "region") {
+        return {
+          cma: "https://api.contentstack.io",
+          cda: "https://cdn.contentstack.io",
+          region: "us",
+        };
+      }
+      if (key === "authtoken") {
+        return "mock-auth-token";
+      }
+      if (key === "authorisationType") {
+        return "BASIC";
+      }
+      return undefined;
+    });
+
+    sandbox
+      .stub(
+        require("../../../../src/base-command").BaseCommand.prototype,
+        "validateRegionAndAuth"
+      )
+      .callsFake(() => {});
+
     writeStreamMock = new MockWriteStream();
     sandbox.stub(fs, "renameSync").callsFake(() => {});
     sandbox.stub(fs, "createWriteStream").callsFake(() => writeStreamMock);
