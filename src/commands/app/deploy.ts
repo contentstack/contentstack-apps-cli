@@ -1,6 +1,10 @@
 import { Flags, FlagInput } from "@contentstack/cli-utilities";
-import { GraphqlApiClient, Launch, config, ApolloClient } from "@contentstack/cli-launch";
-
+import {
+  GraphqlApiClient,
+  Launch,
+  config,
+  ApolloClient,
+} from "@contentstack/cli-launch";
 
 import { LaunchProjectRes, UpdateHostingParams } from "../../types";
 import { commonMsg, deployAppMsg } from "../../messages";
@@ -105,7 +109,7 @@ export default class Deploy extends AppCLIBaseCommand {
           flags,
           this.sharedConfig.org,
           {
-            managementSdk: this.managementAppSdk,
+            marketplaceSdk: this.marketplaceAppSdk,
             log: this.log,
           },
           updateHostingPayload

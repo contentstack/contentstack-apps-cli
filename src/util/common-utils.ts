@@ -119,16 +119,15 @@ function fetchApp(
 function fetchAppInstallations(
   flags: FlagInput,
   orgUid: string,
-  options: CommonOptions
+  options: MarketPlaceOptions
 ) {
-  const { managementSdk } = options;
+  const { marketplaceSdk } = options;
   const app: any = flags["app-uid"];
-  return managementSdk
-    .organization(orgUid)
+  return marketplaceSdk
+    .marketplace(orgUid)
     .app(app as string)
-    .installation()
-    .findAll()
-    .catch((error) => {
+    .listInstallations()
+    .catch((error: any) => {
       const { log } = options;
       cliux.loader("failed");
       log("Some error occurred while fetching app installations.", "warn");
@@ -216,17 +215,15 @@ async function getStacks(
 }
 
 function uninstallApp(
-  flags: FlagInput,
   orgUid: string,
-  options: CommonOptions,
+  options: MarketPlaceOptions,
   installationUid: string
 ) {
-  const { managementSdk } = options;
-  const app: unknown = flags["app-uid"];
-  return managementSdk
-    .organization(orgUid)
-    .app(app as string)
-    .installation(installationUid as string)
+  const { marketplaceSdk } = options;
+  // const app: any = flags["app-uid"];
+  return marketplaceSdk
+    .marketplace(orgUid)
+    .installation(installationUid)
     .uninstall();
 }
 
@@ -237,7 +234,7 @@ async function fetchInstalledApps(
 ) {
   const { marketplaceSdk, log } = options;
   const apps = (await fetchApps(flags, orgUid, options)) || [];
-  let batchRequests = [];
+  const batchRequests = [];
   // Make calls in batch. 10 requests per batch allowed.
   while (apps.length) {
     batchRequests.push(apps.splice(0, 10));
@@ -281,16 +278,16 @@ const sanitizePath = (str: string) =>
 async function updateApp(
   flags: FlagInput,
   orgUid: string,
-  options: CommonOptions,
+  options: MarketPlaceOptions,
   updateReqPayload: UpdateHostingParams
 ) {
-  const { managementSdk } = options;
+  const { marketplaceSdk } = options;
   const appUid: any = flags["app-uid"];
   const payload = {
     uid: appUid,
     hosting: updateReqPayload,
   };
-  let app = managementSdk.organization(orgUid).app(appUid as string);
+  let app = marketplaceSdk.marketplace(orgUid).app(appUid as string);
   app = Object.assign(app, payload);
   await app.update();
 }
