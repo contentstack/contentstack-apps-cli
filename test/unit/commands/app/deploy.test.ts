@@ -6,6 +6,7 @@ import messages, { $t } from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import sinon from "sinon";
+import { stubAuthentication } from "../../helpers/auth-stub-helper";
 
 const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
@@ -16,18 +17,8 @@ describe("app:deploy", () => {
   beforeEach(() => {
     sandbox = sinon.createSandbox();
 
-    // Stub authentication
-    sandbox.stub(configHandler, "get").returns({
-      cma: "https://api.contentstack.io",
-      cda: "https://cdn.contentstack.io",
-      region: "us",
-    });
-    sandbox
-      .stub(
-        require("../../../../src/base-command").BaseCommand.prototype,
-        "validateRegionAndAuth"
-      )
-      .callsFake(() => {});
+    // Stub authentication using shared helper
+    stubAuthentication(sandbox);
 
     sandbox.stub(cliux, "loader").callsFake(() => {});
     sandbox.stub(cliux, "inquire").callsFake((prompt: any) => {
