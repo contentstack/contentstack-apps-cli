@@ -6,6 +6,7 @@ import * as mock from "../../mock/common.mock.json";
 import messages, { $t } from "../../../../src/messages";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import nock from "nock";
+import { stubAuthentication } from "../../helpers/auth-stub-helper";
 
 const region: { cma: string; name: string; cda: string } =
   configHandler.get("region");
@@ -15,6 +16,10 @@ describe("app:delete", () => {
   let sandbox: sinon.SinonSandbox;
   beforeEach(() => {
     sandbox = sinon.createSandbox();
+
+    // Stub authentication using shared helper
+    stubAuthentication(sandbox);
+
     nock(region.cma)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
       .reply(200, { organizations: mock.organizations });

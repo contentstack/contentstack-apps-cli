@@ -9,6 +9,7 @@ import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import sinon from "sinon";
 import nock from "nock";
 import fs from "fs";
+import { stubAuthentication } from "../../helpers/auth-stub-helper";
 
 const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
@@ -19,20 +20,8 @@ describe("app:update", () => {
   beforeEach(() => {
     sandbox = sinon.createSandbox();
 
-    // Stub authentication
-    sandbox.stub(configHandler, "get").returns({
-      cma: "https://api.contentstack.io",
-      cda: "https://cdn.contentstack.io",
-      region: "us",
-    });
-
-    // Stub the validateRegionAndAuth method to skip authentication check
-    sandbox
-      .stub(
-        require("../../../../src/base-command").BaseCommand.prototype,
-        "validateRegionAndAuth"
-      )
-      .callsFake(() => {});
+    // Stub authentication using shared helper
+    stubAuthentication(sandbox);
 
     nock(region.cma)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")

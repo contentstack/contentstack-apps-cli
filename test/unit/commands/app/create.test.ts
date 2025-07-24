@@ -15,6 +15,7 @@ import manifestData from "../../../../src/config/manifest.json";
 import orgManifestData from "../../../unit/config/org_manifest.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import axios from "axios";
+import { stubAuthentication } from "../../helpers/auth-stub-helper";
 
 const { origin, pathname } = new URL(config.appBoilerplateGithubUrl);
 const zipPath = join(process.cwd(), "test", "unit", "mock", "boilerplate.zip");
@@ -35,6 +36,9 @@ describe("app:create", () => {
   beforeEach(() => {
     sandbox = sinon.createSandbox();
     axios.defaults.adapter = "http";
+
+    // Stub authentication using shared helper
+    stubAuthentication(sandbox);
 
     writeStreamMock = new MockWriteStream();
     sandbox.stub(fs, "renameSync").callsFake(() => {});
