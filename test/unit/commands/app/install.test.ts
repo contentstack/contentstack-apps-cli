@@ -7,6 +7,7 @@ import messages from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import axios from "axios";
+import { stubAuthentication } from "../../helpers/auth-stub-helper";
 
 const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
@@ -18,30 +19,8 @@ describe("app:install", () => {
     sandbox = sinon.createSandbox();
     axios.defaults.adapter = "http";
 
-    // Stub authentication
-    sandbox.stub(configHandler, "get").callsFake((key: string) => {
-      if (key === "region") {
-        return {
-          cma: "https://api.contentstack.io",
-          cda: "https://cdn.contentstack.io",
-          region: "us",
-        };
-      }
-      if (key === "authtoken") {
-        return "mock-auth-token";
-      }
-      if (key === "authorisationType") {
-        return "BASIC";
-      }
-      return undefined;
-    });
-
-    sandbox
-      .stub(
-        require("../../../../src/base-command").BaseCommand.prototype,
-        "validateRegionAndAuth"
-      )
-      .callsFake(() => {});
+    // Stub authentication using shared helper
+    stubAuthentication(sandbox);
 
     sandbox.stub(cliux, "loader").callsFake(() => {});
 

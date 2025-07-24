@@ -15,6 +15,7 @@ import manifestData from "../../../../src/config/manifest.json";
 import orgManifestData from "../../../unit/config/org_manifest.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import axios from "axios";
+import { stubAuthentication } from "../../helpers/auth-stub-helper";
 
 const { origin, pathname } = new URL(config.appBoilerplateGithubUrl);
 const zipPath = join(process.cwd(), "test", "unit", "mock", "boilerplate.zip");
@@ -36,30 +37,8 @@ describe("app:create", () => {
     sandbox = sinon.createSandbox();
     axios.defaults.adapter = "http";
 
-    // Stub authentication
-    sandbox.stub(configHandler, "get").callsFake((key: string) => {
-      if (key === "region") {
-        return {
-          cma: "https://api.contentstack.io",
-          cda: "https://cdn.contentstack.io",
-          region: "us",
-        };
-      }
-      if (key === "authtoken") {
-        return "mock-auth-token";
-      }
-      if (key === "authorisationType") {
-        return "BASIC";
-      }
-      return undefined;
-    });
-
-    sandbox
-      .stub(
-        require("../../../../src/base-command").BaseCommand.prototype,
-        "validateRegionAndAuth"
-      )
-      .callsFake(() => {});
+    // Stub authentication using shared helper
+    stubAuthentication(sandbox);
 
     writeStreamMock = new MockWriteStream();
     sandbox.stub(fs, "renameSync").callsFake(() => {});
