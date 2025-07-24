@@ -1,0 +1,5 @@
+threshold: medium
+fileignoreconfig:
+  - filename: package-lock.json
+    checksum: 21fac429ab80d0ffe81207cbd7e1cc33972d9410693cd4cfd4d57b00bc2f5233
+version: "1.0"
