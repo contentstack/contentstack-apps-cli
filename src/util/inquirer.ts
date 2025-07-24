@@ -8,9 +8,9 @@ import {
   configHandler,
   Stack,
   ContentstackClient,
+  ContentstackMarketplaceClient,
 } from "@contentstack/cli-utilities";
-import { Installation } from "@contentstack/management/types/app/installation";
-import { AppTarget } from "@contentstack/management/types/app/index";
+import { AppTarget } from "@contentstack/marketplace-sdk/types/marketplace/app";
 
 import messages, {
   $t,
@@ -31,6 +31,16 @@ import {
   fetchBoilerplateDetails,
 } from "./common-utils";
 import { LaunchProjectRes } from "../types";
+
+// Type for installation objects returned from marketplace SDK
+interface InstallationItem {
+  uid: string;
+  target: {
+    uid: string;
+  };
+  name?: string;
+  value?: string;
+}
 
 /**
  * @method getAppName
@@ -171,9 +181,11 @@ async function getInstalledApps(
 function getDeveloperHubUrl(): string {
   const { cma } = configHandler.get("region") || {};
   if (!cma) {
-    throw new Error("Region not configured. Please set the region with command $ csdx config:set:region");
+    throw new Error(
+      "Region not configured. Please set the region with command $ csdx config:set:region"
+    );
   }
-  
+
   let developerHubBaseUrl = cma.replace("api", "developerhub-api");
 
   if (developerHubBaseUrl.startsWith("http")) {
@@ -221,19 +233,21 @@ async function getInstallation(
   managementSdkForStacks: ContentstackClient,
   appType: AppTarget,
   options: CommonOptions,
+  marketplaceSdk: ContentstackMarketplaceClient,
   uninstallAll?: boolean
 ): Promise<string> {
   const { log } = options;
   if (appType === "stack") {
     cliux.loader("Loading App Installations");
   }
-  let { items: installations } = (await fetchAppInstallations(
-    flags,
-    orgUid,
-    options
-  )) || { items: [] };
+  const { items: installations } = (await fetchAppInstallations(flags, orgUid, {
+    log,
+    marketplaceSdk,
+  })) || { items: [] };
+  let installationsArray: InstallationItem[] =
+    installations as unknown as InstallationItem[];
 
-  if (!installations?.length) {
+  if (!installationsArray?.length) {
     if (appType === "stack") cliux.loader("done");
     throw new Error(messages.NO_INSTALLATIONS_FOUND);
   }
@@ -247,18 +261,20 @@ async function getInstallation(
       { managementSdk: managementSdkForStacks, log: options.log },
       orgUid
     );
-    installations = populateMissingDataInInstallations(
-      installations as [Installation],
+    installationsArray = populateMissingDataInInstallations(
+      installationsArray,
       stacks
     );
     // To support uninstall all flag
     if (uninstallAll) {
-      return installations.map((installation) => installation.uid).join(",");
+      return installationsArray
+        .map((installation) => installation.uid)
+        .join(",");
     }
-    let _selectedInstallation: string[] = await cliux.inquire({
+    const _selectedInstallation: string[] = await cliux.inquire({
       type: "checkbox",
       name: "appInstallation",
-      choices: installations,
+      choices: installationsArray,
       message: messages.CHOOSE_AN_INSTALLATION,
       validate: (input) => {
         if (isEmpty(input)) {
@@ -271,7 +287,7 @@ async function getInstallation(
   } else {
     // as this is an organization app, and it is supposed to only be installed on the source organization
     // it will be uninstalled from the selected organization
-    selectedInstallation = installations.pop()?.uid || "";
+    selectedInstallation = installationsArray.pop()?.uid || "";
   }
 
   log(
@@ -285,17 +301,17 @@ async function getInstallation(
 }
 
 function populateMissingDataInInstallations(
-  installations: [Installation],
+  installations: InstallationItem[],
   stacks: Stack[]
-): [Installation] {
-  let result = installations.map((installation) => {
-    let stack = stacks
+): InstallationItem[] {
+  const result = installations.map((installation) => {
+    const stack = stacks
       .filter((stack) => stack.api_key === installation.target.uid)
       ?.pop();
     installation.name = stack?.name || installation.target.uid;
     installation.value = installation.uid;
     return installation;
-  }) as [Installation];
+  });
 
   if (result.length > 0) {
     return result;
@@ -411,19 +427,25 @@ const validateAppName = (name: string) => {
 };
 
 function getLaunchHubUrl(): string {
-  const { cma } = configHandler.get('region') || {};
+  const { cma } = configHandler.get("region") || {};
   if (!cma) {
-    throw new Error('Region not configured. Please set the region with command $ csdx config:set:region');
+    throw new Error(
+      "Region not configured. Please set the region with command $ csdx config:set:region"
+    );
   }
 
-  let launchHubBaseUrl = cma.replace('api', 'launch-api');
+  let launchHubBaseUrl = cma.replace("api", "launch-api");
 
-  if (launchHubBaseUrl.startsWith('http')) {
-    launchHubBaseUrl = launchHubBaseUrl.split('//')[1];
+  if (launchHubBaseUrl.startsWith("http")) {
+    launchHubBaseUrl = launchHubBaseUrl.split("//")[1];
   }
 
-  launchHubBaseUrl = launchHubBaseUrl.startsWith('dev11') ? launchHubBaseUrl.replace('dev11', 'dev') : launchHubBaseUrl;
-  launchHubBaseUrl = launchHubBaseUrl.endsWith('io') ? launchHubBaseUrl.replace('io', 'com') : launchHubBaseUrl;
+  launchHubBaseUrl = launchHubBaseUrl.startsWith("dev11")
+    ? launchHubBaseUrl.replace("dev11", "dev")
+    : launchHubBaseUrl;
+  launchHubBaseUrl = launchHubBaseUrl.endsWith("io")
+    ? launchHubBaseUrl.replace("io", "com")
+    : launchHubBaseUrl;
 
   return `https://${launchHubBaseUrl}`;
 }
