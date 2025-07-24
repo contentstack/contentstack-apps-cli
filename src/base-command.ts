@@ -60,14 +60,18 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 
   public async init(): Promise<void> {
     await super.init();
-    const { args, flags } = await this.parse({
-      flags: this.ctor.flags,
-      baseFlags: (super.ctor as typeof BaseCommand).baseFlags,
-      args: this.ctor.args,
-      strict: this.ctor.strict,
-    });
-    this.flags = flags as Flags<T>;
-    this.args = args as Args<T>;
+    try {
+      const { args, flags } = await this.parse({
+        flags: this.ctor.flags,
+        baseFlags: (super.ctor as typeof BaseCommand).baseFlags,
+        args: this.ctor.args,
+        strict: this.ctor.strict,
+      });
+      this.flags = flags as Flags<T>;
+      this.args = args as Args<T>;
+    } catch (error) {
+      throw error;
+    }
 
     cliux.registerSearchPlugin();
     this.registerConfig();
@@ -90,6 +94,13 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
   protected async catch(err: Error & { exitCode?: number }): Promise<any> {
     // add any custom logic to handle errors from the command
     // or simply return the parent class error handling
+
+    // Handle NonExistentFlagsError specifically
+    if (err.message && err.message.includes("Nonexistent flag")) {
+      console.error(err.message);
+      process.exit(2);
+    }
+
     return super.catch(err);
   }
 
@@ -115,7 +126,9 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
           "developerHubUrls",
         ];
         this.sharedConfig = merge(this.sharedConfig, omit(config, omitKeys));
-      } catch (error) {}
+      } catch (error) {
+        throw error;
+      }
     }
   }
 

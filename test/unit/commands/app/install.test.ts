@@ -7,6 +7,7 @@ import messages from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import axios from "axios";
+import { stubAuthentication } from "../../helpers/auth-stub-helper";
 
 const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
@@ -18,7 +19,9 @@ describe("app:install", () => {
     sandbox = sinon.createSandbox();
     axios.defaults.adapter = "http";
 
-    sandbox.stub(cliux, "loader").callsFake(() => {});
+    // Stub authentication using shared helper
+    stubAuthentication(sandbox);
+
     sandbox.stub(cliux, "loader").callsFake(() => {});
 
     nock(region.cma)

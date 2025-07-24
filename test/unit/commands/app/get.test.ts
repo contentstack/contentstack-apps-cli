@@ -4,13 +4,14 @@ import fs from "fs";
 import { join } from "path";
 import sinon from "sinon";
 import { runCommand } from "@oclif/test";
-import { cliux, configHandler, ux } from "@contentstack/cli-utilities";
+import { cliux, configHandler } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import * as commonUtils from "../../../../src/util/common-utils";
 import * as mock from "../../mock/common.mock.json";
 import manifestData from "../../../../src/config/manifest.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import config from "../../../../src/config";
+import { stubAuthentication } from "../../helpers/auth-stub-helper";
 
 const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
@@ -20,7 +21,10 @@ describe("app:get", () => {
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
-    sandbox.stub(cliux, "loader").callsFake(() => {});
+
+    // Stub authentication using shared helper
+    stubAuthentication(sandbox);
+
     sandbox.stub(cliux, "loader").callsFake(() => {});
     sandbox.stub(fs, "writeFileSync").callsFake(() => {});
   });

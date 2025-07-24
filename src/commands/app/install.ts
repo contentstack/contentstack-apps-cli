@@ -33,7 +33,7 @@ export default class Install extends AppCLIBaseCommand {
 
   async run(): Promise<void> {
     try {
-      let app, stack, appType;
+      let app, stack;
       this.flags["app-uid"] = this.manifestData?.uid ?? this.flags["app-uid"]; //manifest file first preference
 
       // validating user given stack, as installation API doesn't return appropriate errors if stack-api-key is invalid
@@ -66,7 +66,7 @@ export default class Install extends AppCLIBaseCommand {
           log: this.log,
         });
       }
-      appType = app?.["target_type"]; // get app-type from the fetched app
+      const appType = app?.["target_type"]; // get app-type from the fetched app
       this.flags["app-uid"] = app?.uid;
 
       // in case stack-api-key is provided and the selected app is an organization app
