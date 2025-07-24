@@ -6,6 +6,7 @@ import { cliux, configHandler } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import * as mock from "../../mock/common.mock.json";
+import { stubAuthentication } from "../../helpers/auth-stub-helper";
 
 const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
@@ -16,30 +17,8 @@ describe("app:uninstall", () => {
   beforeEach(() => {
     sandbox = sinon.createSandbox();
 
-    // Stub authentication
-    sandbox.stub(configHandler, "get").callsFake((key: string) => {
-      if (key === "region") {
-        return {
-          cma: "https://api.contentstack.io",
-          cda: "https://cdn.contentstack.io",
-          region: "us",
-        };
-      }
-      if (key === "authtoken") {
-        return "mock-auth-token";
-      }
-      if (key === "authorisationType") {
-        return "BASIC";
-      }
-      return undefined;
-    });
-
-    sandbox
-      .stub(
-        require("../../../../src/base-command").BaseCommand.prototype,
-        "validateRegionAndAuth"
-      )
-      .callsFake(() => {});
+    // Stub authentication using shared helper
+    stubAuthentication(sandbox);
 
     sandbox.stub(cliux, "loader").callsFake(() => {});
 

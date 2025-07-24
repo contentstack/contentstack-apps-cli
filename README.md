@@ -16,31 +16,34 @@ $ csdx plugins:install @contentstack/apps-cli
 This plugin requires you to be authenticated using [csdx auth:login](https://www.contentstack.com/docs/developers/cli/authenticate-with-the-cli/).
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @contentstack/apps-cli
 $ csdx COMMAND
 running command...
 $ csdx (--version|-v)
-@contentstack/apps-cli/1.6.0 darwin-arm64 node-v22.13.1
+@contentstack/apps-cli/1.6.1 darwin-arm64 node-v22.13.1
 $ csdx --help [COMMAND]
 USAGE
   $ csdx COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-* [`csdx app`](#csdx-app)
-* [`csdx app:create`](#csdx-appcreate)
-* [`csdx app:delete`](#csdx-appdelete)
-* [`csdx app:deploy`](#csdx-appdeploy)
-* [`csdx app:get`](#csdx-appget)
-* [`csdx app:install`](#csdx-appinstall)
-* [`csdx app:reinstall`](#csdx-appreinstall)
-* [`csdx app:uninstall`](#csdx-appuninstall)
-* [`csdx app:update`](#csdx-appupdate)
+
+- [`csdx app`](#csdx-app)
+- [`csdx app:create`](#csdx-appcreate)
+- [`csdx app:delete`](#csdx-appdelete)
+- [`csdx app:deploy`](#csdx-appdeploy)
+- [`csdx app:get`](#csdx-appget)
+- [`csdx app:install`](#csdx-appinstall)
+- [`csdx app:reinstall`](#csdx-appreinstall)
+- [`csdx app:uninstall`](#csdx-appuninstall)
+- [`csdx app:update`](#csdx-appupdate)
 
 ## `csdx app`
 
@@ -307,4 +310,5 @@ EXAMPLES
 ```
 
 _See code: [src/commands/app/update.ts](https://github.com/contentstack/apps-cli/blob/v1.6.0/src/commands/app/update.ts)_
+
 <!-- commandsstop -->
