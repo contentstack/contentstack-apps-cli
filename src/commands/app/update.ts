@@ -156,8 +156,8 @@ export default class Update extends AppCLIBaseCommand {
    * @memberof Create
    */
   async updateAppOnDeveloperHub(): Promise<void> {
-    let app = this.managementAppSdk
-      .organization(this.orgUid)
+    let app = this.marketplaceAppSdk
+      .marketplace(this.orgUid)
       .app(this.manifestData.uid);
 
     app = Object.assign(app, this.manifestData);
