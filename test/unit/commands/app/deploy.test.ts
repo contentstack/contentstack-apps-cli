@@ -149,4 +149,110 @@ describe("app:deploy", () => {
       );
     });
   });
+
+  describe("Deploy app error handling", () => {
+    it("should fail with invalid hosting type", async () => {
+      sandbox.restore();
+      sandbox = sinon.createSandbox();
+      stubAuthentication(sandbox);
+
+      sandbox.stub(cliux, "loader").callsFake(() => {});
+      sandbox.stub(cliux, "inquire").callsFake((prompt: any) => {
+        const cases: Record<string, any> = {
+          App: mock.apps[1].name,
+          Organization: mock.organizations[0].name,
+          "hosting types": "invalid-hosting",
+        };
+        return Promise.resolve(cases[prompt.name]);
+      });
+
+      sandbox
+        .stub(require("../../../../src/util/common-utils"), "getProjects")
+        .resolves([]);
+      sandbox
+        .stub(require("../../../../src/util/common-utils"), "updateApp")
+        .resolves();
+
+      nock(region.cma)
+        .get(
+          "/v3/organizations?limit=100&asc=name&asc=name&include_count=true&skip=0"
+        )
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+        .reply(200, { data: mock.apps2 });
+
+      const { stdout } = await runCommand(["app:deploy"], {
+        root: process.cwd(),
+      });
+      expect(stdout).to.contain("Please provide a valid Hosting Type.");
+    });
+
+    it("should handle new project creation with hosting-with-launch", async () => {
+      sandbox.restore();
+      sandbox = sinon.createSandbox();
+      stubAuthentication(sandbox);
+
+      sandbox.stub(cliux, "loader").callsFake(() => {});
+      sandbox.stub(cliux, "inquire").callsFake((prompt: any) => {
+        const cases: Record<string, any> = {
+          App: mock.apps[1].name,
+          Organization: mock.organizations[0].name,
+          "hosting types": "hosting-with-launch",
+          "launch project": "new",
+        };
+        return Promise.resolve(cases[prompt.name]);
+      });
+
+      sandbox
+        .stub(require("../../../../src/util/common-utils"), "getProjects")
+        .resolves([
+          {
+            name: "new-project",
+            uid: "project-2",
+            url: "https://new-project.com",
+            environmentUid: "env-2",
+          },
+        ]);
+      sandbox
+        .stub(require("../../../../src/util/common-utils"), "setupConfig")
+        .returns({
+          name: "new-project",
+          type: "react",
+          environment: "production",
+          framework: "nextjs",
+        });
+      sandbox
+        .stub(
+          require("../../../../src/util/common-utils"),
+          "handleProjectNameConflict"
+        )
+        .resolves("new-project");
+      sandbox
+        .stub(require("@contentstack/cli-launch").Launch, "run")
+        .resolves();
+
+      nock(region.cma)
+        .get(
+          "/v3/organizations?limit=100&asc=name&asc=name&include_count=true&skip=0"
+        )
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
+        .reply(200, { data: mock.apps2 });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .put(`/manifests/${mock.apps2[1].uid}`)
+        .reply(200, mock.deploy_launch_host);
+
+      const { stdout } = await runCommand(["app:deploy"], {
+        root: process.cwd(),
+      });
+      expect(stdout).to.contain(
+        $t(messages.APP_DEPLOYED, { app: mock.apps[1].name })
+      );
+    });
+  });
 });
