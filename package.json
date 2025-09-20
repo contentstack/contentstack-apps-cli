@@ -42,7 +42,7 @@
     "@types/tmp": "^0.2.6",
     "@typescript-eslint/eslint-plugin": "^8.37.0",
     "@typescript-eslint/parser": "^8.37.0",
-    "axios": "^1.8.4",
+    "axios": "^1.12.2",
     "chai": "^4.5.0",
     "dotenv": "^16.5.0",
     "eslint": "^8.57.1",
