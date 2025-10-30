@@ -345,7 +345,7 @@ describe("app:create", () => {
         ],
         { root: process.cwd() }
       );
-      expect(result.stdout).to.contain("Failed to register app");
+      expect(result.stdout).to.contain("App registration failed");
     });
   });
 
