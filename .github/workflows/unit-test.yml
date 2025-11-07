@@ -1,11 +1,12 @@
-name: Run Unit Tests
+name: Unit Test & Reports
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  run-tests:
+  build-test:
+    name: Build & Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,5 +25,18 @@ jobs:
       - name: Configure Region
         run: csdx config:set:region AWS-NA
 
-      - name: Run tests
-        run: npm run test
+      - name: Run tests with coverage
+        run: npm run test:unit:report:json
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Mocha Unit Test
+          path: report.json
+          reporter: mocha-json
+
+      - name: Coverage Report
+        uses: lucassabreu/comment-coverage-clover@main
+        with:
+          file: coverage/clover.xml
