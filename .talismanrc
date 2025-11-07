@@ -1,7 +1,7 @@
 threshold: medium
 fileignoreconfig:
   - filename: package-lock.json
-    checksum: 1cfef37e0c387725843e0178fa7587e6c7c55ca61d938995244384ecc899cab7
+    checksum: 942456bb38f0c8bcb78e186770c3840adeae7f9a813b8ddb015740f68610d654
   - filename: .github/workflows/secrets-scan.yml
     checksum: d79ec3f3288964f7d117b9ad319a54c0ebc152e35f69be8fde95522034fdfb2a
 version: "1.0"

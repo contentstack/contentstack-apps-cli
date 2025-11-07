@@ -345,7 +345,7 @@ describe("app:create", () => {
         ],
         { root: process.cwd() }
       );
-      expect(result.stdout).to.contain("App could not be registered");
+      expect(result.stdout).to.contain("App registration failed");
     });
   });
 
@@ -394,7 +394,7 @@ describe("app:create", () => {
         "--data-dir",
         process.cwd(),
       ]);
-      expect(result.stdout).to.contain("App could not be registered");
+      expect(result.stdout).to.contain("App registration failed");
     });
   });
 
@@ -467,7 +467,7 @@ describe("app:create", () => {
         "--data-dir",
         process.cwd(),
       ]);
-      expect(result.stdout).to.contain("App could not be registered");
+      expect(result.stdout).to.contain("App registration failed");
     });
   });
 });

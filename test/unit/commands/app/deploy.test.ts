@@ -186,7 +186,7 @@ describe("app:deploy", () => {
       const { stdout } = await runCommand(["app:deploy"], {
         root: process.cwd(),
       });
-      expect(stdout).to.contain("Please provide a valid Hosting Type.");
+      expect(stdout).to.contain("Provide a valid hosting type.");
     });
 
     it("should handle new project creation with hosting-with-launch", async () => {
