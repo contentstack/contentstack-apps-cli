@@ -163,10 +163,6 @@ export default class Create extends BaseCommand<typeof Create> {
    * @memberof Create
    */
   async flagsPromptQueue() {
-    if (this.sharedConfig.appName) {
-      validateAppName(this.sharedConfig.appName);
-    }
-
     let boilerplate: BoilerplateAppType | null = null;
     if (isEmpty(this.sharedConfig.boilerplateName)) {
       boilerplate = await selectedBoilerplate();
@@ -177,13 +173,21 @@ export default class Create extends BaseCommand<typeof Create> {
     }
 
     if (boilerplate) {
-      let boilerplateName = this.sharedConfig.appName || boilerplate.name;
-      if (isEmpty(this.sharedConfig.appName)) {
-        boilerplateName = boilerplateName
-          .toLowerCase()
-          .replace(/ /g, "-")
-          .substring(0, 20);
+      let appName: string = this.sharedConfig.appName;
+      if (!appName) {
+        appName = await cliux.inquire({
+          type: "input",
+          name: "appName",
+          message: "Enter App Name",
+          default: boilerplate.name,
+        });
       }
+      validateAppName(appName);
+
+      const boilerplateName = appName
+        .toLowerCase()
+        .replace(/ /g, "-")
+        .substring(0, 20);
 
       this.sharedConfig.boilerplateName = boilerplateName;
       this.sharedConfig.appBoilerplateGithubUrl = boilerplate.link;
