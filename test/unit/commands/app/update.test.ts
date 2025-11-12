@@ -205,4 +205,80 @@ describe("app:update", () => {
       expect(result.stdout).to.contain('"status":403');
     });
   });
+  describe("Update app with duplicate app name (409 status)", () => {
+    beforeEach(() => {
+      nock(region.cma)
+        .get(
+          "/v3/organizations?limit=100&asc=name&asc=name&include_count=true&skip=0"
+        )
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .get("/manifests/app-uid-1")
+        .reply(200, {
+          data: { ...manifestData, name: "test-app", version: 1 },
+        });
+
+      // Stub the updateAppOnDeveloperHub method to throw 409 error
+      sandbox
+        .stub(
+          require("../../../../src/commands/app/update").default.prototype,
+          "updateAppOnDeveloperHub"
+        )
+        .callsFake(function (this: any) {
+          this.log(
+            this.$t(this.messages.DUPLICATE_APP_NAME, {
+              appName: this.manifestData.name,
+            }),
+            "warn"
+          );
+          throw { status: 409 };
+        });
+    });
+
+    it("should fail with duplicate app name error (409 status)", async () => {
+      const result = await runCommand([
+        "app:update",
+        "--app-manifest",
+        join(process.cwd(), "test", "unit", "config", "manifest.json"),
+      ]);
+
+      expect(result.stdout).to.contain("test-app");
+      expect(result.stdout).to.contain("already exists");
+    });
+  });
+
+  describe("Update app with organization UID instead of app UID", () => {
+    beforeEach(() => {
+      nock(region.cma)
+        .get(
+          "/v3/organizations?limit=100&asc=name&asc=name&include_count=true&skip=0"
+        )
+        .reply(200, { organizations: mock.organizations });
+
+      // Mock the API to return an organization instead of an app
+      nock(`https://${developerHubBaseUrl}`)
+        .get("/manifests/app-uid-1")
+        .reply(200, {
+          data: {
+            uid: "test-uid-1",
+            name: "test-org",
+            version: 1,
+            target_type: "organization",
+          },
+        });
+
+      sandbox.stub(cliux, "loader").callsFake(() => {});
+    });
+
+    it("should fail when organization UID is passed instead of app UID", async () => {
+      const result = await runCommand([
+        "app:update",
+        "--app-manifest",
+        join(process.cwd(), "test", "unit", "config", "manifest.json"),
+      ]);
+
+      expect(result.stdout).to.contain(messages.APP_UID_NOT_MATCH);
+    });
+  });
 });

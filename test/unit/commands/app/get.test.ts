@@ -117,7 +117,7 @@ describe("app:get", () => {
     beforeEach(() => {
       sandbox
         .stub(fs, "readdirSync")
-        .returns(["manifest.json"] as unknown as fs.Dirent[]);
+        .returns(["manifest.json"] as any);
       sandbox.stub(cliux, "confirm").resolves(false);
       sandbox.stub(cliux, "inquire").resolves("test org 1");
 
@@ -156,7 +156,7 @@ describe("app:get", () => {
     beforeEach(() => {
       sandbox
         .stub(fs, "readdirSync")
-        .returns(["manifest.json"] as unknown as fs.Dirent[]);
+        .returns(["manifest.json"] as any);
       sandbox.stub(cliux, "confirm").resolves(true);
       sandbox.stub(cliux, "inquire").resolves("test org 1");
 
