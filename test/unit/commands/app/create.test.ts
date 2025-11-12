@@ -345,7 +345,7 @@ describe("app:create", () => {
         ],
         { root: process.cwd() }
       );
-      expect(result.stdout).to.contain("App could not be registered");
+      expect(result.stdout).to.contain("App registration failed");
     });
   });
 
@@ -394,7 +394,80 @@ describe("app:create", () => {
         "--data-dir",
         process.cwd(),
       ]);
-      expect(result.stdout).to.contain("App could not be registered");
+      expect(result.stdout).to.contain("App registration failed");
+    });
+  });
+
+  describe("App creation with duplicate app name", () => {
+    beforeEach(() => {
+      nock(`https://${developerHubBaseUrl}`)
+        .post("/manifests", (body) => {
+          return body.name === "test-app" && body.target_type === "stack";
+        })
+        .reply(409, {
+          errorMessage: "App with this name already exists.",
+        });
+
+      sandbox.stub(cliux, "loader").callsFake(() => {});
+      sandbox.stub(fs, "writeFileSync").callsFake(() => {});
+      sandbox.stub(cliux, "inquire").callsFake((prompt: any) => {
+        const cases: Record<string, any> = {
+          appName: "test-app",
+          cloneBoilerplate: true,
+          Organization: "test org 1",
+        };
+        return Promise.resolve(cases[prompt.name]);
+      });
+    });
+
+    it("should fail when app name already exists", async () => {
+      const result = await runCommand([
+        "app:create",
+        "--name",
+        "test-app",
+        "--data-dir",
+        process.cwd(),
+      ]);
+      expect(result.stdout).to.contain("already exists");
+    });
+  });
+
+  describe("App creation with organization UID instead of app UID", () => {
+    beforeEach(() => {
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: mock.organizations });
+
+      nock(`https://${developerHubBaseUrl}`)
+        .post("/manifests", (body) => {
+          return body.name === "test-app" && body.target_type === "stack";
+        })
+        .reply(400, {
+          errorMessage:
+            "Invalid app configuration. Organization UID provided instead of app data.",
+        });
+
+      sandbox.stub(cliux, "loader").callsFake(() => {});
+      sandbox.stub(fs, "writeFileSync").callsFake(() => {});
+      sandbox.stub(cliux, "inquire").callsFake((prompt: any) => {
+        const cases: Record<string, any> = {
+          appName: "test-app",
+          cloneBoilerplate: true,
+          Organization: "test org 1",
+        };
+        return Promise.resolve(cases[prompt.name]);
+      });
+    });
+
+    it("should fail when organization UID is used instead of app data", async () => {
+      const result = await runCommand([
+        "app:create",
+        "--name",
+        "test-app",
+        "--data-dir",
+        process.cwd(),
+      ]);
+      expect(result.stdout).to.contain("App registration failed");
     });
   });
 });

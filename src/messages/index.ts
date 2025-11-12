@@ -1,29 +1,29 @@
 const errors = {
-  NOT_EMPTY: "{value} cannot be empty.",
-  INVALID_APP_ID: "Please enter a valid app UID.",
+  NOT_EMPTY: "{value} is required and cannot be empty.",
+  INVALID_APP_ID: "Enter a valid app UID.",
   ORG_UID_NOT_FOUND:
     "Organization UID not found. Please enter a valid organization UID.",
-  BASE_URL_EMPTY: "Developer Hub URL cannot be empty.",
-  INVALID_ORG_UID: "Please enter a valid organization UID.",
+  BASE_URL_EMPTY: "Developer Hub URL is required.",
+  INVALID_ORG_UID: "Enter a valid organization UID.",
   PATH_NOT_FOUND:
-    "Failed to locate the provided path '{path}'. Please enter a valid path.",
+    "Path {path} not found. Enter a valid path.",
   INVALID_NAME:
-    "Please enter a valid name that is {min} to {max} characters long.",
+    "Name must be between {min} and {max} characters.",
   FILE_GENERATION_FAILURE:
-    "Failed to generate the file! Please try running the command again.",
-  APP_CREATION_FAILURE: "App could not be registered on Developer Hub.",
+    "File generation failed. Try running the command again.",
+  APP_CREATION_FAILURE: "Failed to register app on Developer Hub.",
   APP_UID_NOT_MATCH:
-    "Provided app UID is not matching with the app manifest.json app UID",
+    "App UID doesn't match the value in manifest.json.",
   APP_CREATION_CONSTRAINT_FAILURE:
-    "App could not be registered. Please go through the constraints on the app name and try running the command again.",
+    "App registration failed. Check the name constraints and try again.",
   APP_CREATE_FAILURE_AND_ROLLBACK:
-    "App creation should fail and rollback",
+    "App creation failed. Changes have been rolled back.",
   APP_INVALID_ORG:
-    "App could not be registered. Please verify the inputs and try again.",
+    "App registration failed. Verify the inputs and try again.",
   DUPLICATE_APP_NAME:
-    "The {appName} app already exists. Please create an app with a different name.",
+    "App {appName} already exists. Use a different name.",
   INVALID_URL:
-    "Please enter a valid URL. The URL should start with http:// or https://",
+    "Enter a valid URL starting with http:// or https://.",
 };
 
 const commonMsg = {
@@ -37,10 +37,10 @@ const commonMsg = {
     "Enter the Developer Hub Base URL for the {name} region: ",
   APP_UID: "Provide the app UID of an existing app.",
   APP_TYPE_DESCRIPTION: "Type of app",
-  CONTACT_SUPPORT: "Please contact the support team.",
+  CONTACT_SUPPORT: "Contact the support team for help.",
   STACK_API_KEY: "API key of the stack where the app operation is to be performed.",
   USER_TERMINATION: "Process terminated by the user.",
-  CLI_APP_CLI_LOGIN_FAILED: 'You are not logged in. Please login with command $ csdx auth:login' 
+  CLI_APP_CLI_LOGIN_FAILED: "You're not logged in. Run $ csdx auth:login to continue."
 };
 
 const appCreate = {
@@ -130,7 +130,7 @@ const deployAppMsg = {
   HOSTING_TYPE: "Choose a valid Hosting Type.",
   CONFIG_FILE: "[optional] Please enter the path of the config file.",
   APP_UPDATE_TERMINATION_MSG: "The app is already connected to the Launch project. Skipping the app hosting updates process.",
-  DISCONNECT_PROJECT: "Are you sure you wan to disconnect the Launch project?",
+  DISCONNECT_PROJECT: "Disconnect the Launch project? This action can't be undone.",
   PROJECT_NOT_FOUND: "We couldn't find the project. Please enter a valid project name.",
   PROJECT_NAME_CONFLICT_FAILED: "Unable to resolve the project name conflict."
 }

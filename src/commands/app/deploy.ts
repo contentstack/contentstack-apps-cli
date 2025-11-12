@@ -100,7 +100,7 @@ export default class Deploy extends AppCLIBaseCommand {
           );
           break;
         default:
-          this.log("Please provide a valid Hosting Type.", "error");
+          this.log("Provide a valid hosting type.", "error");
           return;
       }
 
@@ -207,7 +207,7 @@ export default class Deploy extends AppCLIBaseCommand {
       );
       url = await this.handleNewProject(config, updateHostingPayload);
     } else {
-      this.log("Please provide a valid launch project.", "error");
+      this.log("Provide a valid Launch project.", "error");
       return;
     }
 
