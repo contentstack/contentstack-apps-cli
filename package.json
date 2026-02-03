@@ -21,7 +21,7 @@
   ],
   "dependencies": {
     "@apollo/client": "^3.14.0",
-    "@contentstack/cli-command": "^1.7.0",
+    "@contentstack/cli-command": "^1.7.1",
     "@contentstack/cli-launch": "^1.9.4",
     "@contentstack/cli-utilities": "^1.14.4",
     "adm-zip": "^0.5.16",
