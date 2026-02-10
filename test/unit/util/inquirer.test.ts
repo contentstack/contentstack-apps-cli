@@ -13,13 +13,12 @@ import {
 } from "../../../src/util";
 import {
   cliux,
-  FlagInput,
   configHandler,
+  FlagInput,
   ContentstackClient,
   managementSDKClient,
 } from "@contentstack/cli-utilities";
-
-const region = configHandler.get("region");
+import { MOCK_CMA } from "../helpers/auth-stub-helper";
 
 describe("Utility Functions", () => {
   let sandbox: sinon.SinonSandbox;
@@ -28,7 +27,7 @@ describe("Utility Functions", () => {
   beforeEach(async () => {
     sandbox = sinon.createSandbox();
     managementSdk = await managementSDKClient({
-      host: region.cma.replace("https://", ""),
+      host: MOCK_CMA.replace("https://", ""),
     });
   });
 
@@ -113,7 +112,7 @@ describe("Utility Functions", () => {
   describe("getOrg", () => {
     beforeEach(() => {
       sandbox.stub(cliux, "inquire").resolves("test org 1");
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
     });

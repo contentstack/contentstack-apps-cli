@@ -2,13 +2,12 @@ import { expect } from "chai";
 import nock from "nock";
 import sinon from "sinon";
 import { runCommand } from "@oclif/test";
-import { cliux, configHandler } from "@contentstack/cli-utilities";
+import { cliux } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
-import { stubAuthentication } from "../../helpers/auth-stub-helper";
+import { stubAuthentication, MOCK_CMA } from "../../helpers/auth-stub-helper";
 
-const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:reinstall", () => {
@@ -22,7 +21,7 @@ describe("app:reinstall", () => {
 
     sandbox.stub(cliux, "loader").callsFake(() => {});
 
-    nock(region.cma)
+    nock(MOCK_CMA)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
       .reply(200, { organizations: mock.organizations });
   });
@@ -67,7 +66,7 @@ describe("app:reinstall", () => {
       nock(`https://${developerHubBaseUrl}`)
         .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
         .reply(200, { data: mock.apps });
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get(
           `/v3/organizations/${mock.organizations[0].uid}/stacks?limit=100&asc=name&include_count=true&skip=0`
         )
@@ -108,7 +107,7 @@ describe("app:reinstall", () => {
         };
         return cases[prompt.name];
       });
-      nock(region.cma).get(`/v3/stacks`).reply(200, { stack: mock.stacks[0] });
+      nock(MOCK_CMA).get(`/v3/stacks`).reply(200, { stack: mock.stacks[0] });
       nock(`https://${developerHubBaseUrl}`)
         .get(`/manifests/${mock.apps[0].uid}`)
         .reply(200, {
@@ -150,11 +149,11 @@ describe("app:reinstall", () => {
         return cases[prompt.name];
       });
 
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get(
           `/v3/organizations/${mock.organizations[0].uid}/stacks?limit=100&asc=name&include_count=true&skip=0`
         )
@@ -189,7 +188,7 @@ describe("app:reinstall", () => {
         };
         return (cases as Record<string, any>)[prompt.name];
       });
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 

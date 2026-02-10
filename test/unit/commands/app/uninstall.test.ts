@@ -2,13 +2,12 @@ import { expect } from "chai";
 import nock from "nock";
 import sinon from "sinon";
 import { runCommand } from "@oclif/test";
-import { cliux, configHandler } from "@contentstack/cli-utilities";
+import { cliux } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import * as mock from "../../mock/common.mock.json";
-import { stubAuthentication } from "../../helpers/auth-stub-helper";
+import { stubAuthentication, MOCK_CMA } from "../../helpers/auth-stub-helper";
 
-const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:uninstall", () => {
@@ -22,7 +21,7 @@ describe("app:uninstall", () => {
 
     sandbox.stub(cliux, "loader").callsFake(() => {});
 
-    nock(region.cma)
+    nock(MOCK_CMA)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
       .reply(200, { organizations: mock.organizations });
 
@@ -224,7 +223,7 @@ describe("app:uninstall", () => {
       });
 
       // Mock the organizations API call (for getOrg)
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
@@ -239,7 +238,7 @@ describe("app:uninstall", () => {
         .reply(200, { data: mock.installations });
 
       // Mock the stacks API call (for getStacks in getInstallation)
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get(
           `/v3/organizations/${mock.organizations[0].uid}/stacks?include_count=true&limit=100&asc=name&skip=0`
         )
@@ -268,7 +267,7 @@ describe("app:uninstall", () => {
 
     it("should handle uninstall-all with organization app", async () => {
       // Mock the organizations API call (for getOrg)
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
@@ -308,7 +307,7 @@ describe("app:uninstall", () => {
 
     it("should handle partial uninstall failures in uninstall-all", async () => {
       // Mock the organizations API call (for getOrg)
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
@@ -323,7 +322,7 @@ describe("app:uninstall", () => {
         .reply(200, { data: mock.installations });
 
       // Mock the stacks API call (for getStacks in getInstallation)
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get(
           `/v3/organizations/${mock.organizations[0].uid}/stacks?include_count=true&limit=100&asc=name&skip=0`
         )

@@ -1,6 +1,6 @@
 import { join } from "path";
 import { expect } from "chai";
-import { cliux, configHandler } from "@contentstack/cli-utilities";
+import { cliux } from "@contentstack/cli-utilities";
 import { runCommand } from "@oclif/test";
 import messages from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
@@ -9,9 +9,8 @@ import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import sinon from "sinon";
 import nock from "nock";
 import fs from "fs";
-import { stubAuthentication } from "../../helpers/auth-stub-helper";
+import { stubAuthentication, MOCK_CMA } from "../../helpers/auth-stub-helper";
 
-const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:update", () => {
@@ -23,7 +22,7 @@ describe("app:update", () => {
     // Stub authentication using shared helper
     stubAuthentication(sandbox);
 
-    nock(region.cma)
+    nock(MOCK_CMA)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
       .reply(200, { organizations: mock.organizations });
   });
@@ -38,7 +37,7 @@ describe("app:update", () => {
       sandbox.stub(cliux, "loader").callsFake(() => {});
       sandbox.stub(fs, "writeFileSync").callsFake(() => {});
 
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
@@ -91,7 +90,7 @@ describe("app:update", () => {
 
   describe("Update app with wrong `app-uid`", () => {
     beforeEach(() => {
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
@@ -116,7 +115,7 @@ describe("app:update", () => {
 
   describe("Update app with wrong `app version`", () => {
     beforeEach(() => {
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
@@ -138,7 +137,7 @@ describe("app:update", () => {
 
   describe("Update app with wrong app-uid API failure", () => {
     beforeEach(() => {
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
@@ -173,7 +172,7 @@ describe("app:update", () => {
 
   describe("Update app API failure", () => {
     beforeEach(() => {
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
@@ -207,7 +206,7 @@ describe("app:update", () => {
   });
   describe("Update app with duplicate app name (409 status)", () => {
     beforeEach(() => {
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get(
           "/v3/organizations?limit=100&asc=name&asc=name&include_count=true&skip=0"
         )
@@ -250,7 +249,7 @@ describe("app:update", () => {
 
   describe("Update app with organization UID instead of app UID", () => {
     beforeEach(() => {
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get(
           "/v3/organizations?limit=100&asc=name&asc=name&include_count=true&skip=0"
         )
