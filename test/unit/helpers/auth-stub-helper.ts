@@ -1,6 +1,9 @@
 import { configHandler } from "@contentstack/cli-utilities";
 import sinon from "sinon";
 
+/** CMA URL used by the auth stub; use this for nock so tests match the stubbed region. */
+export const MOCK_CMA = "https://api.contentstack.io";
+
 /**
  * Helper function to stub authentication for tests
  * This centralizes the common authentication stubbing logic used across test files
@@ -12,7 +15,7 @@ export function stubAuthentication(sandbox: sinon.SinonSandbox): void {
   sandbox.stub(configHandler, "get").callsFake((key: string) => {
     if (key === "region") {
       return {
-        cma: "https://api.contentstack.io",
+        cma: MOCK_CMA,
         cda: "https://cdn.contentstack.io",
         region: "us",
       };

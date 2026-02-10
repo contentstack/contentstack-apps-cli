@@ -1,15 +1,13 @@
 import { expect } from "chai";
 import { runCommand } from "@oclif/test";
-import { cliux, configHandler } from "@contentstack/cli-utilities";
+import { cliux } from "@contentstack/cli-utilities";
 import sinon from "sinon";
 import * as mock from "../../mock/common.mock.json";
 import messages, { $t } from "../../../../src/messages";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import nock from "nock";
-import { stubAuthentication } from "../../helpers/auth-stub-helper";
+import { stubAuthentication, MOCK_CMA } from "../../helpers/auth-stub-helper";
 
-const region: { cma: string; name: string; cda: string } =
-  configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:delete", () => {
@@ -20,7 +18,7 @@ describe("app:delete", () => {
     // Stub authentication using shared helper
     stubAuthentication(sandbox);
 
-    nock(region.cma)
+    nock(MOCK_CMA)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
       .reply(200, { organizations: mock.organizations });
   });

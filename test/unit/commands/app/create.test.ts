@@ -7,7 +7,7 @@ import shelljs from "shelljs";
 import { join } from "path";
 import sinon from "sinon";
 import { runCommand } from "@oclif/test";
-import { cliux, configHandler } from "@contentstack/cli-utilities";
+import { cliux } from "@contentstack/cli-utilities";
 import messages from "../../../../src/messages";
 import config from "../../../../src/config";
 import * as mock from "../../mock/common.mock.json";
@@ -15,12 +15,10 @@ import manifestData from "../../../../src/config/manifest.json";
 import orgManifestData from "../../../unit/config/org_manifest.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import axios from "axios";
-import { stubAuthentication } from "../../helpers/auth-stub-helper";
+import { stubAuthentication, MOCK_CMA } from "../../helpers/auth-stub-helper";
 
 const { origin, pathname } = new URL(config.appBoilerplateGithubUrl);
 const zipPath = join(process.cwd(), "test", "unit", "mock", "boilerplate.zip");
-const region: { cma: string; name: string; cda: string } =
-  configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
 
 class MockWriteStream extends PassThrough implements fs.WriteStream {
@@ -49,7 +47,7 @@ describe("app:create", () => {
       removeCallback: sandbox.stub(),
     }));
     nock(origin).get(pathname).reply(200, { data: "test-data" });
-    nock(region.cma)
+    nock(MOCK_CMA)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
       .reply(200, { organizations: mock.organizations });
   });
@@ -434,7 +432,7 @@ describe("app:create", () => {
 
   describe("App creation with organization UID instead of app UID", () => {
     beforeEach(() => {
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 

@@ -2,7 +2,6 @@ import { expect } from "chai";
 import nock from "nock";
 import sinon from "sinon";
 import {
-  configHandler,
   ContentstackClient,
   ContentstackMarketplaceClient,
   managementSDKClient,
@@ -12,8 +11,8 @@ import { LogFn } from "../../../src/types";
 import { fetchApps, getOrganizations } from "../../../src/util/common-utils";
 import * as mock from "../mock/common.mock.json";
 import { getDeveloperHubUrl } from "../../../src/util/inquirer";
+import { MOCK_CMA } from "../helpers/auth-stub-helper";
 
-const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("common utils", () => {
@@ -25,7 +24,7 @@ describe("common utils", () => {
 
   beforeEach(async () => {
     managementSdk = await managementSDKClient({
-      host: region.cma.replace("https://", ""),
+      host: MOCK_CMA.replace("https://", ""),
     });
     marketplaceAppSdk = await marketplaceSDKClient({
       host: developerHubBaseUrl,
@@ -41,7 +40,7 @@ describe("common utils", () => {
   describe("getOrganizations", () => {
     describe("Get list of organizations", () => {
       beforeEach(() => {
-        nock(region.cma)
+        nock(MOCK_CMA)
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations });
       });
@@ -55,7 +54,7 @@ describe("common utils", () => {
 
     describe("Get organizations with pagination", () => {
       beforeEach(() => {
-        nock(region.cma)
+        nock(MOCK_CMA)
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(200, { organizations: mock.organizations, count: 110 })
           .get(
@@ -74,7 +73,7 @@ describe("common utils", () => {
 
     describe("Get organizations failure case", () => {
       beforeEach(() => {
-        nock(region.cma)
+        nock(MOCK_CMA)
           .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
           .reply(400);
       });

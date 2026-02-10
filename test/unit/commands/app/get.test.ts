@@ -4,16 +4,15 @@ import fs from "fs";
 import { join } from "path";
 import sinon from "sinon";
 import { runCommand } from "@oclif/test";
-import { cliux, configHandler } from "@contentstack/cli-utilities";
+import { cliux } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import * as commonUtils from "../../../../src/util/common-utils";
 import * as mock from "../../mock/common.mock.json";
 import manifestData from "../../../../src/config/manifest.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import config from "../../../../src/config";
-import { stubAuthentication } from "../../helpers/auth-stub-helper";
+import { stubAuthentication, MOCK_CMA } from "../../helpers/auth-stub-helper";
 
-const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:get", () => {
@@ -46,7 +45,7 @@ describe("app:get", () => {
         return cases[prompt.name];
       });
 
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
@@ -81,7 +80,7 @@ describe("app:get", () => {
       sandbox.stub(fs, "readdirSync").returns([]);
       sandbox.stub(cliux, "inquire").resolves("test org 1");
 
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
@@ -121,7 +120,7 @@ describe("app:get", () => {
       sandbox.stub(cliux, "confirm").resolves(false);
       sandbox.stub(cliux, "inquire").resolves("test org 1");
 
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 
@@ -160,7 +159,7 @@ describe("app:get", () => {
       sandbox.stub(cliux, "confirm").resolves(true);
       sandbox.stub(cliux, "inquire").resolves("test org 1");
 
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
         .reply(200, { organizations: mock.organizations });
 

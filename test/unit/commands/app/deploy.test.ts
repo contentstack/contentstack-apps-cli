@@ -1,14 +1,13 @@
 import { expect } from "chai";
 import nock from "nock";
 import { runCommand } from "@oclif/test";
-import { cliux, configHandler } from "@contentstack/cli-utilities";
+import { cliux } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import * as mock from "../../mock/common.mock.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import sinon from "sinon";
-import { stubAuthentication } from "../../helpers/auth-stub-helper";
+import { stubAuthentication, MOCK_CMA } from "../../helpers/auth-stub-helper";
 
-const region = configHandler.get("region");
 const developerHubBaseUrl = getDeveloperHubUrl();
 
 describe("app:deploy", () => {
@@ -76,7 +75,7 @@ describe("app:deploy", () => {
     // Stub Launch.run
     sandbox.stub(require("@contentstack/cli-launch").Launch, "run").resolves();
 
-    nock(region.cma)
+    nock(MOCK_CMA)
       .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
       .reply(200, { organizations: mock.organizations });
 
@@ -173,7 +172,7 @@ describe("app:deploy", () => {
         .stub(require("../../../../src/util/common-utils"), "updateApp")
         .resolves();
 
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get(
           "/v3/organizations?limit=100&asc=name&asc=name&include_count=true&skip=0"
         )
@@ -233,7 +232,7 @@ describe("app:deploy", () => {
         .stub(require("@contentstack/cli-launch").Launch, "run")
         .resolves();
 
-      nock(region.cma)
+      nock(MOCK_CMA)
         .get(
           "/v3/organizations?limit=100&asc=name&asc=name&include_count=true&skip=0"
         )
