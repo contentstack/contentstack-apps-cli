@@ -6,8 +6,7 @@ import sinon from "sinon";
 import { runCommand } from "@oclif/test";
 import { cliux, configHandler } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
-import * as commonUtils from "../../../../src/util/common-utils";
-import * as mock from "../../mock/common.mock.json";
+const mock = (global as any).commonMock;
 import manifestData from "../../../../src/config/manifest.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import config from "../../../../src/config";
@@ -193,12 +192,15 @@ describe("app:get", () => {
 
   describe("Pass wrong org uid through flag", () => {
     beforeEach(() => {
-      sandbox.stub(commonUtils, "getOrganizations").resolves([]);
+      nock(region.cma)
+        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+        .reply(200, { organizations: [], count: 0 });
     });
 
     it("should fail with error message", async () => {
-      const { stdout } = await runCommand(["app:get", "--org", "test-uid-1"]);
-      expect(stdout).to.contain(messages.ORG_UID_NOT_FOUND);
+      const { stdout, stderr } = await runCommand(["app:get", "--org", "test-uid-1"]);
+      const output = stdout + stderr;
+      expect(output).to.contain(messages.ORG_UID_NOT_FOUND);
     });
   });
 });

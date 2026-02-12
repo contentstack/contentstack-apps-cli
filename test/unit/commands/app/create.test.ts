@@ -10,7 +10,7 @@ import { runCommand } from "@oclif/test";
 import { cliux, configHandler } from "@contentstack/cli-utilities";
 import messages from "../../../../src/messages";
 import config from "../../../../src/config";
-import * as mock from "../../mock/common.mock.json";
+const mock = (global as any).commonMock;
 import manifestData from "../../../../src/config/manifest.json";
 import orgManifestData from "../../../unit/config/org_manifest.json";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
