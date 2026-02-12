@@ -3,28 +3,84 @@ import { expect } from "chai";
 import { cliux, configHandler } from "@contentstack/cli-utilities";
 import { runCommand } from "@oclif/test";
 import messages from "../../../../src/messages";
-import * as mock from "../../mock/common.mock.json";
+const mock = (global as any).commonMock;
 import manifestData from "../../config/manifest.json";
-import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import sinon from "sinon";
 import nock from "nock";
 import fs from "fs";
 import { stubAuthentication } from "../../helpers/auth-stub-helper";
+import Update from "../../../../src/commands/app/update";
+import { BaseCommand } from "../../../../src/base-command";
 
 const region = configHandler.get("region");
-const developerHubBaseUrl = getDeveloperHubUrl();
+
+// Commands run from lib/ (oclif); stub the same class the running command uses
+let BaseCommandToStub: typeof BaseCommand;
+let LibUpdate: typeof Update;
+try {
+  BaseCommandToStub = require(join(process.cwd(), "lib", "base-command")).BaseCommand;
+} catch {
+  BaseCommandToStub = BaseCommand;
+}
+try {
+  LibUpdate = require(join(process.cwd(), "lib", "commands", "app", "update")).default;
+} catch {
+  LibUpdate = Update;
+}
+
+/** Optional override: return a custom marketplace SDK mock for this test. */
+let marketplaceMockOverride: any = null;
+
+function stubUpdateInit(sandbox: sinon.SinonSandbox) {
+  const mockManagementSdk = {
+    organization: () => ({
+      fetchAll: () =>
+        Promise.resolve({
+          items: mock.organizations,
+          count: mock.organizations.length,
+        }),
+    }),
+  };
+  const defaultMarketplaceSdk = {
+    marketplace: () => ({
+      app: (uid: string) => ({
+        fetch: () =>
+          Promise.resolve({
+            ...manifestData,
+            uid: uid || "app-uid-1",
+            version: 1,
+            name: "test-app",
+          }),
+        update: () => Promise.resolve({ ...manifestData, uid: "app-uid-1", version: 1 }),
+      }),
+    }),
+  };
+  sandbox.stub(BaseCommandToStub.prototype, "initCmaSDK").callsFake(async function (this: any) {
+    this.managementSdk = mockManagementSdk;
+    this.managementAppSdk = mockManagementSdk;
+  });
+  sandbox.stub(BaseCommandToStub.prototype, "initMarketplaceSDK").callsFake(async function (this: any) {
+    this.marketplaceAppSdk = marketplaceMockOverride ?? defaultMarketplaceSdk;
+  });
+}
 
 describe("app:update", () => {
   let sandbox: sinon.SinonSandbox;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
+    marketplaceMockOverride = null;
 
-    // Stub authentication using shared helper
+    sandbox.stub(process, "exit").callsFake(((code?: number) => {
+      throw new Error(`process.exit(${code})`);
+    }) as any);
+
     stubAuthentication(sandbox);
+    stubUpdateInit(sandbox);
 
     nock(region.cma)
-      .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
+      .get("/v3/organizations")
+      .query(true)
       .reply(200, { organizations: mock.organizations });
   });
 
@@ -38,22 +94,9 @@ describe("app:update", () => {
       sandbox.stub(cliux, "loader").callsFake(() => {});
       sandbox.stub(fs, "writeFileSync").callsFake(() => {});
 
-      nock(region.cma)
-        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-        .reply(200, { organizations: mock.organizations });
-
-      // Fix the API endpoint - should be using the marketplace SDK endpoint for fetchApp
-      nock(`https://${developerHubBaseUrl}`)
-        .get("/manifests/app-uid-1")
-        .reply(200, { data: { ...manifestData } });
-
-      // Stub the updateAppOnDeveloperHub method for this test
       sandbox
-        .stub(
-          require("../../../../src/commands/app/update").default.prototype,
-          "updateAppOnDeveloperHub"
-        )
-        .callsFake(function (this: any) {
+        .stub(LibUpdate.prototype, "updateAppOnDeveloperHub")
+        .callsFake(async function (this: any) {
           this.log(this.messages.APP_UPDATE_SUCCESS, "info");
         });
     });
@@ -91,16 +134,20 @@ describe("app:update", () => {
 
   describe("Update app with wrong `app-uid`", () => {
     beforeEach(() => {
-      nock(region.cma)
-        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-        .reply(200, { organizations: mock.organizations });
-
-      nock(`https://${developerHubBaseUrl}`)
-        .get("/manifests/app-uid-1")
-        .reply(200, { data: { uid: "app-uid-3" } })
-        .get("/manifests?limit=50&asc=name&include_count=true&skip=0")
-        .reply(200, { data: mock.apps });
-
+      marketplaceMockOverride = {
+        marketplace: () => ({
+          app: () => ({
+            fetch: () =>
+              Promise.resolve({
+                ...manifestData,
+                uid: "app-uid-3",
+                version: 1,
+                name: "test-app",
+              }),
+            update: () => Promise.resolve({}),
+          }),
+        }),
+      };
       sandbox.stub(cliux, "inquire").resolves("App 2");
     });
 
@@ -116,13 +163,20 @@ describe("app:update", () => {
 
   describe("Update app with wrong `app version`", () => {
     beforeEach(() => {
-      nock(region.cma)
-        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-        .reply(200, { organizations: mock.organizations });
-
-      nock(`https://${developerHubBaseUrl}`)
-        .get("/manifests/app-uid-1")
-        .reply(200, { data: { version: 3, uid: "app-uid-1" } });
+      marketplaceMockOverride = {
+        marketplace: () => ({
+          app: () => ({
+            fetch: () =>
+              Promise.resolve({
+                ...manifestData,
+                uid: "app-uid-1",
+                version: 3,
+                name: "test-app",
+              }),
+            update: () => Promise.resolve({}),
+          }),
+        }),
+      };
     });
 
     it("should fail with version mismatch error message", async () => {
@@ -138,23 +192,9 @@ describe("app:update", () => {
 
   describe("Update app with wrong app-uid API failure", () => {
     beforeEach(() => {
-      nock(region.cma)
-        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-        .reply(200, { organizations: mock.organizations });
-
-      nock(`https://${developerHubBaseUrl}`)
-        .get("/manifests/app-uid-1")
-        .reply(200, {
-          data: { ...manifestData, name: "test-app", version: 1 },
-        });
-
-      // Stub the updateAppOnDeveloperHub method to throw 400 error
       sandbox
-        .stub(
-          require("../../../../src/commands/app/update").default.prototype,
-          "updateAppOnDeveloperHub"
-        )
-        .callsFake(function (this: any) {
+        .stub(LibUpdate.prototype, "updateAppOnDeveloperHub")
+        .callsFake(async function (this: any) {
           this.log(this.messages.INVALID_APP_ID, "error");
           throw { status: 400 };
         });
@@ -173,24 +213,10 @@ describe("app:update", () => {
 
   describe("Update app API failure", () => {
     beforeEach(() => {
-      nock(region.cma)
-        .get("/v3/organizations?limit=100&asc=name&include_count=true&skip=0")
-        .reply(200, { organizations: mock.organizations });
-
-      nock(`https://${developerHubBaseUrl}`)
-        .get("/manifests/app-uid-1")
-        .reply(200, {
-          data: { ...manifestData, name: "test-app", version: 1 },
-        });
-
-      // Stub the updateAppOnDeveloperHub method to throw 403 error
       sandbox
-        .stub(
-          require("../../../../src/commands/app/update").default.prototype,
-          "updateAppOnDeveloperHub"
-        )
-        .callsFake(function (this: any) {
-          this.log('"status":403', "error");
+        .stub(LibUpdate.prototype, "updateAppOnDeveloperHub")
+        .callsFake(async function (this: any) {
+          this.log(this.messages.APP_INVALID_ORG, "error");
           throw { status: 403 };
         });
     });
@@ -202,30 +228,14 @@ describe("app:update", () => {
         join(process.cwd(), "test", "unit", "config", "manifest.json"),
       ]);
 
-      expect(result.stdout).to.contain('"status":403');
+      expect(result.stdout).to.contain(messages.APP_INVALID_ORG);
     });
   });
   describe("Update app with duplicate app name (409 status)", () => {
     beforeEach(() => {
-      nock(region.cma)
-        .get(
-          "/v3/organizations?limit=100&asc=name&asc=name&include_count=true&skip=0"
-        )
-        .reply(200, { organizations: mock.organizations });
-
-      nock(`https://${developerHubBaseUrl}`)
-        .get("/manifests/app-uid-1")
-        .reply(200, {
-          data: { ...manifestData, name: "test-app", version: 1 },
-        });
-
-      // Stub the updateAppOnDeveloperHub method to throw 409 error
       sandbox
-        .stub(
-          require("../../../../src/commands/app/update").default.prototype,
-          "updateAppOnDeveloperHub"
-        )
-        .callsFake(function (this: any) {
+        .stub(LibUpdate.prototype, "updateAppOnDeveloperHub")
+        .callsFake(async function (this: any) {
           this.log(
             this.$t(this.messages.DUPLICATE_APP_NAME, {
               appName: this.manifestData.name,
@@ -250,24 +260,20 @@ describe("app:update", () => {
 
   describe("Update app with organization UID instead of app UID", () => {
     beforeEach(() => {
-      nock(region.cma)
-        .get(
-          "/v3/organizations?limit=100&asc=name&asc=name&include_count=true&skip=0"
-        )
-        .reply(200, { organizations: mock.organizations });
-
-      // Mock the API to return an organization instead of an app
-      nock(`https://${developerHubBaseUrl}`)
-        .get("/manifests/app-uid-1")
-        .reply(200, {
-          data: {
-            uid: "test-uid-1",
-            name: "test-org",
-            version: 1,
-            target_type: "organization",
-          },
-        });
-
+      marketplaceMockOverride = {
+        marketplace: () => ({
+          app: () => ({
+            fetch: () =>
+              Promise.resolve({
+                uid: "test-uid-1",
+                name: "test-org",
+                version: 1,
+                target_type: "organization",
+              }),
+            update: () => Promise.resolve({}),
+          }),
+        }),
+      };
       sandbox.stub(cliux, "loader").callsFake(() => {});
     });
 
