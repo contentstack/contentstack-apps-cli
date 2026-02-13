@@ -3,7 +3,7 @@ import nock from "nock";
 import { join } from "path";
 import sinon from "sinon";
 import messages, { $t } from "../../../src/messages";
-import * as mock from "../mock/common.mock.json";
+const mock = (global as any).commonMock;
 import fs from "fs";
 import {
   getOrg,
