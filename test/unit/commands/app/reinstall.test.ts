@@ -4,7 +4,7 @@ import sinon from "sinon";
 import { runCommand } from "@oclif/test";
 import { cliux, configHandler } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
-import * as mock from "../../mock/common.mock.json";
+const mock = (global as any).commonMock;
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import { stubAuthentication } from "../../helpers/auth-stub-helper";
 
