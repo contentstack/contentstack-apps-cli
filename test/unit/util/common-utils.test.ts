@@ -2,6 +2,7 @@ import { expect } from "chai";
 import nock from "nock";
 import sinon from "sinon";
 import {
+  cliux,
   configHandler,
   ContentstackClient,
   ContentstackMarketplaceClient,
@@ -10,7 +11,7 @@ import {
 } from "@contentstack/cli-utilities";
 import { LogFn } from "../../../src/types";
 import { fetchApps, getOrganizations } from "../../../src/util/common-utils";
-import * as mock from "../mock/common.mock.json";
+const mock = (global as any).commonMock;
 import { getDeveloperHubUrl } from "../../../src/util/inquirer";
 
 const region = configHandler.get("region");
@@ -31,6 +32,7 @@ describe("common utils", () => {
       host: developerHubBaseUrl,
     });
     sandbox = sinon.createSandbox();
+    sandbox.stub(cliux, "loader").callsFake(() => {});
   });
 
   afterEach(() => {

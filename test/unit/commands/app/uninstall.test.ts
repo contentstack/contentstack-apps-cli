@@ -5,7 +5,7 @@ import { runCommand } from "@oclif/test";
 import { cliux, configHandler } from "@contentstack/cli-utilities";
 import messages, { $t } from "../../../../src/messages";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
-import * as mock from "../../mock/common.mock.json";
+const mock = (global as any).commonMock;
 import { stubAuthentication } from "../../helpers/auth-stub-helper";
 
 const region = configHandler.get("region");
