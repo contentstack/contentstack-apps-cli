@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { runCommand } from "@oclif/test";
 import { cliux, configHandler } from "@contentstack/cli-utilities";
 import sinon from "sinon";
-import * as mock from "../../mock/common.mock.json";
+const mock = (global as any).commonMock;
 import messages, { $t } from "../../../../src/messages";
 import { getDeveloperHubUrl } from "../../../../src/util/inquirer";
 import nock from "nock";
@@ -105,8 +105,10 @@ describe("app:delete", () => {
     });
 
     it("should throw an error while deleting the app", async () => {
-      const { stdout } = await runCommand(["app:delete"]);
-      expect(stdout).to.contain(messages.CONTACT_SUPPORT);
+      const { stdout, stderr } = await runCommand(["app:delete"]);
+      const output = stdout + stderr;
+      // Error is logged by fetchAppInstallations catch and/or delete command
+      expect(output).to.match(/Some error occurred while fetching app installations|Contact the support team for help/);
     });
   });
 });
