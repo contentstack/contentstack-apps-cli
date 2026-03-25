@@ -1,0 +1,17 @@
+---
+description: "TypeScript strict mode standards and naming conventions"
+globs: ["**/*.ts", "**/*.tsx"]
+alwaysApply: false
+---
+
+# TypeScript standards
+
+- Prefer explicit return types on exported and public functions
+- Avoid `any`; use narrow types, generics, or `unknown` with guards
+- Strict null checks are enabled project-wide (`tsconfig.json`)
+- Files: kebab-case (e.g. `app-cli-base-command.ts`)
+- Classes: PascalCase
+- Functions and methods: camelCase
+- Constants: `SCREAMING_SNAKE_CASE` when truly immutable module-level constants
+
+For CLI and command typing patterns, see `@skills/apps-cli-framework`.
