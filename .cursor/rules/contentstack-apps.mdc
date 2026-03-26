@@ -1,0 +1,21 @@
+---
+description: "Contentstack Apps CLI domain patterns and API integration"
+globs:
+  - "src/util/**/*.ts"
+  - "src/factories/**/*.ts"
+  - "src/strategies/**/*.ts"
+  - "src/graphql/**/*.ts"
+  - "src/config/**/*.ts"
+  - "src/types/**/*.ts"
+  - "src/messages/**/*.ts"
+alwaysApply: false
+---
+
+# Contentstack Apps / Developer Hub standards
+
+- Prefer existing utilities (`api-request-handler`, config, `getDeveloperHubUrl`) over ad hoc clients
+- Respect region and auth expectations; tests must stub auth — never rely on real tokens in automated tests
+- GraphQL queries live under `src/graphql/`; keep shapes aligned with Developer Hub usage in commands
+- Handle transient failures thoughtfully where the codebase already uses retries or clear errors
+
+Domain detail: `@skills/contentstack-apps`.
