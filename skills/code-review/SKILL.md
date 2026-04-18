@@ -1,37 +1,38 @@
 ---
 name: code-review
-description: PR-style review checklist for this CLI (tests, oclif, security, mocks)
+description: >-
+  PR-style review checklist for this CLI (tests, oclif, security, mocks). Use
+  when reviewing a change or preparing a PR for merge.
 ---
 
-# Code review
+# Code review – Contentstack Apps CLI
 
-Use this checklist against the current diff or branch.
+## When to use
 
-## Correctness and UX
+- Reviewing a pull request or local branch before merge
+- Self-reviewing a diff before push
+
+## Instructions
+
+### Correctness and UX
 
 - [ ] Command behavior matches flags and prompts; edge cases handled
 - [ ] User-facing strings use `messages` / `$t` where appropriate
 - [ ] Logging uses project logger / `this.log` patterns, not ad hoc `console` unless intentional
 
-## Tests
+### Tests
 
 - [ ] New or changed behavior covered (success and failure where relevant)
 - [ ] No committed `describe.only` / `it.only` / `test.skip` (`--forbid-only`)
 - [ ] External I/O mocked (sinon + nock); no real API calls
 - [ ] `nock.cleanAll()` and sandbox `restore()` in `afterEach` where used
 
-## TypeScript and style
+### TypeScript and style
 
 - [ ] Avoid unnecessary `any`; align with strict TS
 - [ ] Follow existing naming (kebab-case files, PascalCase classes)
 
-## Security
+### Security
 
 - [ ] No secrets, tokens, or internal URLs committed
 - [ ] Auth continues to flow through `configHandler` / stubs in tests
-
-## Optional deep dives
-
-- `@skills/testing` — mock patterns
-- `@skills/apps-cli-framework` — command structure
-- `@skills/contentstack-apps` — API and manifest changes
