@@ -1,11 +1,10 @@
 import map from "lodash/map";
 import winston from "winston";
 import { existsSync } from "fs";
-import chalk, { Chalk } from "chalk";
 import replace from "lodash/replace";
 import { join, normalize } from "path";
 import isObject from "lodash/isObject";
-import { PrintOptions, cliux as ux } from "@contentstack/cli-utilities";
+import { PrintOptions, cliux as ux, getChalk, type ChalkInstance } from "@contentstack/cli-utilities";
 
 import { LoggerType, PrintType } from "../types";
 
@@ -176,9 +175,10 @@ export default class Logger {
  * @param {Array<PrintType>} printInput
  */
 export function print(printInput: Array<PrintType>): void {
+  const chalk = getChalk();
   const str = map(printInput, ({ message, bold, color }: PrintType) => {
-    let chalkFn: Chalk = chalk;
-    if (color) chalkFn = chalkFn[color];
+    let chalkFn: ChalkInstance = chalk;
+    if (color) chalkFn = chalkFn[color] as ChalkInstance;
     if (bold) chalkFn = chalkFn.bold;
 
     return chalkFn(message);
