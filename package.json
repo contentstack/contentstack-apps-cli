@@ -41,7 +41,7 @@
     "@types/shelljs": "^0.10.0",
     "@types/tmp": "^0.2.6",
     "@typescript-eslint/eslint-plugin": "^8.59.2",
-    "@typescript-eslint/parser": "^8.59.2",
+    "@typescript-eslint/parser": "^8.59.3",
     "axios": "^1.16.0",
     "chai": "^4.5.0",
     "dotenv": "^16.6.1",
