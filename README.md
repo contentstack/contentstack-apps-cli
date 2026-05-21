@@ -1,3 +1,6 @@
+> **This repository is archived.** Development continues in [contentstack/cli-plugins](https://github.com/contentstack/cli-plugins) at [`packages/contentstack-apps-cli`](https://github.com/contentstack/cli-plugins/tree/main/packages/contentstack-apps-cli).  
+> Issues: [cli-plugins/issues](https://github.com/contentstack/cli-plugins/issues) · [Migration guide](https://github.com/contentstack/cli-plugins/blob/main/APPS-CLI-MIGRATION.md)
+
 <!-- Insert Nodejs CI here -->
 <!-- Insert Apps CLI version here -->
 
