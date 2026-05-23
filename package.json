@@ -22,7 +22,7 @@
   "dependencies": {
     "@apollo/client": "^3.14.1",
     "@contentstack/cli-command": "^1.8.2",
-    "@contentstack/cli-launch": "^1.9.9",
+    "@contentstack/cli-launch": "^1.10.0",
     "@contentstack/cli-utilities": "^1.18.3",
     "adm-zip": "^0.5.17",
     "chalk": "^4.1.2",
