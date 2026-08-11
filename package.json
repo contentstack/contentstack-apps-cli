@@ -46,7 +46,7 @@
     "chai": "^4.5.0",
     "dotenv": "^16.6.1",
     "eslint": "^8.57.1",
-    "eslint-config-oclif": "^6.0.165",
+    "eslint-config-oclif": "^6.0.179",
     "eslint-config-oclif-typescript": "^3.1.14",
     "fancy-test": "3.0.16",
     "mocha": "^10.8.2",
